@@ -45,7 +45,10 @@ const crumbs = computed<Crumb[]>(() => [{ label: t('header.nav.home'), to: '/' }
         </template>
         <span aria-current="page">{{ eyebrow }}</span>
       </nav>
-      <EmSplit tag="h1" class="em-hero__title" :text="title" :em="em" :delay="200" />
+      <!-- slot `title`: troca o título (ex.: esqueleto enquanto o conteúdo carrega) -->
+      <slot name="title">
+        <EmSplit tag="h1" class="em-hero__title" :text="title" :em="em" :delay="200" />
+      </slot>
       <div class="em-hero__meta">
         <div v-reveal="900">
           <p v-if="subtitle">{{ subtitle }}</p>

@@ -12,7 +12,6 @@ import {
   Clock,
   Cloud,
   Cpu,
-  Droplet,
   Droplets,
   FileText,
   Gauge,
@@ -24,14 +23,10 @@ import {
   MonitorSmartphone,
   ShieldCheck,
   Sparkles,
-  Scale,
   Stethoscope,
   Target,
-  Thermometer,
-  Timer,
   TrendingDown,
   Users,
-  Watch,
 } from 'lucide-vue-next'
 
 import imgRPM from '@/assets/home/RPM.jpg'
@@ -53,6 +48,10 @@ import EmHoverLines from '@/components/em/EmHoverLines.vue'
 import EmCta from '@/components/em/EmCta.vue'
 import { RM, addFx, clamp, damp } from '@/lib/motion'
 import { calendlyUrl } from '@/lib/site'
+import EmSkeleton from '@/components/em/EmSkeleton.vue'
+import EmState from '@/components/em/EmState.vue'
+import { useArticles } from '@/lib/blog'
+import { useDevices } from '@/lib/equipment'
 
 const { t, tm } = useI18n()
 
@@ -74,10 +73,9 @@ const marqueeItems = computed(() => [
   { label: t('marquee.e'), icon: ShieldCheck },
   { label: t('marquee.f'), icon: Clock },
 ])
-const deviceIcons = [Gauge, Activity, Droplet, Scale, HeartPulse, Watch, Thermometer, Timer]
-const deviceItems = computed(() =>
-  deviceIcons.map((icon, i) => ({ label: t(`equipmentPage.devices.d${i + 1}.name`), icon })),
-)
+/** Segunda faixa: os dispositivos do catálogo (API). Sem catálogo, a faixa não aparece. */
+const { devices } = useDevices()
+const deviceItems = computed(() => devices.value.map((d) => ({ label: d.name, icon: d.icon })))
 
 /* ── (01) POR QUE EXISTIMOS ── */
 const trust = computed(() => [
@@ -182,29 +180,10 @@ const benefits = computed(() => [
 ])
 
 /* ── (07) BLOG ── */
-const posts = computed(() => [
-  {
-    id: 1,
-    cat: t('blogPage.categories.tech'),
-    title: t('blogPage.articles.a1.title'),
-    excerpt: t('blogPage.articles.a1.excerpt'),
-    date: t('blogPage.articles.a1.date'),
-  },
-  {
-    id: 2,
-    cat: t('blogPage.categories.rpm'),
-    title: t('blogPage.articles.a2.title'),
-    excerpt: t('blogPage.articles.a2.excerpt'),
-    date: t('blogPage.articles.a2.date'),
-  },
-  {
-    id: 3,
-    cat: t('blogPage.categories.cases'),
-    title: t('blogPage.articles.a3.title'),
-    excerpt: t('blogPage.articles.a3.excerpt'),
-    date: t('blogPage.articles.a3.date'),
-  },
-])
+/* ── (07) BLOG: os três artigos mais recentes (API) ── */
+const blog = useArticles()
+const posts = computed(() => blog.articles.value.slice(0, 3))
+const postsLoading = computed(() => blog.loading.value && !blog.data.value)
 
 /* Pilha: cada card encolhe de leve quando o próximo o cobre (amortecido). */
 let offStack: (() => void) | null = null
@@ -611,7 +590,7 @@ onBeforeUnmount(() => offStack?.())
       </div>
       <div v-reveal class="em-marquees">
         <EmMarquee :items="marqueeItems" dir="left" :speed="34" />
-        <EmMarquee :items="deviceItems" dir="right" :speed="28" />
+        <EmMarquee v-if="deviceItems.length" :items="deviceItems" dir="right" :speed="28" />
       </div>
     </section>
 
@@ -750,18 +729,33 @@ onBeforeUnmount(() => offStack?.())
             <EmButton to="/blog" variant="ghost" :label="t('homeBlogStrip.cta')" />
           </div>
         </div>
-        <div class="em-posts">
+        <EmSkeleton v-if="postsLoading" kind="posts" :count="3" />
+        <EmState
+          v-else-if="blog.error.value"
+          kind="error"
+          :title="t('state.blogError')"
+          :text="t('state.errorText')"
+          :error="blog.error.value"
+          @retry="blog.reload"
+        />
+        <EmState
+          v-else-if="!posts.length"
+          kind="empty"
+          :title="t('state.blogEmpty')"
+          :text="t('state.blogEmptyText')"
+        />
+        <div v-else class="em-posts">
           <RouterLink
             v-for="(p, i) in posts"
-            :key="p.id"
+            :key="p.slug"
             v-reveal="i * 120"
             v-spot
-            :to="`/blog/${p.id}`"
+            :to="`/blog/${p.slug}`"
             class="em-post em-card em-card--lift"
           >
-            <div class="em-post__cover">
+            <div class="em-post__cover" :style="{ '--tone': p.tone }">
               <span class="em-post__n" aria-hidden="true">{{ pad(i + 1) }}</span>
-              <span class="em-chip em-chip--glass">{{ p.cat }}</span>
+              <span class="em-chip em-chip--glass">{{ p.catLabel }}</span>
               <span class="em-corner" aria-hidden="true">
                 <svg
                   viewBox="0 0 24 24"
@@ -776,7 +770,7 @@ onBeforeUnmount(() => offStack?.())
               </span>
             </div>
             <div class="em-post__body">
-              <time class="em-post__date">{{ p.date }}</time>
+              <time class="em-post__date" :datetime="p.publishedAt">{{ p.dateLabel }}</time>
               <h3>{{ p.title }}</h3>
               <p>{{ p.excerpt }}</p>
               <span class="em-post__more">{{ t('blogPage.preview.readArticle') }}</span>

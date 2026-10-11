@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { ArrowUp } from 'lucide-vue-next'
 import { scrollToY } from '@/lib/motion'
 import { addresses, calendlyUrl, socialLinks, LOGO_SRC } from '@/lib/site'
+import { useBlogCategories } from '@/lib/blog'
 import EmButton from '@/components/em/EmButton.vue'
 import EmSplit from '@/components/em/EmSplit.vue'
 import EmShader from '@/components/em/EmShader.vue'
@@ -29,11 +30,13 @@ const linksCol = computed(() => [
   { text: t('footer.links.privacyTerms'), to: '/privacy' },
 ])
 
+/** Coluna do blog: as categorias cadastradas no BackOffice (enquanto carregam, só "Todos"). */
+const { categories: blogCategories } = useBlogCategories()
 const blogCol = computed(() => [
-  { text: t('blogPage.categories.rpm'), to: '/blog?category=rpm' },
-  { text: t('blogPage.categories.tech'), to: '/blog?category=tech' },
-  { text: t('blogPage.categories.cases'), to: '/blog?category=cases' },
-  { text: t('blogPage.categories.laws'), to: '/blog?category=laws' },
+  { text: t('blogPage.categories.all'), to: '/blog' },
+  ...blogCategories.value
+    .slice(0, 4)
+    .map((c) => ({ text: c.name, to: `/blog?category=${encodeURIComponent(c.slug)}` })),
 ])
 
 function subscribe() {

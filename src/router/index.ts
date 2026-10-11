@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { scrollToEl, stopSmoothScroll } from '../lib/motion'
+import { resetPageMeta } from '../lib/seo'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,7 +39,7 @@ const router = createRouter({
       meta: { footerNewsletter: false },
     },
     {
-      path: '/blog/:id',
+      path: '/blog/:slug',
       name: 'blog-detail',
       component: () => import('../views/BlogDetailView.vue'),
     },
@@ -48,7 +49,7 @@ const router = createRouter({
       component: () => import('../views/EquipmentView.vue'),
     },
     {
-      path: '/equipment/:id',
+      path: '/equipment/:slug',
       name: 'equipment-detail',
       component: () => import('../views/EquipmentDetailView.vue'),
     },
@@ -83,6 +84,12 @@ const router = createRouter({
 // Interrompe a rolagem amortecida em curso para não brigar com a troca de página
 router.beforeEach(() => {
   stopSmoothScroll()
+})
+
+// Título e descrição voltam ao padrão; páginas com metadados próprios (artigo,
+// equipamento) aplicam os seus ao montar.
+router.afterEach((to, from) => {
+  if (to.path !== from.path) resetPageMeta()
 })
 
 export default router

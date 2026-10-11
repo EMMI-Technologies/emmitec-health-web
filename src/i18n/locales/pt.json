@@ -111,7 +111,7 @@
     "items": {
       "home": {
         "title": "Hospital em casa",
-        "desc": "O paciente é monitorado continuamente onde se sente bem — com a mesma vigilância clínica de um leito."
+        "desc": "O paciente é monitorado continuamente onde se sente bem, com a mesma vigilância clínica de um leito."
       },
       "flexible": {
         "title": "Sob medida para sua operação",
@@ -188,7 +188,7 @@
     "values": {
       "badge": "Aplicações clínicas",
       "title": "Quatro cenários para conectar o acompanhamento.",
-      "subtitle": "Acompanhamento contínuo não é um recurso genérico — ele pesa mais em algumas jornadas clínicas do que em outras.",
+      "subtitle": "Acompanhamento contínuo não é um recurso genérico, ele pesa mais em algumas jornadas clínicas do que em outras.",
       "card1": {
         "title": "Saúde Cardiovascular",
         "description": "Pressão arterial e ritmo cardíaco acompanhados todos os dias, não só na consulta. Alterações precoces viram alerta antes de virarem internação."
@@ -267,7 +267,7 @@
       "badge": "Definição",
       "title": "Saúde monitorada além das paredes do consultório",
       "paragraph1": "O Monitoramento Remoto de Pacientes (RPM) usa dispositivos médicos conectados para acompanhar sinais vitais e indicadores clínicos diretamente da casa do paciente. Os dados são transmitidos em tempo real para a plataforma, onde algoritmos de IA identificam tendências e alertam a equipe sobre eventos relevantes.",
-      "paragraph2": "Com RPM, condições crônicas, pós-operatórios e cuidados preventivos passam a ter acompanhamento contínuo — sem que o paciente precise sair de casa. Mais autonomia, menos visitas desnecessárias e decisões clínicas baseadas em dados reais.",
+      "paragraph2": "Com RPM, condições crônicas, pós-operatórios e cuidados preventivos passam a ter acompanhamento contínuo, sem que o paciente precise sair de casa. Mais autonomia, menos visitas desnecessárias e decisões clínicas baseadas em dados reais.",
       "cardLabel": "Frequência cardíaca em tempo real",
       "titleEm": "além",
       "rhythm": "Sinusal"
@@ -317,12 +317,12 @@
     "who": {
       "badge": "Para quem",
       "title": "Quem mais se beneficia do monitoramento remoto",
-      "subtitle": "RPM não substitui a consulta — ele cobre o intervalo entre elas. Quatro perfis concentram a maior parte dos casos em que esse intervalo pesa.",
+      "subtitle": "RPM não substitui a consulta, ele cobre o intervalo entre elas. Quatro perfis concentram a maior parte dos casos em que esse intervalo pesa.",
       "item1": "Pessoas com condições cardiovasculares",
       "item2": "Acompanhamento pós-operatório",
       "item3": "Pessoas com diabetes",
       "item4": "Pessoas idosas",
-      "item1desc": "Hipertensão, insuficiência cardíaca e arritmias exigem leitura frequente de pressão e ritmo — dados que a consulta trimestral não captura.",
+      "item1desc": "Hipertensão, insuficiência cardíaca e arritmias exigem leitura frequente de pressão e ritmo, dados que a consulta trimestral não captura.",
       "item2desc": "O acompanhamento remoto permite compartilhar leituras com a equipe após a alta, conforme as orientações do plano de cuidado.",
       "item3desc": "Leituras de glicemia compartilhadas com a equipe apoiam a avaliação de tendências e o acompanhamento do tratamento.",
       "item4desc": "O acompanhamento remoto pode apoiar o cuidado entre consultas, especialmente quando o deslocamento é difícil e há indicação clínica.",
@@ -418,11 +418,11 @@
       "row3": "Origem do dado",
       "row4": "Tempo até a conduta",
       "row5": "Alcance do acompanhamento",
-      "subtitle": "A diferença não está no que cada modelo promete — está no intervalo entre uma informação e a próxima.",
+      "subtitle": "A diferença não está no que cada modelo promete, está no intervalo entre uma informação e a próxima.",
       "row2trad": "No agravamento, com o sintoma já instalado",
       "row2rpm": "Alterações nas leituras podem gerar alertas para avaliação clínica.",
       "row4trad": "Semanas, até abrir vaga na agenda",
-      "row4rpm": "Segundos — o alerta chega à tela da equipe",
+      "row4rpm": "Segundos: o alerta chega à tela da equipe",
       "titleEm": "RPM",
       "row1both": "Medições na consulta e conforme as orientações clínicas. Com RPM, as leituras também podem ser compartilhadas entre consultas, conforme o plano e o dispositivo.",
       "row3both": "A avaliação reúne informações clínicas e relatos do paciente. O RPM acrescenta leituras compartilhadas pelos dispositivos compatíveis.",
@@ -449,7 +449,7 @@
     "hero": {
       "badge": "Aplicativos",
       "title": "Apps que definem novos padrões para a saúde digital",
-      "subtitle": "Na Emmitec Health, desenvolvemos aplicativos que seguem os mais altos padrões internacionais de qualidade, segurança e interoperabilidade — certificados pelas principais autoridades regulatórias do mundo.",
+      "subtitle": "Na Emmitec Health, desenvolvemos aplicativos que seguem os mais altos padrões internacionais de qualidade, segurança e interoperabilidade, certificados pelas principais autoridades regulatórias do mundo.",
       "button": {
         "primary": "Agendar demonstração",
         "secondary": "Conhecer a plataforma"
@@ -469,7 +469,7 @@
     "clinical": {
       "badge": "Plataforma modular",
       "title": "Escolha entre dispositivos compatíveis com seu programa de cuidado.",
-      "description": "Como nossa plataforma é modular e agnóstica em relação a hardware, trabalhamos com uma ampla variedade de dispositivos integrados — permitindo que o profissional de saúde escolha as melhores soluções para cada cenário de cuidado.",
+      "description": "Como nossa plataforma é modular e agnóstica em relação a hardware, trabalhamos com uma ampla variedade de dispositivos integrados, permitindo que o profissional de saúde escolha as melhores soluções para cada cenário de cuidado.",
       "feature1": "Compatível com mais de 200 dispositivos médicos do mercado",
       "feature2": "Integração com os principais sistemas de prontuário eletrônico",
       "feature3": "Arquitetura modular para escalar conforme a necessidade",
@@ -483,7 +483,7 @@
       "subtitle": "Uma plataforma construída para atender os requisitos mais rigorosos do mercado de saúde, com flexibilidade para cada realidade clínica.",
       "card1": {
         "title": "Certificação internacional",
-        "desc": "Conformidade com FDA, ANVISA, CE e MHRA — os principais órgãos regulatórios de saúde do mundo."
+        "desc": "Conformidade com FDA, ANVISA, CE e MHRA, os principais órgãos regulatórios de saúde do mundo."
       },
       "card2": {
         "title": "Segurança de dados",
@@ -527,60 +527,21 @@
     "preview": {
       "badge": "Prévia",
       "title": "Artigos para começar agora",
-      "subtitle": "Uma seleção rápida do que há de melhor no blog — leituras objetivas antes de explorar tudo.",
+      "subtitle": "Uma seleção rápida do que há de melhor no blog, leituras objetivas antes de explorar tudo.",
       "ctaScroll": "Ver todas as publicações",
       "readArticle": "Ler artigo",
       "titleEm": "começar agora"
     },
     "categories": {
-      "all": "Todos",
-      "rpm": "RPM",
-      "tech": "Tecnologia",
-      "cases": "Cases",
-      "laws": "Regulação"
+      "all": "Todos"
     },
     "featured": {
-      "badge": "Em destaque",
-      "title": "Como o RPM está redefinindo o cuidado de doenças crônicas no Brasil",
-      "excerpt": "Uma análise profunda dos primeiros resultados de redes hospitalares que adotaram monitoramento remoto em larga escala — e o que aprendemos com essa jornada.",
-      "author": "Dra. Ana Souza",
-      "role": "Diretora médica",
-      "date": "12 Abr 2026"
+      "badge": "Em destaque"
     },
     "articles": {
       "badge": "Últimas publicações",
       "title": "Mais para você ler",
       "empty": "Nenhum artigo encontrado para este filtro.",
-      "a1": {
-        "title": "5 dispositivos médicos que estão transformando o RPM em 2026",
-        "excerpt": "Conheça os equipamentos mais promissores e como integrá-los ao fluxo clínico.",
-        "date": "08 Abr 2026"
-      },
-      "a2": {
-        "title": "Boas práticas para implantar RPM em hospitais públicos",
-        "excerpt": "Lições aprendidas em projetos pilotos e recomendações para gestores.",
-        "date": "02 Abr 2026"
-      },
-      "a3": {
-        "title": "Case: como uma clínica reduziu 40% das readmissões em 6 meses",
-        "excerpt": "Uma rede de cardiologia conta sua jornada com a plataforma Emmitec.",
-        "date": "28 Mar 2026"
-      },
-      "a4": {
-        "title": "LGPD e dados de saúde: o que muda para clínicas em 2026",
-        "excerpt": "Atualizações regulatórias e como adequar sua operação com segurança.",
-        "date": "20 Mar 2026"
-      },
-      "a5": {
-        "title": "IA preditiva: separando hype de aplicação clínica real",
-        "excerpt": "Onde a inteligência artificial agrega valor de fato no monitoramento.",
-        "date": "15 Mar 2026"
-      },
-      "a6": {
-        "title": "Engajamento do paciente: o fator que define o sucesso do RPM",
-        "excerpt": "Estratégias práticas para aumentar a adesão e os resultados clínicos.",
-        "date": "10 Mar 2026"
-      },
       "titleEm": "ler",
       "count": "Nenhuma publicação | 1 publicação | {n} publicações",
       "clear": "Limpar filtros"
@@ -608,7 +569,7 @@
   "equipmentPage": {
     "hero": {
       "badge": "Equipamentos integrados",
-      "title": "Mais de 200 dispositivos médicos conectados à plataforma",
+      "title": "Dispositivos médicos conectados à plataforma",
       "subtitle": "Trabalhamos com os principais fabricantes do mercado para garantir flexibilidade, precisão clínica e integração nativa com a plataforma Emmitec.",
       "button": {
         "primary": "Ver catálogo completo",
@@ -620,53 +581,15 @@
       "badge": "Categorias",
       "title": "Equipamentos para cada necessidade clínica",
       "all": "Todos",
-      "cardio": "Cardiovascular",
-      "metabolic": "Metabólico",
-      "respiratory": "Respiratório",
-      "wearables": "Wearables",
       "titleEm": "necessidade clínica",
       "subtitle": "Filtre por categoria e compare os modelos disponíveis."
-    },
-    "devices": {
-      "d1": {
-        "name": "Monitor de Pressão Arterial",
-        "desc": "Aferição automática com transmissão Bluetooth e registro contínuo na plataforma."
-      },
-      "d2": {
-        "name": "Eletrocardiógrafo Portátil",
-        "desc": "ECG de 12 derivações com envio direto para análise clínica em tempo real."
-      },
-      "d3": {
-        "name": "Glicosímetro Conectado",
-        "desc": "Medição rápida de glicemia com sincronização automática e alertas inteligentes."
-      },
-      "d4": {
-        "name": "Balança de Bioimpedância",
-        "desc": "Composição corporal completa com integração Wi-Fi e relatórios longitudinais."
-      },
-      "d5": {
-        "name": "Oxímetro de Pulso",
-        "desc": "Monitoramento de SpO₂ e frequência cardíaca com alta precisão."
-      },
-      "d6": {
-        "name": "Smartwatch Clínico",
-        "desc": "Wearable com ECG, oximetria, sono e atividade física integrados."
-      },
-      "d7": {
-        "name": "Termômetro Inteligente",
-        "desc": "Medição de temperatura sem contato e histórico contínuo na plataforma."
-      },
-      "d8": {
-        "name": "Holter 24h",
-        "desc": "Monitoramento cardíaco contínuo com upload automático ao final do exame."
-      }
     },
     "compatibility": {
       "badge": "Compatibilidade",
       "title": "Integração nativa com os padrões do mercado",
       "description": "A Emmitec utiliza padrões abertos para conectar dispositivos e sistemas compatíveis. As leituras disponíveis e os requisitos de conexão variam conforme o modelo e a integração.",
       "item1": "Bluetooth Low Energy para baixo consumo",
-      "item2": "Wi-Fi 2.4 GHz e 5 GHz para clínicas e ambientes domiciliares",
+      "item2": "Health Connect (Android) e HealthKit (iPhone) para relógios inteligentes",
       "item3": "HL7 e FHIR para integração com prontuários eletrônicos",
       "item4": "APIs REST e webhooks para conectar sistemas customizados",
       "button": "Ver documentação técnica",
@@ -708,7 +631,12 @@
       "relatedTitleEm": "Equipamentos",
       "aboutEm": "dispositivo",
       "empty": "Nenhum equipamento encontrado.",
-      "ctaTitleEm": "saber mais"
+      "ctaTitleEm": "saber mais",
+      "gallery": "Galeria",
+      "model": "Modelo",
+      "manufacturer": "Fabricante",
+      "photoN": "Foto {n} de {total}",
+      "photoOf": "{name}, foto {n} de {total}"
     }
   },
   "aria": {
@@ -860,5 +788,22 @@
       "email": "Envie um e-mail"
     },
     "map": "Ver no mapa"
+  },
+  "state": {
+    "loading": "Carregando",
+    "retry": "Tentar de novo",
+    "offline": "Sem resposta do servidor",
+    "errorText": "Verifique sua conexão e tente de novo em instantes.",
+    "notFoundText": "O endereço pode ter mudado ou o conteúdo saiu do ar.",
+    "blogError": "Não foi possível carregar os artigos",
+    "blogEmpty": "Nenhum artigo publicado ainda",
+    "blogEmptyText": "Novos conteúdos aparecem aqui assim que forem publicados.",
+    "postError": "Não foi possível carregar este artigo",
+    "postNotFound": "Artigo não encontrado",
+    "equipmentError": "Não foi possível carregar os equipamentos",
+    "equipmentEmpty": "Nenhum equipamento no catálogo ainda",
+    "equipmentEmptyText": "Os dispositivos aparecem aqui assim que forem cadastrados.",
+    "equipmentItemError": "Não foi possível carregar este equipamento",
+    "equipmentNotFound": "Equipamento não encontrado"
   }
 }

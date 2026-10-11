@@ -1,21 +1,21 @@
 <script setup lang="ts">
-/** Card de dispositivo: tela com leitura e sinal, nome, resumo e conectividade. */
-import { Bluetooth, Nfc, Wifi } from 'lucide-vue-next'
+/** Card de dispositivo: foto (ou tela com leitura e sinal), nome, resumo e conectividade. */
 import type { Device } from '@/lib/equipment'
-import EmDeviceScreen from './EmDeviceScreen.vue'
+import { connectivityIcon as connIcon } from '@/lib/icons'
+import EmDeviceMedia from './EmDeviceMedia.vue'
 
 defineProps<{ device: Device }>()
-
-const connIcon = (c: string) => (c === 'Wi-Fi' ? Wifi : c === 'NFC' ? Nfc : Bluetooth)
 </script>
 
 <template>
-  <RouterLink :to="`/equipment/${device.id}`" class="em-device em-card em-card--lift">
-    <EmDeviceScreen :device="device" />
+  <RouterLink :to="`/equipment/${device.slug}`" class="em-device em-card em-card--lift">
+    <EmDeviceMedia :device="device" />
     <div class="em-device__body">
-      <small class="em-device__cat">{{ device.catLabel }}</small>
+      <small class="em-device__cat"
+        >{{ device.catLabel }}<template v-if="device.model"> · {{ device.model }}</template></small
+      >
       <h3>{{ device.name }}</h3>
-      <p>{{ device.desc }}</p>
+      <p>{{ device.shortDesc }}</p>
       <div class="em-device__foot">
         <span class="em-device__conn">
           <span v-for="c in device.connectivity" :key="c" class="em-conn"

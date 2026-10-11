@@ -1,0 +1,18 @@
+# Cabeçalhos do Amplify Hosting.
+# /assets/* tem hash no nome (gerado pelo Vite): cache de 1 ano, imutável.
+# index.html nunca fica em cache, para cada publicação chegar na hora.
+customHeaders:
+  - pattern: '/assets/**'
+    headers:
+      - key: Cache-Control
+        value: 'public, max-age=31536000, immutable'
+  - pattern: '/index.html'
+    headers:
+      - key: Cache-Control
+        value: 'no-cache'
+  - pattern: '**/*'
+    headers:
+      - key: X-Content-Type-Options
+        value: nosniff
+      - key: Referrer-Policy
+        value: strict-origin-when-cross-origin

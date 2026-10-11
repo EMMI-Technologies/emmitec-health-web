@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
     <RouterLink
       class="em-logo em-logo--img"
       to="/"
-      :aria-label="`Emmitec Health — ${t('header.nav.home')}`"
+      :aria-label="`Emmitec Health: ${t('header.nav.home')}`"
     >
       <img :src="LOGO_SRC" alt="Emmitec Health" width="1352" height="171" />
     </RouterLink>

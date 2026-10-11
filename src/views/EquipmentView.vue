@@ -1,23 +1,13 @@
 <script setup lang="ts">
 /**
- * Equipamentos — Design System Emmitec.health, com o conteúdo de sempre (pt/en/es).
- * Catálogo com filtro por categoria, selos de certificação
- * e o painel de compatibilidade.
+ * Equipamentos — Design System Emmitec.health.
+ * Catálogo e categorias vêm da API pública do BackOffice (recarregam ao trocar
+ * de idioma), com filtro por categoria, selos de certificação e o painel de
+ * compatibilidade.
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  Activity,
-  Bluetooth,
-  Droplet,
-  HeartPulse,
-  Nfc,
-  ShieldCheck,
-  Watch,
-  Webhook,
-  Wifi,
-  Wind,
-} from 'lucide-vue-next'
+import { Activity, Bluetooth, ShieldCheck, Watch, Webhook } from 'lucide-vue-next'
 
 import EmPageHero from '@/components/em/EmPageHero.vue'
 import EmButton from '@/components/em/EmButton.vue'
@@ -25,12 +15,23 @@ import EmSplit from '@/components/em/EmSplit.vue'
 import EmCta from '@/components/em/EmCta.vue'
 import EmOdometer from '@/components/em/EmOdometer.vue'
 import EmDeviceCard from '@/components/em/EmDeviceCard.vue'
+import EmSkeleton from '@/components/em/EmSkeleton.vue'
+import EmState from '@/components/em/EmState.vue'
 import { scrollToEl } from '@/lib/motion'
 import { calendlyUrl } from '@/lib/site'
-import { DEVICE_CATEGORIES, useDevices, type DeviceCategory } from '@/lib/equipment'
+import { connectivityIcon } from '@/lib/icons'
+import { usePageMeta } from '@/lib/seo'
+import { useDeviceCategories, useDevices } from '@/lib/equipment'
 
 const { t } = useI18n()
-const { devices } = useDevices()
+const list = useDevices()
+const cats = useDeviceCategories()
+const { devices } = list
+
+usePageMeta(() => ({
+  title: t('header.nav.equipment'),
+  description: t('equipmentPage.hero.subtitle'),
+}))
 
 function toCatalog() {
   const el = document.getElementById('catalogo')
@@ -38,21 +39,29 @@ function toCatalog() {
 }
 
 /* ── (01) catálogo ── */
-const CAT_ICONS: Record<DeviceCategory, typeof Activity> = {
-  all: Activity,
-  cardio: HeartPulse,
-  metabolic: Droplet,
-  respiratory: Wind,
-  wearables: Watch,
-}
-const activeCategory = ref<DeviceCategory>('all')
-const categories = computed(() =>
-  DEVICE_CATEGORIES.map((id) => ({
-    id,
-    icon: CAT_ICONS[id],
-    label: t(`equipmentPage.categories.${id}`),
-  })),
+/** Carregando só enquanto não há nada para mostrar (a troca de idioma mantém a lista). */
+const loading = computed(
+  () => (list.loading.value && !list.data.value) || (cats.loading.value && !cats.data.value),
 )
+const failure = computed(() => list.error.value ?? cats.error.value)
+function retry() {
+  if (list.error.value) list.reload()
+  if (cats.error.value) cats.reload()
+}
+
+const activeCategory = ref('all')
+/** "Todos" + as categorias da API que têm equipamento (a ativa sempre aparece). */
+const categories = computed(() => [
+  { id: 'all', icon: Activity, label: t('equipmentPage.categories.all') },
+  ...cats.categories.value
+    .filter((c) => c.slug === activeCategory.value || devices.value.some((d) => d.cat === c.slug))
+    .map((c) => ({ id: c.slug, icon: c.iconCmp, label: c.name })),
+])
+// categoria que deixou de existir volta para "Todos"
+watch(categories, (all) => {
+  if (!loading.value && !all.some((c) => c.id === activeCategory.value))
+    activeCategory.value = 'all'
+})
 const filtered = computed(() =>
   activeCategory.value === 'all'
     ? devices.value
@@ -65,7 +74,7 @@ function placeIndicator() {
   const btn = tabsEl.value?.querySelector<HTMLElement>('.em-tabs__btn.is-active')
   if (btn) ind.value = { x: btn.offsetLeft, w: btn.offsetWidth, on: true }
 }
-watch([activeCategory, categories], () => nextTick(placeIndicator))
+watch([activeCategory, categories, loading], () => nextTick(placeIndicator))
 
 /* ── (02) certificações ── */
 const certifications = computed(() => [
@@ -85,16 +94,14 @@ function sealText(c: { code: string; label: string }) {
 const compatibilityItems = computed(() =>
   [1, 2, 3, 4].map((n) => t(`equipmentPage.compatibility.item${n}`)),
 )
-/** Últimas sincronizações (ilustrativas) no painel. */
+/** Sincronizações no painel: os três primeiros do catálogo real. */
 const feed = computed(() =>
-  [0, 2, 5].map((i) => {
-    const d = devices.value[i]!
-    const c = d.connectivity.includes('Wi-Fi')
-      ? 'Wi-Fi'
-      : d.connectivity.includes('NFC')
-        ? 'NFC'
-        : 'BLE'
-    return { id: d.id, icon: d.icon, name: d.name, via: c }
+  devices.value.slice(0, 3).map((d) => {
+    const via =
+      ['Wi-Fi', 'NFC', 'LTE', 'USB'].find((c) => d.connectivity.includes(c)) ??
+      d.connectivity[0] ??
+      'Bluetooth'
+    return { id: d.id, icon: d.icon, name: d.name, via }
   }),
 )
 
@@ -139,7 +146,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
           <p v-reveal="150">{{ t('equipmentPage.categories.subtitle') }}</p>
         </div>
 
-        <div v-reveal class="em-filterbar">
+        <EmSkeleton v-if="loading" kind="tabs" :count="5" class="em-filterbar" />
+        <div v-else-if="!failure && devices.length" v-reveal class="em-filterbar">
           <div
             ref="tabsEl"
             class="em-tabs"
@@ -166,8 +174,23 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
           </div>
         </div>
 
+        <EmSkeleton v-if="loading" kind="devices" :count="4" />
+        <EmState
+          v-else-if="failure"
+          kind="error"
+          :title="t('state.equipmentError')"
+          :text="t('state.errorText')"
+          :error="failure"
+          @retry="retry"
+        />
+        <EmState
+          v-else-if="!devices.length"
+          kind="empty"
+          :title="t('state.equipmentEmpty')"
+          :text="t('state.equipmentEmptyText')"
+        />
         <!-- trocar de categoria refaz a grade, e os cards entram de novo em sequência -->
-        <div :key="activeCategory" class="em-devices">
+        <div v-else :key="activeCategory" class="em-devices">
           <EmDeviceCard
             v-for="(d, i) in filtered"
             :key="d.id"
@@ -257,9 +280,9 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
               <small>Low Energy</small>
             </div>
             <div class="em-proto">
-              <span class="em-ico"><Wifi :stroke-width="1.7" aria-hidden="true" /></span>
-              <b>Wi-Fi</b>
-              <small>2.4 / 5 GHz</small>
+              <span class="em-ico"><Watch :stroke-width="1.7" aria-hidden="true" /></span>
+              <b>Health Connect</b>
+              <small>HealthKit</small>
             </div>
             <div class="em-proto">
               <span class="em-ico"><Webhook :stroke-width="1.7" aria-hidden="true" /></span>
@@ -270,11 +293,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
               <span class="em-ico em-ico--brand"
                 ><Activity :stroke-width="1.7" aria-hidden="true"
               /></span>
-              <b>+<EmOdometer value="200" /></b>
+              <b><EmOdometer :value="devices.length || 0" /></b>
               <small>{{ t('equipmentPage.compatibility.devices') }}</small>
             </div>
           </div>
-          <ul class="em-feed">
+          <ul v-if="feed.length" class="em-feed">
             <li v-for="(f, i) in feed" :key="f.id" :style="{ '--i': i }">
               <span class="em-feed__ico"
                 ><component :is="f.icon" :stroke-width="1.7" aria-hidden="true"
@@ -282,10 +305,10 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
               <span class="em-feed__name">{{ f.name }}</span>
               <span class="em-chip"
                 ><component
-                  :is="f.via === 'Wi-Fi' ? Wifi : f.via === 'NFC' ? Nfc : Bluetooth"
+                  :is="connectivityIcon(f.via)"
                   :stroke-width="1.8"
                   aria-hidden="true"
-                />{{ f.via }}</span
+                />{{ f.via === 'Bluetooth' ? 'BLE' : f.via }}</span
               >
               <span class="em-dot em-dot--live" />
             </li>

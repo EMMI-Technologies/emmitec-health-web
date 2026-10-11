@@ -8,10 +8,11 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RM, addFx, clamp, damp, kickFx } from '@/lib/motion'
-import { useDevices } from '@/lib/equipment'
-import EmDeviceScreen from './EmDeviceScreen.vue'
+import type { Device } from '@/lib/equipment'
+import EmDeviceMedia from './EmDeviceMedia.vue'
 
-const { devices } = useDevices()
+/** Catálogo vindo da API (quem usa o baralho carrega com useDevices). */
+const props = defineProps<{ devices: Device[] }>()
 
 /** Posições: 0 frente · 1 meio · 2 fundo · 3 escondida atrás · 'out' saindo. */
 type Slot = 0 | 1 | 2 | 3 | 'out'
@@ -28,11 +29,14 @@ const cards = ref<{ id: number; dev: number; slot: Slot; still: boolean }[]>([
 let nextDev = 4
 
 const view = computed(() =>
-  cards.value.map((c) => ({ ...c, device: devices.value[c.dev % devices.value.length]! })),
+  props.devices.length
+    ? cards.value.map((c) => ({ ...c, device: props.devices[c.dev % props.devices.length]! }))
+    : [],
 )
 
 function shuffle() {
-  const n = devices.value.length
+  const n = props.devices.length
+  if (n < 2) return
   cards.value = cards.value.map((c) => {
     if (c.slot === 0) return { ...c, slot: 'out', still: false }
     if (c.slot === 'out') return c
@@ -100,7 +104,7 @@ onBeforeUnmount(() => {
       class="em-deck__card em-card"
       :class="[`is-s${c.slot}`, { 'is-still': c.still }]"
     >
-      <EmDeviceScreen :device="c.device" />
+      <EmDeviceMedia :device="c.device" />
       <div class="em-deck__meta">
         <b>{{ c.device.name }}</b>
         <span>{{ c.device.catLabel }}</span>

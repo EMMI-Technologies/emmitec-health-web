@@ -1,48 +1,74 @@
-# emmitecHealth-web
+# emmitec.health (site institucional)
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue 3 + Vite + vue-i18n (pt, en, es). Design System em `DESIGN_SYSTEM.md`.
 
-## Recommended IDE Setup
+**Blog e equipamentos vêm da API do BackOffice** (`emmitec-api-backoffice`), rotas públicas
+sem token. O conteúdo é editado no `emmitec-web-backoffice`; o site não guarda cópia local.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Rodar
 
 ```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+npm ci
+cp .env.example .env.local   # ajuste VITE_API_BASE_URL
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
 ```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
+npm run build        # vue-tsc (type-check) + vite build, saída em dist/
+npm run type-check
 npm run lint
 ```
+
+## Variáveis de ambiente
+
+| Variável | Para que serve |
+|---|---|
+| `VITE_API_BASE_URL` | Base da API, **terminando em `/v1`** e sem barra no fim. Produção: `https://api-backoffice.emmitec.health/v1`. Local: `http://localhost:3000/v1`. Sem ela, o build usa a de produção. |
+| `VITE_ASSETS_BASE_URL` | Opcional. Base pública das imagens (`https://assets.emmitec.health`), usada só se o corpo de um post trouxer o marcador `{{ASSET}}`. |
+
+As variáveis entram no bundle na hora do build: mudar no Amplify exige nova publicação.
+
+## Dados da API (`src/lib/api.ts`)
+
+Todas com `?lang=pt|en|es` (o idioma atual do vue-i18n). Trocar o idioma recarrega.
+
+| Rota | Tela |
+|---|---|
+| `GET /public/blog/posts` | Blog, faixa do blog no Início, relacionados |
+| `GET /public/blog/posts/:slug` | `/blog/:slug` |
+| `GET /public/blog/categories` | abas do Blog, coluna do rodapé |
+| `GET /public/equipment` | Equipamentos, faixa do Início, outros equipamentos |
+| `GET /public/equipment/:slug` | `/equipment/:slug` |
+| `GET /public/equipment/categories` | abas de Equipamentos (a aba "Todos" é do site) |
+
+- Imagens (`coverImage`, `image`, `gallery[]`) chegam como URL absoluta (`https://assets.emmitec.health/...`).
+- Ícones chegam pelo nome lucide (`"Gauge"`); o mapa nome para componente está em `src/lib/icons.ts`
+  (nome desconhecido vira `Activity`). Ícone novo no BackOffice precisa entrar nesse mapa.
+- O tom pastel dos cards sai da classe de gradiente cadastrada (`toneFrom` em `api.ts`).
+- Cada bloco tem os estados carregando (esqueleto), erro (mensagem + tentar de novo), vazio e,
+  no detalhe, não encontrado. Não há dado de reserva: se a API falhar, o erro aparece.
+- Respostas ficam 5 minutos em memória para a navegação entre telas não repetir a chamada;
+  "tentar de novo" ignora esse cache.
+- Título e descrição de cada página (inclusive post e equipamento) em `src/lib/seo.ts`.
+
+## Publicação (AWS Amplify Hosting)
+
+`amplify.yml` na raiz: Node 22, `npm ci`, `npm run build`, artefatos em `dist`.
+`customHttp.yml`: cache de 1 ano para `/assets/*` (nomes com hash) e `no-cache` no `index.html`.
+
+No console do Amplify (App settings):
+
+1. **Environment variables**: `VITE_API_BASE_URL = https://api-backoffice.emmitec.health/v1`
+2. **Rewrites and redirects**: regra de SPA, para as rotas do Vue Router (`/blog/:slug` etc.)
+   abrirem direto.
+
+   - Source address:
+     ```
+     </^[^.]+$|\.(?!(css|gif|ico|jpg|jpeg|js|png|txt|svg|woff|woff2|ttf|map|json|xml|webmanifest)$)([^.]+$)/>
+     ```
+   - Target address: `/index.html`
+   - Type: `200 (Rewrite)`
+
+   Arquivo com extensão fora da lista (ex.: `.webp`) também cai no `index.html`: imagens do
+   conteúdo ficam no CDN de assets, não neste app.
+3. A API precisa liberar CORS para o domínio do site (hoje responde com a origem da requisição).

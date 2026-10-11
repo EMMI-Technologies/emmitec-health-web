@@ -152,7 +152,7 @@ const features = computed(() =>
                   :href="app.apple"
                   target="_blank"
                   rel="noopener noreferrer"
-                  :aria-label="`${app.name} — App Store`"
+                  :aria-label="`${app.name}: App Store`"
                 >
                   <img :src="appStoreImg" alt="Download on the App Store" width="120" height="40" />
                 </a>
@@ -161,7 +161,7 @@ const features = computed(() =>
                   :href="app.google"
                   target="_blank"
                   rel="noopener noreferrer"
-                  :aria-label="`${app.name} — Google Play`"
+                  :aria-label="`${app.name}: Google Play`"
                 >
                   <img :src="googlePlayImg" alt="Get it on Google Play" width="120" height="40" />
                 </a>
