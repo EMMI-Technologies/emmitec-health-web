@@ -30,4 +30,14 @@ const i18n = createI18n({
   },
 })
 
+/** Troca o idioma e guarda a escolha (menu e página de links usam o mesmo). */
+export function setLocale(code: string) {
+  i18n.global.locale.value = code as SupportedLocale
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, code)
+  } catch {
+    // localStorage pode estar bloqueado — apenas a persistência é perdida
+  }
+}
+
 export default i18n

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Termos de Privacidade — Design System Emmitec.health, com o texto de sempre (pt/en/es).
+ * Política de Privacidade — Design System Emmitec.health, com o texto de sempre (pt/en/es).
  * Hero mais baixo, sumário lateral que acompanha a leitura e seções numeradas.
  */
 import { computed, ref } from 'vue'
@@ -10,20 +10,25 @@ import { CalendarClock, Mail } from 'lucide-vue-next'
 import EmPageHero from '@/components/em/EmPageHero.vue'
 import EmButton from '@/components/em/EmButton.vue'
 import { useToc } from '@/lib/useToc'
+import { CONTACT_EMAIL } from '@/lib/site'
 
 const { t, tm } = useI18n()
 
-const CONTACT = 'contato@emmitec.health'
+const mailto = `mailto:${CONTACT_EMAIL}`
 
-/** Seções do i18n; o número sai do título e vira o índice da seção. */
+/** Seções do i18n; o número sai do título e vira o índice da seção.
+ *  O corpo passa pelo `t` para resolver o `{'@'}` do e-mail. */
 const sections = computed(() =>
-  (tm('privacyPage.sections') as unknown as { title: string; body: string }[]).map((s, i) => ({
+  (tm('privacyPage.sections') as unknown as unknown[]).map((_, i) => ({
     id: `secao-${i + 1}`,
     n: String(i + 1).padStart(2, '0'),
-    title: s.title.replace(/^\d+\.\s*/, ''),
-    body: s.body,
+    title: t(`privacyPage.sections.${i}.title`).replace(/^\d+\.\s*/, ''),
+    body: t(`privacyPage.sections.${i}.body`),
   })),
 )
+
+/** Separa o e-mail do texto para virar link (`mailto:`). */
+const withEmail = (text: string) => text.split(CONTACT_EMAIL)
 
 const content = ref<HTMLElement | null>(null)
 const tocEl = ref<HTMLElement | null>(null)
@@ -46,7 +51,7 @@ const { active, goTo } = useToc(content, tocEl, 'h2[id]')
         </p>
       </template>
       <template #actions>
-        <EmButton :href="`mailto:${CONTACT}`" variant="ghost" :label="t('footer.links.contact')" />
+        <EmButton :href="mailto" variant="ghost" :label="t('footer.links.contact')" />
       </template>
     </EmPageHero>
 
@@ -83,7 +88,12 @@ const { active, goTo } = useToc(content, tocEl, 'h2[id]')
             <span class="em-legal__n" aria-hidden="true">{{ s.n }}</span>
             <div>
               <h2 :id="s.id">{{ s.title }}</h2>
-              <p>{{ s.body }}</p>
+              <p>
+                <template v-for="(part, k) in withEmail(s.body)" :key="k"
+                  ><a v-if="k > 0" :href="mailto">{{ CONTACT_EMAIL }}</a
+                  >{{ part }}</template
+                >
+              </p>
             </div>
           </section>
 
@@ -91,12 +101,13 @@ const { active, goTo } = useToc(content, tocEl, 'h2[id]')
             <span class="em-ico em-ico--brand"
               ><Mail :stroke-width="1.7" aria-hidden="true"
             /></span>
-            <p>{{ t('privacyPage.contactNote') }}</p>
-            <EmButton
-              :href="`mailto:${CONTACT}`"
-              variant="dark"
-              :label="t('footer.links.contact')"
-            />
+            <p>
+              <template v-for="(part, k) in withEmail(t('privacyPage.contactNote'))" :key="k"
+                ><a v-if="k > 0" :href="mailto">{{ CONTACT_EMAIL }}</a
+                >{{ part }}</template
+              >
+            </p>
+            <EmButton :href="mailto" variant="dark" :label="t('footer.links.contact')" />
           </div>
         </div>
       </div>

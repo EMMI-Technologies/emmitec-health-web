@@ -20,7 +20,7 @@ import EmVitalRow from '@/components/em/EmVitalRow.vue'
 import EmCta from '@/components/em/EmCta.vue'
 import { calendlyUrl } from '@/lib/site'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -45,13 +45,19 @@ const stats = computed(() => [
   { sign: '', num: '24', suffix: '/7', label: t('benefitsPage.stats.monitoring') },
 ])
 
-/* ── (04) Comparativo ── */
+/* ── (04) Comparativo ──
+   Linhas com `rowNboth` têm um texto só, que ocupa as duas colunas (o RPM complementa,
+   não substitui, o cuidado tradicional). As demais seguem tradicional × RPM. */
 const comparison = computed(() =>
-  [1, 2, 3, 4, 5].map((n) => ({
-    label: t(`benefitsPage.comparison.row${n}`),
-    traditional: t(`benefitsPage.comparison.row${n}trad`),
-    rpm: t(`benefitsPage.comparison.row${n}rpm`),
-  })),
+  [1, 2, 3, 4, 5].map((n) => {
+    const key = `benefitsPage.comparison.row${n}`
+    return {
+      label: t(key),
+      both: te(`${key}both`) ? t(`${key}both`) : '',
+      traditional: te(`${key}trad`) ? t(`${key}trad`) : '',
+      rpm: te(`${key}rpm`) ? t(`${key}rpm`) : '',
+    }
+  }),
 )
 </script>
 
@@ -212,16 +218,27 @@ const comparison = computed(() =>
             <h3 role="rowheader">
               <small>({{ pad(i + 1) }})</small>{{ row.label }}
             </h3>
-            <p class="em-compare__trad" role="cell">
-              <small class="em-compare__tag">{{ t('benefitsPage.comparison.traditional') }}</small>
-              <span class="em-compare__mark"><Minus :size="13" :stroke-width="3" /></span>
-              {{ row.traditional }}
-            </p>
-            <p class="em-compare__rpm" role="cell">
-              <small class="em-compare__tag">RPM</small>
+            <p v-if="row.both" class="em-compare__both" role="cell" aria-colspan="2">
+              <small class="em-compare__tag"
+                >{{ t('benefitsPage.comparison.traditional') }} + RPM</small
+              >
               <span class="em-compare__mark"><Check :size="13" :stroke-width="3" /></span>
-              {{ row.rpm }}
+              {{ row.both }}
             </p>
+            <template v-else>
+              <p class="em-compare__trad" role="cell">
+                <small class="em-compare__tag">{{
+                  t('benefitsPage.comparison.traditional')
+                }}</small>
+                <span class="em-compare__mark"><Minus :size="13" :stroke-width="3" /></span>
+                {{ row.traditional }}
+              </p>
+              <p class="em-compare__rpm" role="cell">
+                <small class="em-compare__tag">RPM</small>
+                <span class="em-compare__mark"><Check :size="13" :stroke-width="3" /></span>
+                {{ row.rpm }}
+              </p>
+            </template>
           </div>
         </div>
       </div>

@@ -136,7 +136,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
               :em="t('equipmentPage.categories.titleEm')"
             />
           </div>
-          <p v-reveal="150">{{ t('equipmentPage.hero.subtitle') }}</p>
+          <p v-reveal="150">{{ t('equipmentPage.categories.subtitle') }}</p>
         </div>
 
         <div v-reveal class="em-filterbar">
@@ -248,12 +248,12 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
             <span
               ><span class="em-win__dots"><i /><i /><i /></span>Emmitec · API</span
             >
-            <span class="em-pill">Live</span>
+            <span class="em-pill">{{ t('hero.live.status') }}</span>
           </div>
           <div class="em-protos">
             <div class="em-proto">
               <span class="em-ico"><Bluetooth :stroke-width="1.7" aria-hidden="true" /></span>
-              <b>Bluetooth 5.0</b>
+              <b>Bluetooth</b>
               <small>Low Energy</small>
             </div>
             <div class="em-proto">

@@ -9,12 +9,14 @@ import { useI18n } from 'vue-i18n'
 import { RM, damp, setScrollLocked } from '@/lib/motion'
 import mark from '@/assets/about/EMMITEC.png'
 
+/** `skip`: a página de entrada dispensa a abertura (lido só na montagem). */
+const props = defineProps<{ skip?: boolean }>()
 const emit = defineEmits<{ done: [] }>()
 const { t } = useI18n()
 
 const KEY = 'em-intro'
 function shouldShow() {
-  if (RM) return false
+  if (RM || props.skip) return false
   try {
     return sessionStorage.getItem(KEY) !== '1'
   } catch {

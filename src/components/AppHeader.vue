@@ -8,7 +8,7 @@
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { LOCALE_STORAGE_KEY } from '@/i18n'
+import { setLocale } from '@/i18n'
 import { addFx } from '@/lib/motion'
 import { calendlyUrl, languages, socialLinks, LOGO_SRC } from '@/lib/site'
 import EmButton from '@/components/em/EmButton.vue'
@@ -67,15 +67,6 @@ function onKey(e: KeyboardEvent) {
 }
 function onDocDown(e: PointerEvent) {
   if (open.value && wrap.value && !wrap.value.contains(e.target as Node)) setOpen(false)
-}
-
-function setLanguage(code: string) {
-  locale.value = code
-  try {
-    localStorage.setItem(LOCALE_STORAGE_KEY, code)
-  } catch {
-    // localStorage pode estar bloqueado — apenas a persistência é perdida
-  }
 }
 
 /** Idioma ativo — a bandeira aparece no botão do menu para sinalizar onde trocar. */
@@ -182,7 +173,7 @@ onBeforeUnmount(() => {
                 class="em-lang__btn"
                 :class="{ 'is-active': locale === lang.code }"
                 :aria-pressed="locale === lang.code ? 'true' : 'false'"
-                @click="setLanguage(lang.code)"
+                @click="setLocale(lang.code)"
               >
                 <img class="em-lang__flag" :src="lang.flag" alt="" width="16" height="12" />{{
                   lang.label

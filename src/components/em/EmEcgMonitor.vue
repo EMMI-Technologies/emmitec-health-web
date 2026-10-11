@@ -6,10 +6,13 @@
  * mostra um traçado parado.
  */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Heart } from 'lucide-vue-next'
 import { RM } from '@/lib/motion'
 
 defineProps<{ label: string; rhythm: string }>()
+
+const { t } = useI18n()
 
 const bpm = ref(72)
 const spo2 = ref(98)
@@ -223,7 +226,8 @@ onBeforeUnmount(() => {
 <template>
   <div ref="root" class="em-monitor">
     <div class="em-monitor__top">
-      <span class="em-pill">RPM · Live</span>
+      <!-- traçado e leituras são sintetizados: o selo avisa que é um exemplo -->
+      <span class="em-pill">{{ t('hero.live.status') }}</span>
       <span class="em-monitor__meta"><b>Lead II</b> · 25 mm/s · 10 mm/mV</span>
     </div>
 

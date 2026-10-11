@@ -1,11 +1,11 @@
 {
   "hero": {
     "eyebrow": "Remote patient monitoring",
-    "titleLead": "Continuous care",
-    "titleHighlight": "can't wait",
-    "titleTail": "for the next appointment.",
-    "title": "Continuous care can't wait for the next appointment.",
-    "subtitle": "Emmitec Health tracks vital signs in real time, runs every reading through AI, and alerts the clinical team before a case turns into an emergency — with the patient safely at home.",
+    "titleLead": "Keep care",
+    "titleHighlight": "connected",
+    "titleTail": "between appointments.",
+    "title": "Keep care connected between appointments.",
+    "subtitle": "Emmitec Health connects readings from patients at home with your clinical team, bringing together history and alerts to track changes and guide follow-up between appointments.",
     "badge": "New",
     "button": {
       "demo": "Schedule a demo",
@@ -22,7 +22,7 @@
       "support": "Uninterrupted monitoring"
     },
     "live": {
-      "status": "Live",
+      "status": "Illustrative example",
       "patient": "Reading received just now",
       "hr": "Heart rate",
       "spo2": "O₂ saturation",
@@ -42,15 +42,15 @@
   },
   "intro": {
     "badge": "Why we exist",
-    "title": "Technology that gives time back to the clinical team and peace of mind to the family",
-    "description": "Connected devices, our own platform, and predictive AI working together — so no one has to wait for a case to worsen before receiving care.",
-    "titleEm": "peace of mind"
+    "title": "Better support for clinical teams. Closer care for patients.",
+    "description": "Connected readings, patient history and clinical alerts come together to help your team prioritize follow-up and keep patients connected to care between appointments.",
+    "titleEm": "Closer care"
   },
   "homeBlogStrip": {
     "badge": "Blog",
-    "title": "Content for the people deciding on digital health",
-    "subtitle": "Trends, real cases, and regulation — written by the Emmitec team and invited specialists.",
-    "cta": "Open the blog",
+    "title": "Your next step in digital health starts here.",
+    "subtitle": "Explore remote patient monitoring trends, real-world cases and regulation to inform your next decision.",
+    "cta": "Explore the articles",
     "titleEm": "digital health"
   },
   "cards": {
@@ -61,21 +61,21 @@
     },
     "ai": {
       "label": "Predictive intelligence",
-      "title": "An AI that notices first",
-      "description": "Every reading is compared against the patient's own history. When the pattern drifts, the alert reaches the team with clinical context — not just a number."
+      "title": "Predictive AI for proactive care.",
+      "description": "AI analyzes new readings alongside each patient's history to identify patterns that may indicate emerging risks. Alerts with clinical context help your team assess those signals and guide care earlier."
     },
     "dashboard": {
       "label": "Clinical dashboard",
-      "title": "The whole operation on one screen",
-      "description": "See who needs attention right now, record decisions, and generate EHR-ready reports in a few clicks."
+      "title": "One dashboard. Everything your care team needs to know.",
+      "description": "Bring patient readings, alerts and history into one clinical dashboard to track changes and prioritize follow-up."
     },
     "cta": "Learn more"
   },
   "features": {
     "monitoring": {
       "tag": "Smart care",
-      "title": "Continuous monitoring that acts before the emergency",
-      "body": "The platform collects data from wearables and certified medical devices, processes everything with AI, and calls the team the moment the picture starts to change — not once it already has.",
+      "title": "Continuous monitoring to help prevent emergencies.",
+      "body": "Connected device data and alerts with context help the clinical team identify changes and assess when a patient needs follow-up.",
       "items": [
         "Integration with more than 200 certified medical devices",
         "Predictive alerts that anticipate avoidable hospitalizations",
@@ -87,12 +87,12 @@
         "rpm": "RPM",
         "ai": "AI"
       },
-      "titleEm": "before"
+      "titleEm": "prevent"
     },
     "services": {
       "tag": "Services",
-      "title": "RPM that holds the operation together when there aren't enough hands",
-      "body": "Clinics, hospitals, and payers use Emmitec to expand care capacity without expanding headcount — looking after more patients, with the same team and greater safety.",
+      "title": "Better visibility to organize patient follow-up.",
+      "body": "For clinics, hospitals and payers following patients between appointments, Emmitec brings data and alerts together to support care coordination.",
       "items": [
         "Follow vital signs and clinical indicators in real time",
         "Anticipate complications before they become emergencies",
@@ -101,12 +101,12 @@
       ],
       "button": "Discover our apps",
       "imageAlt": "Patient at home with device",
-      "titleEm": "hands"
+      "titleEm": "visibility"
     }
   },
   "benefits": {
     "badge": "Benefits",
-    "title": "Hospital-grade care, in the living room",
+    "title": "Care continues at home.",
     "subtitle": "More autonomy for the patient. More predictability for the clinical team. All in a single platform.",
     "items": {
       "home": {
@@ -126,11 +126,11 @@
         "desc": "Guided rollout, features built on demand, and support that answers at the pace of your clinical routine."
       }
     },
-    "titleEm": "living room"
+    "titleEm": "home"
   },
   "cta": {
     "badge": "Next step",
-    "title": "See the platform running on your own operation's data",
+    "title": "See patient monitoring in practice.",
     "subtitle": "In 30 minutes we walk through the full flow: from the device on the patient to the alert on your team's screen.",
     "note": "No commitment · We reply within 1 business day",
     "button": {
@@ -139,13 +139,13 @@
       "primary": "Schedule a demo",
       "secondary": "View equipment"
     },
-    "titleEm": "running"
+    "titleEm": "in practice"
   },
   "about": {
     "hero": {
       "badge": "Who we are",
-      "title": "Meet EmmiTec: Transforming Lives with Healthcare",
-      "subtitle": "Meet the story and the people behind the platform transforming remote patient monitoring in Brazil and worldwide.",
+      "title": "A personal story. A commitment to continuity of care.",
+      "subtitle": "Following his mother's care from a distance led Emílio Machado to develop a solution that connects health information and supports care.",
       "imageAlt": "Emmitec Health team",
       "bio": {
         "more": "Read more",
@@ -154,9 +154,9 @@
       "button": {
         "contact": "Get in touch",
         "careers": "Join our team",
-        "demo": "Request demo"
+        "demo": "Schedule a demo"
       },
-      "titleEm": "Lives"
+      "titleEm": "continuity"
     },
     "story": {
       "badge": "Our story",
@@ -170,7 +170,7 @@
     },
     "mission": {
       "badge": "Our mission & vision",
-      "title": "Our Mission and Vision at EmmiTec",
+      "title": "Our Mission and Vision",
       "description": "At EmmiTec, we believe that health goes beyond a service—it is an essential right, belonging to everyone, regardless of where they are. We dream of a world where distance, circumstances, or resources do not define the quality of care received. This vision drives us to develop innovative solutions that empower people to take control of their health. EmmiTec Health is more than a platform; it is a commitment to delivering integrated, patient-centered care that is accessible and deeply human. Our mission is to break down barriers in healthcare, ensuring that every patient is valued, supported, and cared for according to their needs. Because when it comes to health, there are no 'others' or 'another time'. Change starts now, and we are ready to lead it.",
       "item1": "Democratize access to quality healthcare",
       "item2": "Reduce geographical barriers in medical care",
@@ -187,7 +187,7 @@
     },
     "values": {
       "badge": "Clinical applications",
-      "title": "Four scenarios where RPM changes the outcome",
+      "title": "Four care scenarios for connected follow-up.",
       "subtitle": "Continuous monitoring is not a generic feature — it weighs far more in some clinical journeys than in others.",
       "card1": {
         "title": "Cardiovascular Health",
@@ -195,17 +195,17 @@
       },
       "card2": {
         "title": "Post-Operative Care",
-        "description": "The first weeks after surgery are the most critical — and the least supervised. RPM covers that gap and cuts readmissions."
+        "description": "Readings and alerts support follow-up at home after discharge, according to the care plan."
       },
       "card3": {
         "title": "Diabetes Monitoring",
-        "description": "Glucose and blood pressure reach the team on their own, with no reliance on the patient's logbook. Treatment is adjusted within the week, not the quarter."
+        "description": "Blood glucose readings help the team assess trends and guide follow-up."
       },
       "card4": {
         "title": "Cancer Treatment",
-        "description": "Between one session and the next, the patient stays monitored at home. Adverse effects surface early, with fewer emergency-room trips."
+        "description": "Remote monitoring supports the assessment of changes between stages of treatment."
       },
-      "titleEm": "outcome"
+      "titleEm": "connected"
     },
     "timeline": {
       "2006": {
@@ -242,11 +242,11 @@
     "cta": {
       "badge": "Join us",
       "title": "Join the digital health revolution",
-      "subtitle": "Whether you're a patient, healthcare professional, or clinic, there's a place for you in this transformation journey.",
+      "subtitle": "Talk to our team about patient monitoring at your institution.",
       "button": {
         "contact": "Contact us",
         "learn": "Explore solutions",
-        "primary": "Request demo",
+        "primary": "Schedule a demo",
         "secondary": "What is RPM →"
       },
       "titleEm": "revolution"
@@ -256,9 +256,9 @@
     "hero": {
       "badge": "What is RPM",
       "title": "Real-time Remote Patient Monitoring",
-      "subtitle": "RPM is the technology that collects clinical data from patients outside the hospital and sends it, in real time, to the healthcare team — enabling faster interventions and continuous care.",
+      "subtitle": "Remote Patient Monitoring (RPM) uses connected devices to share readings with the care team between appointments. Transmission frequency depends on the device, connectivity and monitoring plan.",
       "button": {
-        "primary": "Request demo",
+        "primary": "Schedule a demo",
         "secondary": "Talk to a specialist"
       },
       "titleEm": "Real-time"
@@ -290,7 +290,7 @@
       },
       "step4": {
         "title": "Alert and act",
-        "desc": "Clinical teams receive prioritized notifications and act before situations escalate."
+        "desc": "Clinical teams receive prioritized notifications to assess changes and determine follow-up."
       },
       "titleEm": "connected"
     },
@@ -318,22 +318,24 @@
       "badge": "For whom",
       "title": "Who benefits most from remote monitoring",
       "subtitle": "RPM does not replace the appointment — it covers the gap between appointments. Four profiles account for most of the cases where that gap matters.",
-      "item1": "Cardiac patients",
-      "item2": "Post-operative",
-      "item3": "Diabetics",
-      "item4": "Elderly",
+      "item1": "People with cardiovascular conditions",
+      "item2": "Post-operative follow-up",
+      "item3": "People with diabetes",
+      "item4": "Older adults",
       "item1desc": "Hypertension, heart failure, and arrhythmias need frequent pressure and rhythm readings — data a quarterly appointment never captures.",
-      "item2desc": "In the weeks after discharge, most complications show up at home, far from the team that performed the surgery.",
-      "item3desc": "Glycemic control depends on continuous adjustment. With readings arriving on their own, treatment changes in days, not months.",
-      "item4desc": "Multiple comorbidities and medications, combined with limited mobility, make remote follow-up the safest route.",
-      "titleEm": "benefits"
+      "item2desc": "Remote monitoring allows readings to be shared with the team after discharge, according to the care plan.",
+      "item3desc": "Blood glucose readings shared with the team support trend assessment and treatment follow-up.",
+      "item4desc": "Remote monitoring can support care between appointments, especially when travel is difficult and monitoring is clinically indicated.",
+      "titleEm": "benefits",
+      "item5": "Other chronic conditions",
+      "item5desc": "Remote monitoring can also support people with other chronic conditions, depending on clinical suitability, the data to be monitored and the care plan."
     },
     "cta": {
       "badge": "Next step",
       "title": "Ready to deploy RPM at your institution?",
       "subtitle": "Our team helps you design a tailored pilot for your clinical and operational reality.",
       "button": {
-        "primary": "Request demo",
+        "primary": "Schedule a demo",
         "secondary": "View benefits →"
       },
       "titleEm": "deploy"
@@ -342,13 +344,13 @@
   "benefitsPage": {
     "hero": {
       "badge": "RPM Benefits",
-      "title": "Results that transform patients, teams, and operations",
+      "title": "More insight for follow-up. Stronger connections for care.",
       "subtitle": "More quality of life for patients, faster clinical decisions for doctors, and efficiency for the institution. Discover the proven gains of RPM.",
       "button": {
-        "primary": "Request demo",
-        "secondary": "View cases"
+        "primary": "Schedule a demo",
+        "secondary": "View cases on the blog"
       },
-      "titleEm": "transform"
+      "titleEm": "connections"
     },
     "patient": {
       "badge": "For the patient",
@@ -360,7 +362,7 @@
       },
       "card2": {
         "title": "24/7 access",
-        "desc": "Your health monitored at all times, with alerts that reach the clinical team in seconds."
+        "desc": "Readings and alerts available to support monitoring according to the care plan."
       },
       "card3": {
         "title": "Better quality of life",
@@ -384,7 +386,7 @@
       "button": "Request proposal",
       "dashboard": {
         "subtitle": "RPM dashboard",
-        "live": "Live",
+        "live": "Illustrative example",
         "active": "Active patients",
         "activeDelta": "+12% this week",
         "saved": "Savings generated",
@@ -417,24 +419,21 @@
       "row4": "Time until action",
       "row5": "Reach of follow-up",
       "subtitle": "The difference is not in what each model promises — it is in the gap between one piece of information and the next.",
-      "row1trad": "Once per appointment, every 30 to 90 days",
-      "row1rpm": "Daily and automatic, with nothing for the patient to remember",
       "row2trad": "On deterioration, once symptoms are already there",
-      "row2rpm": "On the first deviation from the pattern, before symptoms",
-      "row3trad": "The patient's recollection at the visit",
-      "row3rpm": "The device reading, straight into the platform",
-      "row4trad": "Weeks, until a slot opens in the schedule",
-      "row4rpm": "Hours — the alert lands on the team's screen",
-      "row5trad": "Only those who can travel to the clinic",
-      "row5rpm": "Every monitored patient, wherever they are",
-      "titleEm": "RPM"
+      "row2rpm": "Changes in readings can trigger alerts for clinical assessment.",
+      "row4trad": "Weeks until a slot opens in the schedule",
+      "row4rpm": "Seconds — the alert lands on the team's screen",
+      "titleEm": "RPM",
+      "row1both": "Measurements at appointments and according to clinical instructions. With RPM, readings can also be shared between appointments, according to the plan and device.",
+      "row3both": "Assessment brings together clinical information and patient reports. RPM adds readings shared by compatible devices.",
+      "row5both": "In-person care is complemented by remote follow-up for eligible patients, subject to connectivity and usage requirements."
     },
     "cta": {
       "badge": "Next step",
       "title": "Ready to reap these results?",
       "subtitle": "Schedule a conversation and see how Emmitec's RPM can adapt to your institution's reality.",
       "button": {
-        "primary": "Request demo",
+        "primary": "Schedule a demo",
         "secondary": "Meet Emmitec →"
       },
       "titleEm": "reap"
@@ -443,7 +442,7 @@
   "appsPage": {
     "suite": {
       "badge": "Our suite",
-      "title": "Explore the EmmiTec apps",
+      "title": "Explore Emmitec apps.",
       "subtitle": "Built for different care scenarios, all under the same international standards of quality, security, and interoperability.",
       "titleEm": "apps"
     },
@@ -452,7 +451,7 @@
       "title": "Apps that set new standards for digital health",
       "subtitle": "At Emmitec Health, we develop apps built to the highest international standards of quality, security, and interoperability — certified by the world's leading regulatory authorities.",
       "button": {
-        "primary": "Request Demo",
+        "primary": "Schedule a demo",
         "secondary": "Explore the platform"
       },
       "titleEm": "digital health"
@@ -469,18 +468,18 @@
     },
     "clinical": {
       "badge": "Modular platform",
-      "title": "Hardware-agnostic, adaptable to any care scenario",
+      "title": "Choose compatible devices for your care program.",
       "description": "As our platform is modular and hardware-agnostic, we work with a wide variety of integrated devices — allowing healthcare professionals to choose the best solutions for each care scenario.",
       "feature1": "Compatible with over 200 medical devices on the market",
       "feature2": "Integration with major electronic health record systems",
       "feature3": "Modular architecture that scales to your needs",
       "feature4": "Open APIs to connect custom solutions",
       "button": "Request access",
-      "titleEm": "adaptable"
+      "titleEm": "compatible"
     },
     "features": {
       "badge": "Differentiators",
-      "title": "What makes our apps unique",
+      "title": "What sets our apps apart",
       "subtitle": "A platform built to meet the most rigorous requirements of the healthcare market, with flexibility for every clinical reality.",
       "card1": {
         "title": "International certification",
@@ -492,7 +491,7 @@
       },
       "card3": {
         "title": "Interoperability",
-        "desc": "Native integration with HL7 and FHIR standards to connect with any hospital system."
+        "desc": "Integration with HL7 and FHIR standards to support connections with compatible systems."
       },
       "card4": {
         "title": "Modular platform",
@@ -506,7 +505,7 @@
         "title": "Specialized support",
         "desc": "Dedicated technical team to ensure safe deployment and continuous operation."
       },
-      "titleEm": "unique"
+      "titleEm": "apart"
     },
     "cta": {
       "badge": "Available now",
@@ -599,7 +598,7 @@
       "relatedBadge": "Continue Reading",
       "relatedTitle": "Related Articles",
       "share": "Share",
-      "requestDemo": "Request Demo",
+      "requestDemo": "Schedule a demo",
       "relatedTitleEm": "Related",
       "toc": "In this article",
       "copied": "Link copied",
@@ -625,7 +624,8 @@
       "metabolic": "Metabolic",
       "respiratory": "Respiratory",
       "wearables": "Wearables",
-      "titleEm": "clinical need"
+      "titleEm": "clinical need",
+      "subtitle": "Filter by category and compare available models."
     },
     "devices": {
       "d1": {
@@ -664,8 +664,8 @@
     "compatibility": {
       "badge": "Compatibility",
       "title": "Native integration with industry standards",
-      "description": "Our platform is built on open industry standards, ensuring interoperability with hospital systems, EHRs, and new devices.",
-      "item1": "Bluetooth Low Energy 5.0+ for low power consumption",
+      "description": "Emmitec uses open standards to connect compatible devices and systems. Available readings and connection requirements vary by model and integration.",
+      "item1": "Bluetooth Low Energy for low power consumption",
       "item2": "Wi-Fi 2.4 GHz and 5 GHz for clinics and home environments",
       "item3": "HL7 and FHIR for integration with electronic health records",
       "item4": "REST APIs and webhooks to connect custom systems",
@@ -675,19 +675,19 @@
     },
     "cert": {
       "badge": "Certifications",
-      "title": "Certified and compliant equipment",
+      "title": "Check each device's documentation.",
       "c1": "Brazil",
       "c2": "United States",
       "c3": "European Union",
       "c4": "Medical quality",
-      "titleEm": "Certified"
+      "titleEm": "documentation"
     },
     "cta": {
       "badge": "Next step",
       "title": "Didn't find the device you're looking for?",
       "subtitle": "We continuously evaluate new equipment. Talk to our team and explore the options available for your operation.",
       "button": {
-        "primary": "Request demo",
+        "primary": "Schedule a demo",
         "secondary": "Meet Emmitec →"
       },
       "titleEm": "device"
@@ -698,7 +698,7 @@
       "about": "About this device",
       "allFeatures": "All features",
       "ctaTitle": "Want to know more?",
-      "ctaDesc": "Talk to our team and discover how this device can help in your treatment.",
+      "ctaDesc": "Talk to our team to assess how this device fits your monitoring program.",
       "contactButton": "Contact Us",
       "share": "Share",
       "relatedBadge": "Continue Exploring",
@@ -732,7 +732,7 @@
       "login": "Login",
       "language": "Language"
     },
-    "cta": "Book a demo",
+    "cta": "Schedule a demo",
     "menu": "Open menu",
     "menuLabel": "Menu",
     "close": "Close",
@@ -742,13 +742,13 @@
     "tagline": "Transforming lives with health technology. Intelligent remote monitoring for more humane and efficient care.",
     "links": {
       "title": "Links",
-      "ourHistory": "Our History",
+      "ourHistory": "Our history",
       "whatIsRpm": "What is RPM",
       "benefits": "Benefits",
       "blog": "Blog",
       "contact": "Contact",
       "certificates": "Apps",
-      "privacyTerms": "Privacy Terms"
+      "privacyTerms": "Privacy Policy"
     },
     "blogCol": {
       "title": "Blog",
@@ -759,13 +759,13 @@
       "reviews": "Reviews"
     },
     "newsletter": {
-      "title": "Subscribe to our Newsletter",
-      "description": "Receive weekly all our updates on",
-      "highlight": "Innovations in Remote Patient Monitoring",
-      "placeholder": "Enter email",
-      "submit": "Send",
+      "title": "Get updates on remote patient monitoring.",
+      "description": "Receive Emmitec content and updates on",
+      "highlight": "connected patient monitoring.",
+      "placeholder": "Your email",
+      "submit": "Subscribe",
       "privacy": "Your data is secure. We don't send spam.",
-      "titleEm": "Newsletter"
+      "titleEm": "patient monitoring"
     },
     "countries": {
       "br": "Brazil",
@@ -778,7 +778,7 @@
   },
   "privacyPage": {
     "badge": "Legal",
-    "title": "Privacy Terms",
+    "title": "Privacy Policy",
     "subtitle": "How Emmitec Health collects, uses, and protects your information.",
     "updated": "Last updated: July 2026",
     "contactNote": "Privacy questions? Contact us at contato{'@'}emmitec.health or through the official channels on this site.",
@@ -801,11 +801,11 @@
       },
       {
         "title": "5. Security and retention",
-        "body": "We apply technical and organizational measures aligned with market best practices and applicable requirements (including privacy laws). We keep data only as long as needed for stated purposes or legal requirements."
+        "body": "We apply technical and organizational measures aligned with market best practices and applicable requirements (including LGPD). We keep data only as long as needed for stated purposes or legal requirements."
       },
       {
         "title": "6. Your rights",
-        "body": "You may request access, correction, anonymization, portability, or deletion of personal data, and revoke consents, within applicable law. We will respond through official contact channels."
+        "body": "You may request access, correction, anonymization, portability, or deletion of personal data, and revoke consents, within applicable law. To submit a request about your personal data, email contato{'@'}emmitec.health."
       },
       {
         "title": "7. Cookies and website",
@@ -813,7 +813,7 @@
       },
       {
         "title": "8. Changes",
-        "body": "We may update these Privacy Terms periodically. The revision date will appear on this page. Continued use of the site after changes means you acknowledge the current version."
+        "body": "We may update this Privacy Policy periodically. The revision date will appear on this page. Continued use of the site after changes means you acknowledge the current version."
       }
     ],
     "titleEm": "Privacy",
@@ -844,5 +844,21 @@
       }
     },
     "days": "SMTWTFS"
+  },
+  "linksPage": {
+    "bio": "Remote patient monitoring platform. White-label, multi-device and integrated.",
+    "social": "Follow Emmitec",
+    "links": {
+      "demo": "Book online via Calendly",
+      "platform": "Sign in or sign up to the platform",
+      "whatsapp": "Chat with us on WhatsApp",
+      "site": "Visit our website",
+      "apps": "Download our apps",
+      "appsNote": "iOS and Android",
+      "blog": "Read our blog",
+      "blogNote": "Trends, cases and regulation",
+      "email": "Send us an email"
+    },
+    "map": "View on map"
   }
 }

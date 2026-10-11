@@ -28,6 +28,18 @@ export const addresses = [
   { country: 'uk', text: 'Innovation Centre, Gallows Hill, Warwick CV34 6UW' },
 ] as const
 
+/** Canal público de contato (também recebe as solicitações sobre dados pessoais). */
+export const CONTACT_EMAIL = 'contato@emmitec.health'
+
+/** Plataforma (acesso e cadastro) — o mesmo destino do Linktree oficial. */
+export const PLATFORM_URL = 'https://app.emmitec.health'
+
+/** WhatsApp comercial (Brasil). */
+export const whatsapp = {
+  display: '+55 41 9229-9940',
+  href: 'https://api.whatsapp.com/send?phone=554192299940',
+}
+
 export const socialLinks = [
   { name: 'Facebook', href: 'https://www.facebook.com/emmitechealth', icon: Facebook },
   { name: 'Instagram', href: 'https://www.instagram.com/emmitec.health/', icon: Instagram },

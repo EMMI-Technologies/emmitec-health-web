@@ -14,6 +14,7 @@ import {
   Droplet,
   HeartHandshake,
   HeartPulse,
+  Stethoscope,
   Wifi,
 } from 'lucide-vue-next'
 
@@ -37,9 +38,10 @@ const steps = computed(() =>
   })),
 )
 
-const faces = ['', 'em-key--sky', 'em-key--mint', 'em-key--sand']
+// os perfis são exemplos: o quinto card ("outras condições crônicas") deixa isso claro
+const faces = ['', 'em-key--sky', 'em-key--mint', 'em-key--sand', 'em-key--lilac']
 const profiles = computed(() =>
-  [HeartPulse, Bandage, Droplet, HeartHandshake].map((icon, i) => ({
+  [HeartPulse, Bandage, Droplet, HeartHandshake, Stethoscope].map((icon, i) => ({
     icon,
     face: faces[i] ?? '',
     label: t(`whatIsRpm.who.item${i + 1}`),
@@ -117,7 +119,7 @@ const profiles = computed(() =>
           </div>
           <p v-reveal="150">{{ t('whatIsRpm.who.subtitle') }}</p>
         </div>
-        <div class="em-plans em-plans--4">
+        <div class="em-plans em-plans--5">
           <article
             v-for="(p, i) in profiles"
             :key="p.label"

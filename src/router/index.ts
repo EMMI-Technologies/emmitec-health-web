@@ -57,6 +57,14 @@ const router = createRouter({
       name: 'privacy',
       component: () => import('../views/PrivacyView.vue'),
     },
+    {
+      // página de links (bio do Instagram e afins): sem menu, rodapé nem tela de entrada
+      path: '/links',
+      alias: '/linktree',
+      name: 'links',
+      component: () => import('../views/LinksView.vue'),
+      meta: { bare: true },
+    },
   ],
   // Toda navegação começa no topo (exceto voltar/avançar, que restaura a posição).
   // Âncoras (#id) usam a rolagem suave do Design System.
