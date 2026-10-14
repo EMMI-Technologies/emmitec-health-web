@@ -66,6 +66,12 @@ const router = createRouter({
       component: () => import('../views/LinksView.vue'),
       meta: { bare: true },
     },
+    {
+      // qualquer endereço sem rota cai na 404 (antes a tela ficava só com o rodapé)
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/NotFoundView.vue'),
+    },
   ],
   // Toda navegação começa no topo (exceto voltar/avançar, que restaura a posição).
   // Âncoras (#id) usam a rolagem suave do Design System.

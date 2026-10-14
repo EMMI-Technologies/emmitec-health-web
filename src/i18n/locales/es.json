@@ -805,5 +805,12 @@
     "equipmentEmptyText": "Los dispositivos aparecen aquí en cuanto se registran.",
     "equipmentItemError": "No pudimos cargar este equipo",
     "equipmentNotFound": "Equipo no encontrado"
+  },
+  "notFoundPage": {
+    "badge": "Error 404",
+    "title": "Página no encontrada",
+    "titleEm": "no encontrada",
+    "subtitle": "La dirección puede haber cambiado o el contenido ya no está disponible. Vuelve al inicio o sigue por el menú.",
+    "home": "Volver al inicio"
   }
 }

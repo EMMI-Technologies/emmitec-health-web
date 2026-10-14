@@ -805,5 +805,12 @@
     "equipmentEmptyText": "Devices show up here as soon as they are added.",
     "equipmentItemError": "We could not load this device",
     "equipmentNotFound": "Device not found"
+  },
+  "notFoundPage": {
+    "badge": "Error 404",
+    "title": "Page not found",
+    "titleEm": "not found",
+    "subtitle": "The address may have changed or the content was taken down. Go back to the home page or use the menu.",
+    "home": "Back to home"
   }
 }
