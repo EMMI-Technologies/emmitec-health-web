@@ -15,6 +15,7 @@ import EmButton from '@/components/em/EmButton.vue'
 import EmSplit from '@/components/em/EmSplit.vue'
 import EmSkeleton from '@/components/em/EmSkeleton.vue'
 import EmState from '@/components/em/EmState.vue'
+import EmBackButton from '@/components/em/EmBackButton.vue'
 import { useToc } from '@/lib/useToc'
 import { calendlyUrl } from '@/lib/site'
 import { plainText, usePageMeta } from '@/lib/seo'
@@ -330,5 +331,7 @@ onBeforeUnmount(() => window.clearTimeout(copiedT))
         </div>
       </section>
     </template>
+
+    <EmBackButton fallback="/blog" />
   </div>
 </template>

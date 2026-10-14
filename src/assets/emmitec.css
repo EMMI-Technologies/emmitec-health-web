@@ -6816,6 +6816,88 @@ p.em-compare__rpm {
 .em-round:active {
   transform: scale(0.94);
 }
+
+/* ---------- Botão fixo de voltar (EmBackButton): artigo e dispositivo ---------- */
+.em-backfab {
+  position: fixed;
+  /* acima do desfoque da borda (40), abaixo do menu (50) */
+  z-index: 45;
+  left: max(16px, calc((100vw - 1216px) / 2));
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 18px 0 6px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font: 500 15px/1 var(--font-sans);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    0 12px 30px rgba(6, 70, 78, 0.14);
+  /* entra depois que a página assentou (na troca de página ela ainda está se movendo) */
+  opacity: 0;
+  translate: 0 16px;
+  animation: em-backfab-in 0.8s var(--em-ease-out) 0.9s forwards;
+  transition:
+    filter var(--dur-base) var(--em-ease-out),
+    box-shadow var(--dur-base) var(--em-ease-out);
+}
+.em-backfab__ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--cyan-300);
+  background: var(--night-900);
+  transition: transform var(--dur-base) var(--em-ease-out);
+}
+.em-backfab__ic svg {
+  width: 18px;
+  height: 18px;
+}
+.em-backfab:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--cyan-500),
+    0 14px 34px rgba(6, 70, 78, 0.18);
+}
+.em-backfab:hover .em-backfab__ic {
+  transform: translateX(-3px);
+}
+.em-backfab:focus-visible {
+  outline: 2px solid var(--cyan-600);
+  outline-offset: 3px;
+}
+/* rodapé à vista: sai do caminho (filter, para não reiniciar a animação de entrada) */
+.em-backfab.is-hidden {
+  filter: opacity(0);
+  pointer-events: none;
+}
+@keyframes em-backfab-in {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (max-width: 640px) {
+  .em-backfab {
+    bottom: 16px;
+    padding: 0 6px;
+  }
+  .em-backfab__txt {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .em-backfab {
+    opacity: 1;
+    translate: none;
+  }
+}
 .em-avatar {
   width: 44px;
   height: 44px;

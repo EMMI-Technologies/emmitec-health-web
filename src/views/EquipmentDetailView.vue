@@ -18,6 +18,7 @@ import EmDeviceFloat from '@/components/em/EmDeviceFloat.vue'
 import EmDeviceCard from '@/components/em/EmDeviceCard.vue'
 import EmSkeleton from '@/components/em/EmSkeleton.vue'
 import EmState from '@/components/em/EmState.vue'
+import EmBackButton from '@/components/em/EmBackButton.vue'
 import { calendlyUrl } from '@/lib/site'
 import { connectivityIcon as connIcon } from '@/lib/icons'
 import { plainText, usePageMeta } from '@/lib/seo'
@@ -410,5 +411,7 @@ async function share() {
         </div>
       </section>
     </template>
+
+    <EmBackButton fallback="/equipment" />
   </div>
 </template>
