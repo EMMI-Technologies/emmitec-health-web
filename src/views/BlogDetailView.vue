@@ -298,8 +298,22 @@ onBeforeUnmount(() => window.clearTimeout(copiedT))
               :to="`/blog/${a.slug}`"
               class="em-post em-card em-card--lift"
             >
-              <div class="em-post__cover" :style="{ '--tone': a.tone }">
-                <span class="em-post__n" aria-hidden="true">{{
+              <div
+                class="em-post__cover"
+                :class="{ 'em-post__cover--photo': a.img }"
+                :style="{ '--tone': a.tone }"
+              >
+                <img
+                  v-if="a.img"
+                  class="em-post__photo"
+                  :src="a.img"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  width="1400"
+                  height="1089"
+                />
+                <span v-else class="em-post__n" aria-hidden="true">{{
                   pad(position.get(a.slug) ?? i + 1)
                 }}</span>
                 <span class="em-chip em-chip--glass"

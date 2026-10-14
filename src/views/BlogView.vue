@@ -16,6 +16,7 @@ import EmSplit from '@/components/em/EmSplit.vue'
 import EmCta from '@/components/em/EmCta.vue'
 import EmSkeleton from '@/components/em/EmSkeleton.vue'
 import EmState from '@/components/em/EmState.vue'
+import EmPagination from '@/components/em/EmPagination.vue'
 import { RM, scrollToEl } from '@/lib/motion'
 import { afterPageEnter } from '@/lib/pageTransition'
 import { usePageMeta } from '@/lib/seo'
@@ -144,6 +145,23 @@ const filtered = computed(() => {
         a.tags.some((tag) => tag.toLowerCase().includes(q))),
   )
 })
+
+/** A API devolve todos os artigos: as páginas de 12 são feitas aqui. */
+const PER_PAGE = 12
+const page = ref(1)
+const pageCount = computed(() => Math.max(1, Math.ceil(filtered.value.length / PER_PAGE)))
+const paged = computed(() =>
+  filtered.value.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE),
+)
+watch([activeCategory, searchQuery], () => (page.value = 1))
+// lista encolheu (troca de idioma, artigo despublicado): fica na última página que existe
+watch(pageCount, (n) => {
+  if (page.value > n) page.value = n
+})
+function goPage(n: number) {
+  page.value = n
+  toSection('artigos')
+}
 
 function setCategory(id: string) {
   activeCategory.value = id
@@ -416,9 +434,19 @@ onBeforeUnmount(() => {
                 @blur="hoverRead = -1"
               >
                 <span class="em-read__n">({{ pad(i + 1) }})</span>
-                <span class="em-read__thumb" :style="{ '--tone': p.tone }" aria-hidden="true">{{
-                  pad(i + 1)
-                }}</span>
+                <!-- a capa do artigo; sem capa, o número sobre o tom pastel -->
+                <span class="em-read__thumb" :style="{ '--tone': p.tone }" aria-hidden="true">
+                  <img
+                    v-if="p.img"
+                    :src="p.img"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="1400"
+                    height="1089"
+                  />
+                  <template v-else>{{ pad(i + 1) }}</template>
+                </span>
                 <span class="em-read__main">
                   <small>{{ p.catLabel }} · {{ p.readTime }}</small>
                   <strong>{{ p.title }}</strong>
@@ -506,46 +534,69 @@ onBeforeUnmount(() => {
             }}</span>
           </div>
 
-          <!-- trocar de categoria refaz a grade, e os cards entram de novo em sequência -->
-          <div v-if="filtered.length" :key="activeCategory" class="em-posts em-posts--grid">
-            <RouterLink
-              v-for="(a, i) in filtered"
-              :key="a.slug"
-              v-reveal="(i % 3) * 90"
-              v-spot
-              :to="`/blog/${a.slug}`"
-              class="em-post em-card em-card--lift"
-            >
-              <div class="em-post__cover" :style="{ '--tone': a.tone }">
-                <span class="em-post__n" aria-hidden="true">{{
-                  pad(position.get(a.slug) ?? i + 1)
-                }}</span>
-                <span class="em-chip em-chip--glass"
-                  ><Tag :stroke-width="1.8" aria-hidden="true" />{{ a.catLabel }}</span
+          <!-- trocar de categoria ou de página refaz a grade, e os cards entram de novo -->
+          <template v-if="filtered.length">
+            <div :key="`${activeCategory}-${page}`" class="em-posts em-posts--grid">
+              <RouterLink
+                v-for="(a, i) in paged"
+                :key="a.slug"
+                v-reveal="(i % 3) * 90"
+                v-spot
+                :to="`/blog/${a.slug}`"
+                class="em-post em-card em-card--lift"
+              >
+                <div
+                  class="em-post__cover"
+                  :class="{ 'em-post__cover--photo': a.img }"
+                  :style="{ '--tone': a.tone }"
                 >
-                <span class="em-corner" aria-hidden="true">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                  <img
+                    v-if="a.img"
+                    class="em-post__photo"
+                    :src="a.img"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="1400"
+                    height="1089"
+                  />
+                  <span v-else class="em-post__n" aria-hidden="true">{{
+                    pad(position.get(a.slug) ?? i + 1)
+                  }}</span>
+                  <span class="em-chip em-chip--glass"
+                    ><Tag :stroke-width="1.8" aria-hidden="true" />{{ a.catLabel }}</span
                   >
-                    <path d="M7 17L17 7M8 7h9v9" />
-                  </svg>
-                </span>
-              </div>
-              <div class="em-post__body">
-                <span class="em-post__date"
-                  ><time :datetime="a.publishedAt">{{ a.dateLabel }}</time> · {{ a.readTime }}</span
-                >
-                <h3>{{ a.title }}</h3>
-                <p>{{ a.excerpt }}</p>
-                <span class="em-post__more">{{ t('blogPage.preview.readArticle') }}</span>
-              </div>
-            </RouterLink>
-          </div>
+                  <span class="em-corner" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M7 17L17 7M8 7h9v9" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="em-post__body">
+                  <span class="em-post__date"
+                    ><time :datetime="a.publishedAt">{{ a.dateLabel }}</time> ·
+                    {{ a.readTime }}</span
+                  >
+                  <h3>{{ a.title }}</h3>
+                  <p>{{ a.excerpt }}</p>
+                  <span class="em-post__more">{{ t('blogPage.preview.readArticle') }}</span>
+                </div>
+              </RouterLink>
+            </div>
+            <EmPagination
+              v-if="pageCount > 1"
+              :model-value="page"
+              :pages="pageCount"
+              @update:model-value="goPage"
+            />
+          </template>
 
           <div v-else class="em-empty em-card">
             <span class="em-ico" aria-hidden="true"><Search :stroke-width="1.7" /></span>

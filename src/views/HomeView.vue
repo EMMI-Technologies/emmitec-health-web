@@ -753,8 +753,22 @@ onBeforeUnmount(() => offStack?.())
             :to="`/blog/${p.slug}`"
             class="em-post em-card em-card--lift"
           >
-            <div class="em-post__cover" :style="{ '--tone': p.tone }">
-              <span class="em-post__n" aria-hidden="true">{{ pad(i + 1) }}</span>
+            <div
+              class="em-post__cover"
+              :class="{ 'em-post__cover--photo': p.img }"
+              :style="{ '--tone': p.tone }"
+            >
+              <img
+                v-if="p.img"
+                class="em-post__photo"
+                :src="p.img"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                width="1400"
+                height="1089"
+              />
+              <span v-else class="em-post__n" aria-hidden="true">{{ pad(i + 1) }}</span>
               <span class="em-chip em-chip--glass">{{ p.catLabel }}</span>
               <span class="em-corner" aria-hidden="true">
                 <svg

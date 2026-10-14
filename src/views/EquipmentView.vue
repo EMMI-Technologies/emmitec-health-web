@@ -17,6 +17,7 @@ import EmOdometer from '@/components/em/EmOdometer.vue'
 import EmDeviceCard from '@/components/em/EmDeviceCard.vue'
 import EmSkeleton from '@/components/em/EmSkeleton.vue'
 import EmState from '@/components/em/EmState.vue'
+import EmPagination from '@/components/em/EmPagination.vue'
 import { scrollToEl } from '@/lib/motion'
 import { calendlyUrl } from '@/lib/site'
 import { connectivityIcon } from '@/lib/icons'
@@ -71,6 +72,23 @@ const filtered = computed(() =>
     ? devices.value
     : devices.value.filter((d) => d.cat === activeCategory.value),
 )
+
+/** A API devolve o catálogo inteiro (não pagina): as páginas de 20 são feitas aqui. */
+const PER_PAGE = 20
+const page = ref(1)
+const pageCount = computed(() => Math.max(1, Math.ceil(filtered.value.length / PER_PAGE)))
+const paged = computed(() =>
+  filtered.value.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE),
+)
+watch(activeCategory, () => (page.value = 1))
+// lista encolheu (troca de idioma, item desativado): fica na última página que existe
+watch(pageCount, (n) => {
+  if (page.value > n) page.value = n
+})
+function goPage(n: number) {
+  page.value = n
+  toCatalog()
+}
 
 const tabsEl = ref<HTMLElement | null>(null)
 const ind = ref({ x: 0, w: 0, on: false })
@@ -187,16 +205,24 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
           :title="t('state.equipmentEmpty')"
           :text="t('state.equipmentEmptyText')"
         />
-        <!-- trocar de categoria refaz a grade, e os cards entram de novo em sequência -->
-        <div v-else :key="activeCategory" class="em-devices">
-          <EmDeviceCard
-            v-for="(d, i) in filtered"
-            :key="d.id"
-            v-reveal="(i % 4) * 80"
-            v-spot
-            :device="d"
+        <template v-else>
+          <!-- trocar de categoria ou de página refaz a grade, e os cards entram de novo -->
+          <div :key="`${activeCategory}-${page}`" class="em-devices">
+            <EmDeviceCard
+              v-for="(d, i) in paged"
+              :key="d.id"
+              v-reveal="(i % 4) * 80"
+              v-spot
+              :device="d"
+            />
+          </div>
+          <EmPagination
+            v-if="pageCount > 1"
+            :model-value="page"
+            :pages="pageCount"
+            @update:model-value="goPage"
           />
-        </div>
+        </template>
       </div>
     </section>
 

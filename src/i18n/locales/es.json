@@ -644,7 +644,8 @@
     "goToSlide": "Ir a la página {index}",
     "prevSlide": "Página anterior",
     "nextSlide": "Página siguiente",
-    "breadcrumb": "Está en"
+    "breadcrumb": "Está en",
+    "pagination": "Paginación"
   },
   "header": {
     "nav": {
