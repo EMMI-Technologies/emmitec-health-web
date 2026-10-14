@@ -7587,7 +7587,7 @@ p.em-compare__rpm {
   content: '';
 }
 
-/* giro contínuo (selos de certificação, mostrador de 24 h) */
+/* giro contínuo (mostrador de 24 h) */
 @keyframes em-orbit-spin {
   to {
     transform: rotate(360deg);
@@ -8141,36 +8141,16 @@ p.em-compare__rpm {
   display: grid;
   place-items: center;
 }
-.em-seal__stamp > svg {
-  position: absolute;
-  inset: 0;
+/* logo oficial: os PNGs têm a mesma tela (480×480) e a mesma área visual, então basta caber */
+.em-seal__logo {
+  display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
-  animation: em-orbit-spin 32s linear infinite;
-}
-.em-seal__stamp text {
-  font: 600 9.6px/1 var(--font-sans);
-  letter-spacing: 0.16em;
-  fill: var(--cyan-700);
-}
-.em-seal__ico {
-  width: 66px;
-  height: 66px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--night-900);
-  color: var(--cyan-300);
-  box-shadow: 0 0 0 8px var(--cyan-50);
+  object-fit: contain;
   transition: transform var(--dur-slow) var(--em-ease-out);
 }
-.em-seal__ico svg {
-  width: 28px;
-  height: 28px;
-}
-.em-seal:hover .em-seal__ico {
-  transform: scale(1.08) rotate(-8deg);
+.em-seal:hover .em-seal__logo {
+  transform: scale(1.06);
 }
 .em-seal b {
   font-size: 30px;
@@ -9029,10 +9009,6 @@ p.em-compare__rpm {
     width: 104px;
     height: 104px;
   }
-  .em-seal__ico {
-    width: 52px;
-    height: 52px;
-  }
   .em-seal b {
     font-size: 22px;
   }
@@ -9041,7 +9017,6 @@ p.em-compare__rpm {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .em-seal__stamp svg,
   .em-screen__sweep::after {
     animation: none;
   }

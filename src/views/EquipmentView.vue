@@ -7,7 +7,7 @@
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Activity, Bluetooth, ShieldCheck, Watch, Webhook } from 'lucide-vue-next'
+import { Activity, Bluetooth, Watch, Webhook } from 'lucide-vue-next'
 
 import EmPageHero from '@/components/em/EmPageHero.vue'
 import EmButton from '@/components/em/EmButton.vue'
@@ -22,6 +22,10 @@ import { calendlyUrl } from '@/lib/site'
 import { connectivityIcon } from '@/lib/icons'
 import { usePageMeta } from '@/lib/seo'
 import { useDeviceCategories, useDevices } from '@/lib/equipment'
+import anvisaLogo from '@/assets/certs/anvisa.png'
+import fdaLogo from '@/assets/certs/fda.png'
+import ceLogo from '@/assets/certs/ce.png'
+import isoLogo from '@/assets/certs/iso.png'
 
 const { t } = useI18n()
 const list = useDevices()
@@ -76,19 +80,13 @@ function placeIndicator() {
 }
 watch([activeCategory, categories, loading], () => nextTick(placeIndicator))
 
-/* ── (02) certificações ── */
+/* ── (02) certificações: logos oficiais em PNG 480×480, todas com a mesma área visual ── */
 const certifications = computed(() => [
-  { code: 'ANVISA', label: t('equipmentPage.cert.c1') },
-  { code: 'FDA', label: t('equipmentPage.cert.c2') },
-  { code: 'CE', label: t('equipmentPage.cert.c3') },
-  { code: 'ISO 13485', label: t('equipmentPage.cert.c4') },
+  { code: 'ANVISA', label: t('equipmentPage.cert.c1'), logo: anvisaLogo },
+  { code: 'FDA', label: t('equipmentPage.cert.c2'), logo: fdaLogo },
+  { code: 'CE', label: t('equipmentPage.cert.c3'), logo: ceLogo },
+  { code: 'ISO 13485', label: t('equipmentPage.cert.c4'), logo: isoLogo },
 ])
-
-/** Texto do anel do selo: repete até dar a volta sem sobrar espaço. */
-function sealText(c: { code: string; label: string }) {
-  const unit = `${c.code} · ${c.label} · `.toUpperCase()
-  return unit.repeat(Math.max(1, Math.ceil(30 / unit.length)))
-}
 
 /* ── (03) compatibilidade ── */
 const compatibilityItems = computed(() =>
@@ -219,21 +217,17 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
             v-spot
             class="em-seal em-card"
           >
+            <!-- o nome vem logo abaixo, então a logo é só visual -->
             <span class="em-seal__stamp" aria-hidden="true">
-              <svg viewBox="0 0 120 120">
-                <defs>
-                  <path
-                    :id="`em-seal-arc-${i}`"
-                    d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"
-                  />
-                </defs>
-                <text>
-                  <textPath :href="`#em-seal-arc-${i}`" textLength="289" lengthAdjust="spacing">
-                    {{ sealText(c) }}
-                  </textPath>
-                </text>
-              </svg>
-              <span class="em-seal__ico"><ShieldCheck :stroke-width="1.6" /></span>
+              <img
+                class="em-seal__logo"
+                :src="c.logo"
+                alt=""
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
+              />
             </span>
             <b>{{ c.code }}</b>
             <span>{{ c.label }}</span>
