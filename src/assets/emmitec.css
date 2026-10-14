@@ -7846,9 +7846,10 @@ p.em-compare__rpm {
   bottom: 12%;
   width: 86%;
   aspect-ratio: 1;
-  translate: -50% 50%;
   opacity: 0;
-  transform: perspective(900px) rotateX(76deg);
+  /* centraliza dentro da própria transform: com a propriedade `translate` na mesma regra,
+     o minificador do build de produção descarta o translate e o anel sai do lugar */
+  transform: translate(-50%, 50%) perspective(900px) rotateX(76deg);
   transition: opacity 1.6s var(--em-ease-out) 0.3s;
 }
 .em-float__floor i {
