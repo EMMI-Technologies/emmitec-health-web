@@ -7594,20 +7594,291 @@ p.em-compare__rpm {
   }
 }
 
-/* página do dispositivo: a tela flutua à direita do hero */
+/* página do dispositivo: o aparelho flutua solto à direita do hero */
 .em-hero--visual.em-hero--article .em-hero__title {
   max-width: 10em;
 }
-.em-devhero {
-  width: min(400px, 30vw);
-  padding: 10px;
-  border-radius: 28px;
-  rotate: 3deg;
-  animation: em-bob 7s var(--em-ease-in-out) infinite alternate;
+
+/* ---------- Aparelho solto (EmDeviceFloat): o PNG levitando, sem card ---------- */
+/* no hero a arte não tem camada própria: a foto com fundo (multiply) mistura direto nele */
+.em-hero__visual--bare {
+  z-index: auto;
 }
-@media (min-width: 1101px) {
-  .em-product__panel .em-screen {
-    display: none;
+.em-float {
+  /* os selos (base do hero de Aplicativos) leem --p; aqui o paralaxe vai direto no translate */
+  --p: 0;
+  /* laços contínuos em seno: sem a parada longa nas pontas da curva de interface */
+  --float-ease: cubic-bezier(0.37, 0, 0.63, 1);
+  position: relative;
+}
+/* fora da tela nada anima */
+.em-float.is-paused *,
+.em-float.is-paused *::before {
+  animation-play-state: paused;
+}
+.em-float--hero {
+  width: min(480px, 34vw);
+  height: clamp(340px, calc(100svh - 330px), 560px);
+}
+.em-float--stage {
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+/* luz suave no tom do dispositivo, atrás do aparelho */
+.em-float__aura {
+  position: absolute;
+  inset: 2% 6% 16%;
+  opacity: 0;
+  will-change: translate;
+  transition: opacity 1.8s var(--em-ease-out) 0.1s;
+}
+.em-float__aura::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* degradê já esfumado (sem filter: blur, que seria refeito a cada quadro da animação) */
+  background: radial-gradient(
+    closest-side,
+    var(--tone, var(--cyan-100)),
+    color-mix(in srgb, var(--tone, var(--cyan-100)) 55%, transparent) 45%,
+    color-mix(in srgb, var(--tone, var(--cyan-100)) 15%, transparent) 75%,
+    transparent
+  );
+  opacity: 0.7;
+}
+/* chão: poça de luz e um anel fino deitados em perspectiva, ondas de sinal saindo devagar */
+.em-float__floor {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: 86%;
+  aspect-ratio: 1;
+  translate: -50% 50%;
+  opacity: 0;
+  transform: perspective(900px) rotateX(76deg);
+  transition: opacity 1.6s var(--em-ease-out) 0.3s;
+}
+.em-float__floor i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.em-float__disc {
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.8),
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 72%
+  );
+}
+.em-float__floor .em-float__ring {
+  inset: 12%;
+  border: 2px solid rgba(17, 211, 211, 0.3);
+}
+.em-float__floor .em-float__wave {
+  inset: 22%;
+  border: 2px solid rgba(17, 211, 211, 0.4);
+  opacity: 0;
+  animation: em-float-wave 4.8s var(--em-ease-out) infinite;
+}
+.em-float__floor .em-float__wave--2 {
+  animation-delay: 2.4s;
+}
+/* sombra de contato: encolhe e clareia quando o aparelho sobe */
+.em-float__shadow {
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  bottom: 9%;
+  height: 8%;
+  opacity: 0;
+  will-change: translate;
+  transition: opacity 1.4s var(--em-ease-out) 0.6s;
+}
+.em-float__shadow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(6, 64, 72, 0.3),
+    rgba(6, 64, 72, 0.17) 40%,
+    rgba(6, 64, 72, 0.05) 72%,
+    rgba(6, 64, 72, 0)
+  );
+  animation: em-float-shadow 6s var(--float-ease) infinite alternate;
+}
+.is-in .em-float__aura,
+.is-in .em-float__floor,
+.is-in .em-float__shadow {
+  opacity: 1;
+}
+/* o aparelho: levita e acompanha o cursor só alguns pixels (sem girar) */
+.em-float__obj {
+  position: absolute;
+  inset: 4% 8% 24%;
+  will-change: translate;
+}
+.em-float__bob {
+  position: absolute;
+  inset: 0;
+  animation: em-float-bob 6s var(--float-ease) infinite alternate;
+}
+/* pousa no lugar ao entrar (e a cada foto da galeria) */
+.em-float__item {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* trilhas definidas: a foto cabe pela altura também */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: end center;
+  container-type: size;
+  opacity: 0;
+}
+.is-in .em-float__item {
+  animation: em-float-in 1.6s var(--em-ease-out) both;
+}
+.is-in .em-float--hero .em-float__item {
+  animation-delay: 0.7s;
+}
+.is-in .em-float__item.em-float-swap-leave-active {
+  animation: em-float-out 0.45s var(--em-ease-out) both;
+}
+/* toda foto ocupa a mesma área: o maior tamanho que cabe nela, na proporção da foto (--ar,
+   lida no load), ampliando as pequenas. O elemento tem o formato da foto, então a sombra
+   (que segue o contorno do PNG) e a borda esfumada ficam rentes a ela. */
+.em-float__img {
+  --ar: 1;
+  display: block;
+  width: min(100cqw, 100cqh * var(--ar));
+  height: auto;
+  aspect-ratio: var(--ar);
+  filter: drop-shadow(0 22px 18px rgba(6, 64, 72, 0.16)) drop-shadow(0 4px 5px rgba(6, 64, 72, 0.1));
+}
+/* foto com fundo (JPG): multiply, o branco some no que está atrás (fundo do hero, aura,
+   chão). Ela traz margem: área maior e mais baixa, e a borda esfumada; sem sombra de
+   contorno (seria a do retângulo). No palco o fundo da página vai junto (e um pouco além,
+   porque a foto sobe ao flutuar), para a mistura não depender das camadas de fora. */
+.em-float.is-flat .em-float__obj {
+  inset: 0 2% 15%;
+  mix-blend-mode: multiply;
+}
+.em-float--stage.is-flat {
+  background: var(--surface-100);
+  box-shadow: 0 0 0 16px var(--surface-100);
+}
+.em-float--stage.is-flat .em-float__obj {
+  inset: 5% 2% 15%;
+}
+.em-float.is-flat .em-float__img {
+  filter: none;
+  -webkit-mask:
+    linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent),
+    linear-gradient(transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-composite: source-in;
+  mask:
+    linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent),
+    linear-gradient(transparent, #000 8%, #000 92%, transparent);
+  mask-composite: intersect;
+}
+.em-float__item .em-screen {
+  align-self: center;
+  width: min(330px, 84%);
+  box-shadow: 0 30px 50px rgba(6, 64, 72, 0.16);
+}
+/* selos do hero (base: .em-phones3__chip). Sem o vidro (backdrop-filter): ele borraria de
+   novo, a cada quadro, os raios animados do hero atrás; o branco quase opaco fica igual. O
+   traço do ECG fica desenhado (stroke-dashoffset só anima na thread principal). */
+.em-float__chip {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.9);
+  will-change: translate;
+}
+.em-float__chip .em-phones3__ecg path {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+/* conexão já confirmada (o ✓): os pontinhos ficam parados */
+.em-float__chip .em-phones3__dots i {
+  animation: none;
+  opacity: 0.6;
+}
+.em-float__chip--read {
+  left: -9%;
+  bottom: 24%;
+  transition-delay: 1.6s;
+}
+.em-float__chip--sync {
+  right: -5%;
+  top: 7%;
+  padding-right: 10px;
+  transition-delay: 1.85s;
+}
+.em-float__chip b i {
+  font-style: normal;
+  opacity: 0.45;
+}
+.em-float__chip small.em-float__conn {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+@keyframes em-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes em-float-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.98);
+  }
+}
+@keyframes em-float-bob {
+  from {
+    transform: translateY(5px);
+  }
+  to {
+    transform: translateY(-11px);
+  }
+}
+@keyframes em-float-shadow {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+}
+@keyframes em-float-wave {
+  from {
+    transform: scale(0.55);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* sem a animação de entrada o aparelho já fica no lugar */
+  .em-float__item {
+    opacity: 1;
   }
 }
 
@@ -9318,9 +9589,19 @@ p.em-compare__rpm {
 .em-photo--lg img {
   padding: 26px;
 }
-@media (min-width: 1101px) {
-  .em-product__panel .em-photo {
-    display: none;
+/* aparelho solto no topo do painel: só quando o hero não o mostra (telas menores) */
+.em-product__float {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .em-product__float {
+    display: block;
+  }
+}
+@media (max-width: 900px) {
+  .em-product__float .em-float--stage {
+    aspect-ratio: 16 / 11;
+    max-height: 440px;
   }
 }
 
@@ -9330,13 +9611,6 @@ p.em-compare__rpm {
 }
 .em-gallery__main {
   margin-top: 22px;
-  padding: 10px;
-  border-radius: 28px;
-}
-.em-gallery__main .em-photo,
-.em-gallery__main .em-screen {
-  height: auto;
-  aspect-ratio: 4 / 3;
 }
 .em-gallery__thumbs {
   display: flex;

@@ -2,7 +2,7 @@
 /**
  * Página do dispositivo — Design System Emmitec.health.
  * Dados da API pública do BackOffice (slug da rota, recarrega ao trocar de idioma).
- * Hero com a foto (ou a "tela" com a leitura), recursos em cards, galeria de fotos,
+ * Hero com o aparelho solto em 3D (ou a "tela" com a leitura), recursos em cards, galeria,
  * a ficha completa e um painel lateral com modelo, fabricante, conectividade e
  * certificações.
  */
@@ -14,7 +14,7 @@ import { Check, Factory, Package, Search, Share2, ShieldCheck, X } from 'lucide-
 import EmPageHero from '@/components/em/EmPageHero.vue'
 import EmButton from '@/components/em/EmButton.vue'
 import EmSplit from '@/components/em/EmSplit.vue'
-import EmDeviceMedia from '@/components/em/EmDeviceMedia.vue'
+import EmDeviceFloat from '@/components/em/EmDeviceFloat.vue'
 import EmDeviceCard from '@/components/em/EmDeviceCard.vue'
 import EmSkeleton from '@/components/em/EmSkeleton.vue'
 import EmState from '@/components/em/EmState.vue'
@@ -161,6 +161,7 @@ async function share() {
       <EmPageHero
         :key="device.slug"
         class="em-hero--article"
+        bare-visual
         :eyebrow="device.catLabel"
         :trail="[{ label: t('header.nav.equipment'), to: '/equipment' }]"
         :title="device.name"
@@ -180,9 +181,7 @@ async function share() {
           </ul>
         </template>
         <template #visual>
-          <div class="em-devhero em-card">
-            <EmDeviceMedia :device="device" size="lg" />
-          </div>
+          <EmDeviceFloat :device="device" mode="hero" />
         </template>
         <template #actions>
           <EmButton
@@ -220,11 +219,10 @@ async function share() {
             <!-- galeria: foto principal + miniaturas -->
             <div v-if="device.photos.length > 1" class="em-gallery">
               <span v-reveal class="em-eyebrow">{{ t('equipmentPage.detail.gallery') }}</span>
-              <div v-reveal:scale class="em-gallery__main em-card">
-                <EmDeviceMedia
+              <div v-reveal:scale class="em-gallery__main">
+                <EmDeviceFloat
                   :device="device"
                   :src="currentPhoto"
-                  size="lg"
                   :alt="
                     t('equipmentPage.detail.photoOf', {
                       name: device.name,
@@ -270,8 +268,11 @@ async function share() {
           </div>
 
           <aside class="em-product__aside">
+            <!-- sem o aparelho no hero (telas menores), ele flutua aqui, acima da ficha -->
+            <div v-reveal:scale class="em-product__float">
+              <EmDeviceFloat :device="device" :alt="device.name" />
+            </div>
             <div v-reveal:scale class="em-product__panel em-card">
-              <EmDeviceMedia :device="device" size="lg" :alt="device.name" />
               <dl class="em-product__specs">
                 <div v-if="device.model">
                   <dt>{{ t('equipmentPage.detail.model') }}</dt>

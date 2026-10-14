@@ -20,8 +20,13 @@ const props = withDefaults(
     subtitle?: string
     /** níveis entre o Início e a página atual (ex.: Blog, Sobre nós) */
     trail?: Crumb[]
+    /**
+     * a arte cuida da própria entrada: sem o fade do invólucro e sem camada própria, para
+     * misturar (multiply) direto no fundo do hero (ex.: foto com fundo branco do aparelho)
+     */
+    bareVisual?: boolean
   }>(),
-  { em: '', subtitle: '', trail: () => [] },
+  { em: '', subtitle: '', trail: () => [], bareVisual: false },
 )
 
 const { t } = useI18n()
@@ -33,8 +38,14 @@ const crumbs = computed<Crumb[]>(() => [{ label: t('header.nav.home'), to: '/' }
   <header class="em-hero em-hero--page" :class="{ 'em-hero--visual': !!$slots.visual }">
     <EmHeroRays />
     <!-- arte opcional à direita (ex.: celulares na página de Aplicativos) -->
-    <div v-if="$slots.visual" class="em-hero__visual" aria-hidden="true">
-      <div v-reveal:scale="500"><slot name="visual" /></div>
+    <div
+      v-if="$slots.visual"
+      class="em-hero__visual"
+      :class="{ 'em-hero__visual--bare': bareVisual }"
+      aria-hidden="true"
+    >
+      <div v-if="bareVisual" v-in><slot name="visual" /></div>
+      <div v-else v-reveal:scale="500"><slot name="visual" /></div>
     </div>
     <div v-parallax.fade="0.14" class="em-hero__inner">
       <nav v-reveal="100" class="em-crumbs" :aria-label="t('aria.breadcrumb')">
