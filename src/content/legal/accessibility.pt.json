@@ -1,0 +1,72 @@
+{
+  "pdf": "Accessibility Statement PT.pdf",
+  "sections": [
+    {
+      "title": "Nosso compromisso",
+      "paragraphs": [
+        "A EMMI Technologies se compromete a tornar seu site acessível de acordo com o Regulamento de Acessibilidade para Organismos do Setor Público (Sites e Aplicações Móveis) (No. 2) de 2018. Esta declaração de acessibilidade se aplica ao site EmmiTec.Health."
+      ]
+    },
+    {
+      "title": "Status de conformidade",
+      "paragraphs": [
+        "Este site está parcialmente em conformidade com as Diretrizes de Acessibilidade para Conteúdo Web (WCAG) versão 2.2, padrão AA, devido às não conformidades listadas abaixo."
+      ]
+    },
+    {
+      "title": "Conteúdo não acessível",
+      "paragraphs": [
+        "O conteúdo listado abaixo não é acessível pelos seguintes motivos:"
+      ],
+      "groups": [
+        {
+          "title": "Não conformidade com os regulamentos de acessibilidade",
+          "items": [
+            "Algumas imagens no site não possuem texto alternativo adequado.",
+            "Há determinadas seções onde o contraste de cores não atende aos padrões exigidos pelas WCAG.",
+            "Alguns elementos interativos podem não ser totalmente navegáveis por teclado ou tecnologias assistivas."
+          ]
+        },
+        {
+          "title": "Carga desproporcional",
+          "items": [
+            "Nenhum conteúdo atualmente se enquadra na isenção de carga desproporcional."
+          ]
+        },
+        {
+          "title": "Conteúdo fora do escopo dos regulamentos de acessibilidade",
+          "items": [
+            "Integrações de terceiros: algumas integrações de terceiros (por exemplo, feeds de redes sociais, conteúdo incorporado) podem não estar totalmente em conformidade com os padrões WCAG, pois são gerenciadas por partes externas. Isso inclui conteúdo como widgets de redes sociais (por exemplo, Twitter, Instagram), conteúdo incorporado de plataformas como YouTube e links externos. Esses serviços externos podem nem sempre atender aos requisitos de acessibilidade; estamos trabalhando com esses provedores de terceiros para garantir a melhoria da acessibilidade."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Preparação desta declaração de acessibilidade",
+      "paragraphs": [
+        "Esta declaração foi preparada em 1º de dezembro de 2024. A declaração foi revisada pela última vez em 1º de abril de 2025.",
+        "A declaração foi preparada por meio de uma autoavaliação do site pela EMMI Technologies."
+      ]
+    },
+    {
+      "title": "Comentários e informações de contato",
+      "paragraphs": [
+        "Agradecemos o feedback sobre a acessibilidade do EmmiTec.Health. Se você encontrar algum problema ou precisar de mais assistência, entre em contato conosco através do:"
+      ],
+      "items": [
+        "E-mail: customerservice@emmitec.com",
+        "Telefone: +44 (0) 1926 217861",
+        "Endereço: Innovation Centre, Gallows Hill, Warwick, Reino Unido CV34 6UW"
+      ],
+      "after": [
+        "Para usuários que necessitam de formatos alternativos de conteúdo, entre em contato conosco utilizando os dados acima, e faremos o possível para atender às suas necessidades."
+      ]
+    },
+    {
+      "title": "Procedimento de fiscalização",
+      "paragraphs": [
+        "A Comissão de Igualdade e Direitos Humanos (EHRC) é responsável pela fiscalização do Regulamento de Acessibilidade para Organismos do Setor Público (Sites e Aplicações Móveis) (No. 2) de 2018. Se você não estiver satisfeito com nossa resposta à sua reclamação, pode entrar em contato com o Serviço de Assessoria e Apoio à Igualdade (EASS): https://www.equalityadvisoryservice.com/"
+      ]
+    }
+  ]
+}

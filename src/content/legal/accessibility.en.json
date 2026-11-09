@@ -1,0 +1,72 @@
+{
+  "pdf": "Accessibility Statement.pdf",
+  "sections": [
+    {
+      "title": "Our commitment",
+      "paragraphs": [
+        "EMMI Technologies is committed to making its website accessible in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. This accessibility statement applies to the EmmiTec.Health website."
+      ]
+    },
+    {
+      "title": "Compliance status",
+      "paragraphs": [
+        "This website is partially compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard due to the non-compliances listed below."
+      ]
+    },
+    {
+      "title": "Non-accessible content",
+      "paragraphs": [
+        "The content listed below is non-accessible for the following reasons:"
+      ],
+      "groups": [
+        {
+          "title": "Non-compliance with the accessibility regulations",
+          "items": [
+            "Some images on the website lack appropriate alt text.",
+            "There are certain sections where color contrast does not meet the required WCAG standards.",
+            "Some interactive elements may not be fully navigable by keyboard or assistive technologies."
+          ]
+        },
+        {
+          "title": "Disproportionate burden",
+          "items": [
+            "No content currently falls under the disproportionate burden exemption."
+          ]
+        },
+        {
+          "title": "Content not within the scope of accessibility regulations",
+          "items": [
+            "Third-party integrations: some third-party integrations (e.g., social media feeds, embedded content) may not fully comply with WCAG standards, as external parties manage them. This includes content such as social media widgets (e.g., Twitter, Instagram), embedded content from platforms like YouTube, and external links. These external services may not always meet accessibility requirements; we are working with these third-party providers to ensure improved accessibility."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Preparation of this accessibility statement",
+      "paragraphs": [
+        "This statement was prepared on December 1, 2024. The statement was last reviewed on April 1, 2025.",
+        "The statement was prepared through a self-assessment of the website by EMMI Technologies."
+      ]
+    },
+    {
+      "title": "Feedback and contact information",
+      "paragraphs": [
+        "We welcome feedback on the accessibility of EmmiTec.Health. If you encounter any issues or require further assistance, please contact us at:"
+      ],
+      "items": [
+        "Email: customerservice@emmitec.com",
+        "Phone: +44 (0) 1926 217861",
+        "Address: Innovation Centre, Gallows Hill, Warwick, United Kingdom CV34 6UW"
+      ],
+      "after": [
+        "For users who need alternative formats of content, please contact us using the details above, and we will do our best to accommodate your needs."
+      ]
+    },
+    {
+      "title": "Enforcement procedure",
+      "paragraphs": [
+        "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. If you are not satisfied with our response to your complaint, you can contact the Equality Advisory and Support Service (EASS): https://www.equalityadvisoryservice.com/"
+      ]
+    }
+  ]
+}

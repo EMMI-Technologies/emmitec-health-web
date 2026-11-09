@@ -29,6 +29,7 @@ const linksCol = computed(() => [
   { text: t('footer.links.apps'), to: '/apps' },
   { text: t('footer.links.certificates'), to: '/certificates' },
   { text: t('footer.links.privacyTerms'), to: '/privacy' },
+  { text: t('footer.links.terms'), to: '/terms' },
 ])
 
 /** Coluna do blog: as categorias cadastradas no BackOffice (enquanto carregam, só "Todos"). */
@@ -171,6 +172,8 @@ function toTop() {
         <span>© 2026 Emmitec Health. {{ t('footer.copyright') }}</span>
         <span class="em-footer__legal-links">
           <RouterLink to="/privacy">{{ t('footer.links.privacyTerms') }}</RouterLink>
+          <RouterLink to="/terms">{{ t('footer.links.terms') }}</RouterLink>
+          <RouterLink to="/accessibility">{{ t('footer.links.accessibility') }}</RouterLink>
           <button type="button" class="em-totop" @click="toTop">
             {{ t('footer.backToTop') }}
             <span class="em-totop__ic"

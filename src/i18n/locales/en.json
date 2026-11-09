@@ -680,7 +680,9 @@
       "contact": "Contact",
       "apps": "Apps",
       "certificates": "Certificates",
-      "privacyTerms": "Privacy Policy"
+      "privacyTerms": "Privacy Policy",
+      "terms": "Terms of Use",
+      "accessibility": "Accessibility"
     },
     "blogCol": {
       "title": "Blog",
@@ -850,6 +852,24 @@
         "detail": "TaiDoc · ANVISA"
       }
     }
+  },
+  "termsPage": {
+    "badge": "Terms of Use",
+    "title": "Terms and conditions of use",
+    "titleEm": "conditions of use",
+    "subtitle": "The rules for using EmmiTec Health apps and services. Together with the Privacy Policy, they form the agreement between you and the company.",
+    "toc": "On this page",
+    "privacy": "Privacy Policy",
+    "contactNote": "Questions about these terms? Write to our team."
+  },
+  "accessibilityPage": {
+    "badge": "Accessibility",
+    "title": "Accessibility statement",
+    "titleEm": "Accessibility",
+    "subtitle": "How EMMI Technologies works to make the EmmiTec.Health website usable by everyone, and how to reach us if something does not work for you.",
+    "updated": "Reviewed on April 1, 2025",
+    "toc": "On this page",
+    "pdf": "Download PDF"
   },
   "loader": {
     "places": "Brazil · USA · United Kingdom",

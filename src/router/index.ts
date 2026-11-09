@@ -59,6 +59,17 @@ const router = createRouter({
       component: () => import('../views/PrivacyView.vue'),
     },
     {
+      // as 23 seções de termos que ficavam na privacy.html antiga
+      path: '/terms',
+      name: 'terms',
+      component: () => import('../views/TermsView.vue'),
+    },
+    {
+      path: '/accessibility',
+      name: 'accessibility',
+      component: () => import('../views/AccessibilityView.vue'),
+    },
+    {
       // documentos regulatórios dos aparelhos; o endereço antigo /gadgets-certificates.html
       // (aberto pelos apps publicados) é redirecionado para cá nas regras do Amplify
       path: '/certificates',
