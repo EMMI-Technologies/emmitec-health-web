@@ -603,7 +603,8 @@
       "c2": "United States",
       "c3": "European Union",
       "c4": "Medical quality",
-      "titleEm": "documentation"
+      "titleEm": "documentation",
+      "link": "See the documents"
     },
     "cta": {
       "badge": "Next step",
@@ -677,7 +678,8 @@
       "benefits": "Benefits",
       "blog": "Blog",
       "contact": "Contact",
-      "certificates": "Apps",
+      "apps": "Apps",
+      "certificates": "Certificates",
       "privacyTerms": "Privacy Policy"
     },
     "blogCol": {
@@ -748,6 +750,106 @@
     ],
     "titleEm": "Privacy",
     "toc": "On this page"
+  },
+  "certificatesPage": {
+    "badge": "Documents",
+    "title": "Device certificates",
+    "titleEm": "certificates",
+    "subtitle": "Regulatory documents for the devices that connect to the EmmiTec platform: FDA clearances and registrations, quality certifications, CE marking and ANVISA.",
+    "seeEquipment": "See the equipment",
+    "docCount": "No documents | 1 document | {n} documents",
+    "openPdf": "Open PDF",
+    "newTab": "PDF, opens in a new tab",
+    "note": "These documents were issued to the device manufacturers. Need the latest version of any of them? Get in touch.",
+    "groups": {
+      "fda510k": {
+        "title": "FDA 510(k) clearances",
+        "titleEm": "510(k)",
+        "subtitle": "Letters in which the FDA clears each device for sale in the United States."
+      },
+      "fdaRegistro": {
+        "title": "Manufacturer registrations with the FDA",
+        "titleEm": "registrations",
+        "subtitle": "Each manufacturer's establishment registration and the devices it lists in the United States."
+      },
+      "qualidade": {
+        "title": "Manufacturer quality",
+        "titleEm": "quality",
+        "subtitle": "Quality system certifications held by TaiDoc, the device manufacturer."
+      },
+      "ce": {
+        "title": "CE marking in Europe",
+        "titleEm": "Europe",
+        "subtitle": "Certificates issued by the notified body TÜV SÜD."
+      },
+      "brasil": {
+        "title": "Good practices in Brazil",
+        "titleEm": "Brazil",
+        "subtitle": "ANVISA certificate for the TaiDoc plant."
+      }
+    },
+    "docs": {
+      "k151024": {
+        "title": "TaiDoc TD-8255 finger pulse oximeter",
+        "detail": "FDA 510(k) K151024"
+      },
+      "k133588": {
+        "title": "FORA P80 blood pressure monitor (TD-3140)",
+        "detail": "FDA 510(k) K133588"
+      },
+      "k161738": {
+        "title": "FORA ADVANCED GD40 blood glucose and ketone meter (TD-4272G)",
+        "detail": "FDA 510(k) K161738"
+      },
+      "k113159": {
+        "title": "U-RIGHT TD-1240 thermometer",
+        "detail": "FDA 510(k) K113159"
+      },
+      "andPressao": {
+        "title": "A&D blood pressure monitors (UA-651BLE and others)",
+        "detail": "A&D Company · FDA 510(k) K043217"
+      },
+      "andBalanca": {
+        "title": "A&D scales (UC-352BLE and others)",
+        "detail": "A&D Company"
+      },
+      "roche": {
+        "title": "Accu-Chek Performa blood glucose meter",
+        "detail": "Roche Diabetes Care · FDA 510(k) K133741"
+      },
+      "iso13485": {
+        "title": "ISO 13485: medical device quality",
+        "detail": "TaiDoc · TÜV SÜD Q5 052126 0062 Rev. 05"
+      },
+      "iso9001": {
+        "title": "ISO 9001:2015: quality management system",
+        "detail": "TaiDoc · TÜV SÜD 12 100 22751 TMS"
+      },
+      "mdsap": {
+        "title": "MDSAP: Medical Device Single Audit Program",
+        "detail": "TaiDoc · TÜV SÜD QS6 052126 0063 Rev. 02"
+      },
+      "ceMdd43": {
+        "title": "EC certificate (MDD): blood pressure, glucose, thermometer and pulse oximeter",
+        "detail": "TaiDoc · TÜV SÜD G1 052126 0043 Rev. 03"
+      },
+      "ceMdd43a": {
+        "title": "EC certificate (MDD): blood pressure, glucose, thermometer and pulse oximeter (copy A)",
+        "detail": "TaiDoc · TÜV SÜD G1 052126 0043 Rev. 03"
+      },
+      "ceMdd64": {
+        "title": "EC certificate (MDD): nebulizer accessory",
+        "detail": "TaiDoc · TÜV SÜD G1 052126 0064 Rev. 00"
+      },
+      "ceIvdd": {
+        "title": "EC certificate (IVDD): in vitro diagnostics",
+        "detail": "TaiDoc · TÜV SÜD V1 052126 0069 Rev. 03"
+      },
+      "anvisaBpf": {
+        "title": "Good Manufacturing Practices certificate",
+        "detail": "TaiDoc · ANVISA"
+      }
+    }
   },
   "loader": {
     "places": "Brazil · USA · United Kingdom",

@@ -59,6 +59,13 @@ const router = createRouter({
       component: () => import('../views/PrivacyView.vue'),
     },
     {
+      // documentos regulatórios dos aparelhos; o endereço antigo /gadgets-certificates.html
+      // (aberto pelos apps publicados) é redirecionado para cá nas regras do Amplify
+      path: '/certificates',
+      name: 'certificates',
+      component: () => import('../views/CertificatesView.vue'),
+    },
+    {
       // página de links (bio do Instagram e afins): sem menu, rodapé nem tela de entrada
       path: '/links',
       alias: '/linktree',

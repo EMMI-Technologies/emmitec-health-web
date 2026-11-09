@@ -259,6 +259,9 @@ onBeforeUnmount(() => window.removeEventListener('resize', placeIndicator))
             <span>{{ c.label }}</span>
           </div>
         </div>
+        <div v-reveal class="em-seals__more">
+          <EmButton to="/certificates" variant="ghost" :label="t('equipmentPage.cert.link')" />
+        </div>
       </div>
     </section>
 
