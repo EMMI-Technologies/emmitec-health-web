@@ -80,6 +80,8 @@ EmmiTec.configure({
 | `baseUrl` | Default `https://v2-prod-api-patients.emmitec.health/partner/v1`, the same for test and live. |
 | `storage`, `secureStorage` | Custom storage for the offline queue and for pairing secrets. Defaults: AsyncStorage, and expo-secure-store when installed. |
 | `timeoutMs` | Per request. Default 20000. |
+| `app` | Your app id and version, e.g. `{ id: 'com.acme.health', version: '2.3.1' }`. Goes in the `EmmiTec-Client` header so support can tell app versions apart. |
+| `diagnostics` | Default `true`. See [Diagnostics](#diagnostics). `false` turns it off. |
 
 When the patient signs out of your app, call `await EmmiTec.signOut()`. Device pairing secrets are kept (they belong to the phone and the device), and queued readings stay to be sent when the same patient signs in again. Pass `{ clearQueue: true }` to drop them.
 
@@ -302,6 +304,17 @@ EmmiTec.simulator.set({ deviceAbsent: true })
 EmmiTec.simulator.set({ failNextConnection: true })
 EmmiTec.simulator.reset()
 ```
+
+## Diagnostics
+
+From version 1.1.0 the SDK tells EmmiTec support what happened on the phone, so when a patient says "it does not connect" we can see where it stopped: permission, Bluetooth off, device not found, connection, reading or upload.
+
+- **What is sent:** the step (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), the device model, an error code with its fixed message, how long it took, and a random id of the app installation (to count phones). Every request also carries `EmmiTec-Client: emmitec-rpm/1.1.0 (android 34; your app id and version)`.
+- **Never sent:** names, measured values, tokens, or the technical log of the device conversation.
+- **How:** small batches to `POST /diagnostics`, a few seconds after a failure or once a minute, with the patient session token. A failed send never reaches your app.
+- **Turn it off:** `EmmiTec.configure({ ..., diagnostics: false })`.
+
+Support also finds any call by the `requestId` your app received in an error, so include it when you write to us.
 
 ## Troubleshooting
 

@@ -80,6 +80,8 @@ EmmiTec.configure({
 | `baseUrl` | Padrão `https://v2-prod-api-patients.emmitec.health/partner/v1`, a mesma para teste e produção. |
 | `storage`, `secureStorage` | Armazenamento próprio para a fila offline e para os segredos de pareamento. Padrão: AsyncStorage, e expo-secure-store quando instalado. |
 | `timeoutMs` | Por chamada. Padrão 20000. |
+| `app` | O id e a versão do seu app, por exemplo `{ id: 'com.acme.health', version: '2.3.1' }`. Vai no cabeçalho `EmmiTec-Client` para o suporte saber qual versão do app está em cada celular. |
+| `diagnostics` | Padrão `true`. Veja [Diagnóstico](#diagnostico). `false` desliga. |
 
 Quando o paciente sair do seu app, chame `await EmmiTec.signOut()`. Os segredos de pareamento continuam guardados (eles pertencem ao celular e ao aparelho), e as medições na fila esperam o mesmo paciente entrar de novo. Passe `{ clearQueue: true }` para descartá-las.
 
@@ -311,6 +313,17 @@ EmmiTec.simulator.set({ deviceAbsent: true })
 EmmiTec.simulator.set({ failNextConnection: true })
 EmmiTec.simulator.reset()
 ```
+
+## Diagnóstico
+
+A partir da versão 1.1.0, o SDK conta ao suporte da EmmiTec o que aconteceu no celular. Assim, quando um paciente diz "não conecta", a gente vê onde parou: permissão, Bluetooth desligado, aparelho não encontrado, conexão, leitura ou envio.
+
+- **O que vai:** a etapa (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), o modelo do aparelho, um código de erro com a mensagem fixa dele, quanto tempo levou e um id aleatório da instalação do app (para contar celulares). Toda chamada também leva `EmmiTec-Client: emmitec-rpm/1.1.0 (android 34; id e versão do seu app)`.
+- **O que nunca vai:** nomes, valores medidos, tokens e o registro técnico da conversa com o aparelho.
+- **Como:** em lotes pequenos para o `POST /diagnostics`, alguns segundos depois de uma falha ou uma vez por minuto, com o token de sessão do paciente. Uma falha no envio nunca chega ao seu app.
+- **Para desligar:** `EmmiTec.configure({ ..., diagnostics: false })`.
+
+O suporte também acha qualquer chamada pelo `requestId` que o seu app recebeu num erro. Mande esse código quando falar com a gente.
 
 ## Solução de problemas
 

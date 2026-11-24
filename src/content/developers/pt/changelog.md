@@ -7,11 +7,20 @@ description: A versão principal está na URL e a data da versão da API vem em 
 
 - **Versão principal no caminho.** Tudo neste site é `/partner/v1`.
 - **Data da versão da API.** O `GET /ping` devolve o `apiVersion`, e todo envelope de webhook traz o mesmo `apiVersion`. Hoje ele é `2026-11-24`.
-- **Versão do SDK.** O `emmitec-rpm` tem a própria numeração, começando em `1.0.0`.
+- **Versão do SDK.** O `emmitec-rpm` tem a própria numeração, começando em `1.0.0`. Hoje ela é `1.1.0`.
 
 Monte a sua integração para continuar funcionando quando a API crescer: ignore campos que você não conhece, aceite tipos de evento que você não trata (responda `2xx` e siga em frente) e decida pelo `code`, não pelas mensagens de erro.
 
 ## Changelog
+
+### 2026-11-24: emmitec-rpm 1.1.0 e diagnóstico
+
+Só acréscimos: a API e as chamadas do SDK funcionam como antes.
+
+- [Diagnóstico](/developers/sdk#diagnostico) no SDK: as etapas e falhas do Bluetooth e a fila offline vão para o suporte da EmmiTec (sem nomes, valores ou tokens). Desliga com `diagnostics: false`.
+- Toda chamada do SDK leva o cabeçalho `EmmiTec-Client`, com a versão do SDK, o sistema do celular e, com a opção nova `app`, o id e a versão do seu app.
+- Endpoint novo `POST /diagnostics` (token de sessão do paciente ou chave secreta), usado pelo SDK.
+- O suporte da EmmiTec acha qualquer chamada pelo `requestId`: continue mandando esse código quando precisar de ajuda.
 
 ### 2026-11-24: Partner API v1.1
 

@@ -3300,6 +3300,95 @@
           }
         }
       }
+    },
+    "/diagnostics": {
+      "post": {
+        "operationId": "sendDiagnostics",
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Send app diagnostics",
+        "description": "**Token:** Session token or secret key.\n\nUsed by the SDK (from 1.1.0) to tell EmmiTec support what happened on the phone: Bluetooth steps and failures and the offline queue. Never send names, measured values or tokens. Only EmmiTec reads it; it is kept for 90 days. You do not need to call it yourself.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosticsRequest"
+              },
+              "examples": {
+                "failure": {
+                  "summary": "A connection that failed",
+                  "value": {
+                    "installationId": "inst_4hT9qL2mXa7RkP0w",
+                    "events": [
+                      {
+                        "at": "2026-11-24T14:03:00Z",
+                        "type": "ble.scan_started"
+                      },
+                      {
+                        "at": "2026-11-24T14:03:09Z",
+                        "type": "ble.connect_failed",
+                        "deviceModel": "omron-hem-7156t",
+                        "code": "connection_failed",
+                        "message": "We could not connect to your device. Turn it off and on, then try again.",
+                        "durationMs": 9120
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "examples": {
+                  "ok": {
+                    "value": {
+                      "accepted": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
     }
   },
   "webhooks": {
@@ -8216,6 +8305,81 @@
             }
           }
         ]
+      },
+      "DiagnosticsRequest": {
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "installationId": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z_-]{8,40}$",
+            "description": "Random id of the app installation (not tied to the patient), to count phones."
+          },
+          "patientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Only with a secret key: the patient the events belong to. With a session token the patient comes from the token."
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When it happened on the phone. Missing, in the future or older than 7 days: the time it arrived."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "ble.permission_denied",
+                    "ble.powered_off",
+                    "ble.unavailable",
+                    "ble.scan_started",
+                    "ble.scan_timeout",
+                    "ble.device_found",
+                    "ble.connect_failed",
+                    "ble.connected",
+                    "ble.disconnected",
+                    "ble.reading_parsed",
+                    "ble.parse_failed",
+                    "ble.measure_failed",
+                    "upload.failed",
+                    "queue.stored_offline",
+                    "queue.flushed",
+                    "sdk.error"
+                  ],
+                  "description": "The step. Unknown types are kept as `other`."
+                },
+                "deviceModel": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "code": {
+                  "type": "string",
+                  "maxLength": 60
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "A fixed message of the SDK. Never names or measured values."
+                },
+                "durationMs": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
