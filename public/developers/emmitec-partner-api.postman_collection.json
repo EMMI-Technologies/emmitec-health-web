@@ -1,0 +1,1138 @@
+{
+  "info": {
+    "_postman_id": "7d3e9a51-2c4b-4f6e-9a8d-1b5c7e3f0a92",
+    "name": "EmmiTec Partner API v1",
+    "description": "EmmiTec Partner API v1 (version 2026-11-24). Set `secretKey` to your `emk_test_...` key and run the requests in order: Create patient sets `patientId`, Mint a session token sets `sessionToken`, Create reading sets `readingId`, Send a test event sets `eventId`. The key prefix decides the mode (test or live); the base URL is the same. Never put a live secret key in a shared workspace. Reading bodies use `{{$isoTimestamp}}` for `measuredAt` so they stay inside the 365-day window.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{secretKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://v2-prod-api-patients.emmitec.health/partner/v1",
+      "type": "string"
+    },
+    {
+      "key": "secretKey",
+      "value": "emk_test_replace_me",
+      "type": "string"
+    },
+    {
+      "key": "sessionToken",
+      "value": "emst_test_replace_me",
+      "type": "string"
+    },
+    {
+      "key": "patientId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "readingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Status",
+      "description": "Check that a token works and which mode it uses.",
+      "item": [
+        {
+          "name": "Check a token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            },
+            "description": "**Token:** Secret key or session token.\n\nReturns the mode, the kind of token and the integration it belongs to. With a session token, `auth` is `session_token` and `patientId` is the patient of the token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "description": "Patients of your integration. A test key only sees test patients; a live key only sees live patients.",
+      "item": [
+        {
+          "name": "Get the patient of a session token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{sessionToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me"
+              ]
+            },
+            "description": "**Token:** Session token only (returns the patient of the token).\n\nUse it in the mobile app to read the patient the session token was minted for."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.collectionVariables.set('patientId', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"externalId\": \"acme-user-123\",\n  \"firstName\": \"Maria\",\n  \"lastName\": \"Silva\",\n  \"birthDate\": \"1956-03-14\",\n  \"sex\": \"female\",\n  \"phone\": \"+15551234567\",\n  \"language\": \"en\",\n  \"heightCm\": 162\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nIdempotent by `externalId`: when a patient with the same `externalId` already exists for this integration and mode, the API answers 200 with the existing patient and ignores differences in the body (use `PATCH /patients/{id}` to change it)."
+          },
+          "response": []
+        },
+        {
+          "name": "List patients",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "externalId",
+                  "value": "acme-user-123",
+                  "description": "Only the patient with this `externalId`.",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Page size, 1 to 100.",
+                  "disabled": true
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "Opaque cursor. Pass the `nextCursor` of the previous page.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nOnly patients of this integration and mode, newest first. Filter by `externalId` to find the EmmiTec id of one of your users."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ]
+            },
+            "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nIn the mobile app, `GET /me` returns the same object without needing the id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+15559876543\",\n  \"heightCm\": 163\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nSend any of `firstName`, `lastName`, `birthDate`, `sex`, `phone`, `language`, `heightCm`. Fields you do not send are kept."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Session tokens",
+      "description": "Tokens for ONE patient, minted by your backend with the secret key and handed to your mobile app.",
+      "item": [
+        {
+          "name": "Mint a session token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body && body.token) {",
+                  "  pm.collectionVariables.set('sessionToken', body.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresInSeconds\": 604800\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/session-tokens",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "session-tokens"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nCreates a token for ONE patient. Call it from your backend and hand the token to your mobile app (the emmitec-rpm SDK uses it). A test key mints `emst_test_...`, a live key mints `emst_live_...`. The token is shown only in this response. Default lifetime 7 days (604800 s), min 300 s, max 30 days (2592000 s). Revoke with `DELETE /patients/{id}/session-tokens`. \n\nA session token can only call: `GET /ping`, `GET /me`, `GET /devices`, `POST /readings`, `POST /readings/batch`, `GET /readings/{id}`, and `GET /patients/{id}/readings` and `GET /patients/{id}/thresholds` for its own patient. Anything else gets 403 `forbidden`."
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke all session tokens of a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/session-tokens",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "session-tokens"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nRevokes every session token of this patient. Calls with those tokens then get 401 `unauthorized`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Readings",
+      "description": "Store device readings and read them back with their level and alert, plus the thresholds behind them.",
+      "item": [
+        {
+          "name": "Create reading (secret key)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.collectionVariables.set('readingId', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"type\": \"blood_pressure\",\n  \"measuredAt\": \"{{$isoTimestamp}}\",\n  \"values\": {\n    \"systolic\": 182,\n    \"diastolic\": 110,\n    \"pulse\": 88\n  },\n  \"device\": {\n    \"model\": \"td3140\",\n    \"serial\": \"SN123\",\n    \"mac\": \"AA:BB:CC:DD:EE:FF\"\n  },\n  \"source\": \"ble\",\n  \"externalId\": \"acme-reading-9981\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/readings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "readings"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key or session token. With a secret key, `patientId` is required. With a session token it may be omitted; if sent, it must be the patient of the token.\n\nStores one reading, evaluates it against the thresholds of the patient and returns it with `level`, `levels` and `alert` (null when the level is normal or unknown). `measuredAt` must not be more than 10 minutes in the future nor older than 365 days. Idempotent: the same `externalId` again (or, without `externalId`, the same patient + type + measuredAt + values) answers 200 with the original reading and `duplicate: true`. Values are returned in the canonical unit; weight readings get `bmi` when the patient has `heightCm`."
+          },
+          "response": []
+        },
+        {
+          "name": "Create reading (session token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.collectionVariables.set('readingId', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{sessionToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"blood_pressure\",\n  \"measuredAt\": \"{{$isoTimestamp}}\",\n  \"values\": {\n    \"systolic\": 135,\n    \"diastolic\": 85,\n    \"pulse\": 76\n  },\n  \"device\": {\n    \"model\": \"td3140\",\n    \"serial\": \"SN123\",\n    \"mac\": \"AA:BB:CC:DD:EE:FF\"\n  },\n  \"source\": \"ble\",\n  \"externalId\": \"acme-reading-9983\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/readings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "readings"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key or session token. With a secret key, `patientId` is required. With a session token it may be omitted; if sent, it must be the patient of the token.\n\nStores one reading, evaluates it against the thresholds of the patient and returns it with `level`, `levels` and `alert` (null when the level is normal or unknown). `measuredAt` must not be more than 10 minutes in the future nor older than 365 days. Idempotent: the same `externalId` again (or, without `externalId`, the same patient + type + measuredAt + values) answers 200 with the original reading and `duplicate: true`. Values are returned in the canonical unit; weight readings get `bmi` when the patient has `heightCm`."
+          },
+          "response": []
+        },
+        {
+          "name": "Create readings in a batch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"readings\": [\n    {\n      \"type\": \"blood_pressure\",\n      \"measuredAt\": \"{{$isoTimestamp}}\",\n      \"values\": {\n        \"systolic\": 128,\n        \"diastolic\": 82,\n        \"pulse\": 70\n      },\n      \"device\": {\n        \"model\": \"td3140\"\n      },\n      \"source\": \"ble\",\n      \"externalId\": \"acme-reading-9979\"\n    },\n    {\n      \"type\": \"blood_pressure\",\n      \"measuredAt\": \"{{$isoTimestamp}}\",\n      \"values\": {\n        \"systolic\": 182,\n        \"diastolic\": 110,\n        \"pulse\": 88\n      },\n      \"device\": {\n        \"model\": \"td3140\",\n        \"serial\": \"SN123\",\n        \"mac\": \"AA:BB:CC:DD:EE:FF\"\n      },\n      \"source\": \"ble\",\n      \"externalId\": \"acme-reading-9981\"\n    },\n    {\n      \"type\": \"blood_pressure\",\n      \"measuredAt\": \"{{$isoTimestamp}}\",\n      \"values\": {\n        \"systolic\": 82,\n        \"diastolic\": 128\n      },\n      \"device\": {\n        \"model\": \"td3140\"\n      },\n      \"source\": \"ble\",\n      \"externalId\": \"acme-reading-9982\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/readings/batch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "readings",
+                "batch"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key or session token. With a secret key, `patientId` is required. With a session token it may be omitted; if sent, it must be the patient of the token.\n\nUp to 100 readings in one call. Items are independent: each one gets its own `status` (`created`, `duplicate` or `error`), in the same order (`index`). The call answers 200 even when some items fail. The same rules as `POST /readings` apply to every item."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a reading",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/readings/{{readingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "readings",
+                "{{readingId}}"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key or session token. Session token: only readings of its own patient, else 403 `forbidden`.\n\nReturns the reading with `alert` recomputed in the requested locale."
+          },
+          "response": []
+        },
+        {
+          "name": "List readings of a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/readings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "readings"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "blood_pressure",
+                  "description": "Only readings of this type.",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-11-01T00:00:00Z",
+                  "description": "Only readings measured at or after this instant (ISO 8601 UTC).",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-11-24T23:59:59Z",
+                  "description": "Only readings measured at or before this instant (ISO 8601 UTC).",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Page size, 1 to 100.",
+                  "disabled": true
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "Opaque cursor. Pass the `nextCursor` of the previous page.",
+                  "disabled": true
+                },
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nReadings of the patient, newest first, `alert` included. Filter by `type` and by a `from`/`to` window."
+          },
+          "response": []
+        },
+        {
+          "name": "List thresholds of a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/thresholds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "thresholds"
+              ]
+            },
+            "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nThe limits used to compute `level` and `alert`. `source` is `patient` when the care team set them for this patient, `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "description": "The catalog of supported devices. Use a model id in `device.model`.",
+      "item": [
+        {
+          "name": "List supported devices",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "**Token:** Any token (secret key or session token).\n\nThe v1 catalog, plus `manual` (typed by a person) and `other` (a device not in the catalog). Send the `model` in `device.model` of a reading. `pairing: true` means the device must be paired with the phone first (`uam820bt` asks for a pairing code). `hc059` sends its weight by Bluetooth advertising only (no connection)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhook",
+      "description": "One webhook per integration and mode. EmmiTec POSTs signed events to your HTTPS endpoint.",
+      "item": [
+        {
+          "name": "Get the webhook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nThe webhook of this integration for the mode of the key. 404 `not_found` when none is configured. The secret is never returned here, only `secretHint`."
+          },
+          "response": []
+        },
+        {
+          "name": "Create or update the webhook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://api.acme.example/webhooks/emmitec\",\n  \"events\": [\n    \"reading.alert\",\n    \"reading.created\"\n  ],\n  \"locale\": \"en\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nOne webhook per integration and mode. `url` must start with `https://` (in test mode `http://localhost` is not allowed either; use a tunnel). On first creation the response also has `secret` (`whsec_...`), shown only once: store it to verify `EmmiTec-Signature`. Later updates do not return it; use `POST /webhook/rotate-secret` for a new one."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the webhook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nDeletes the webhook of this integration for the mode of the key. No more events are sent."
+          },
+          "response": []
+        },
+        {
+          "name": "Rotate the signing secret",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhook/rotate-secret",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook",
+                "rotate-secret"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nCreates a new signing secret and returns it once, with the webhook. The old secret stops signing immediately."
+          },
+          "response": []
+        },
+        {
+          "name": "Send a test event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body && body.eventId) {",
+                  "  pm.collectionVariables.set('eventId', body.eventId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhook/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook",
+                "test"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nSends a `ping` event to your URL now, synchronously (10 s timeout), and returns the result."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "description": "Recent webhook events with their delivery status. Resend the ones that failed.",
+      "item": [
+        {
+          "name": "List events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "reading.alert",
+                  "description": "Only events of this type.",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Page size, 1 to 100.",
+                  "disabled": true
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "Opaque cursor. Pass the `nextCursor` of the previous page.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nRecent webhook events of this integration and mode with their delivery status, newest first."
+          },
+          "response": []
+        },
+        {
+          "name": "Resend an event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/resend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}",
+                "resend"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nSchedules the event again now and returns it. Use it after your endpoint was down."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sandbox",
+      "description": "Helpers for test mode only. A live key gets 403 `forbidden`.",
+      "item": [
+        {
+          "name": "Simulate an alert",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "pt",
+                "description": "Alternative to the `locale` query parameter, same values (`en`, `pt`, `es`). Default: the webhook locale of your integration for this mode, else `en`.",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"type\": \"blood_pressure\",\n  \"level\": \"critical_high\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sandbox/simulate-alert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sandbox",
+                "simulate-alert"
+              ],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "en",
+                  "description": "Language of the alert texts (`title`, `text`, `reason`): `en`, `pt` or `es`. Default: the webhook locale of your integration for this mode, else `en`.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "**Token:** Secret key, test mode only (`emk_test_...`). A live key or a session token gets 403 `forbidden`.\n\nCreates a real sandbox reading whose values produce the requested `level` for the thresholds of this patient, and runs the full pipeline, webhook included. Defaults: `type` blood_pressure, `level` critical_high. `weight` is rejected (400 `unsupported_type`); `oxygen_saturation` accepts only `attention_low`, `critical_low` and `normal`. It turns on alerts for that type for the patient. The created reading has `device.model` `other` and an `externalId` that starts with `sim_`."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

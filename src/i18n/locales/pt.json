@@ -659,6 +659,7 @@
       "apps": "Aplicativos",
       "blog": "Blog",
       "equipment": "Equipamentos integrados",
+      "integrations": "Integrações",
       "login": "Login",
       "language": "Idioma"
     },
@@ -679,6 +680,7 @@
       "blog": "Blog",
       "contact": "Contato",
       "apps": "Aplicativos",
+      "integrations": "Integrações",
       "certificates": "Certificados",
       "privacyTerms": "Política de Privacidade",
       "terms": "Termos de Uso",
@@ -851,6 +853,126 @@
         "title": "Certificado de Boas Práticas de Fabricação",
         "detail": "TaiDoc · ANVISA"
       }
+    }
+  },
+  "integrationsPage": {
+    "meta": {
+      "title": "Integrações para apps de saúde",
+      "description": "Leve o RPM da EmmiTec para dentro do seu app: SDK para Expo com 21 aparelhos Bluetooth, API REST e alertas prontos para virar notificação."
+    },
+    "hero": {
+      "badge": "Integrações",
+      "title": "O RPM da EmmiTec dentro do seu app",
+      "titleEm": "dentro do seu app",
+      "subtitle": "Seu app, sua marca, suas notificações. A EmmiTec cuida dos aparelhos, dos dados e dos alertas.",
+      "docs": "Ler a documentação",
+      "talk": "Falar com a gente"
+    },
+    "how": {
+      "badge": "Como funciona",
+      "title": "Do aparelho à notificação em três passos",
+      "titleEm": "notificação",
+      "subtitle": "Sua equipe fica com as telas e com a relação com o paciente. A parte difícil roda do nosso lado.",
+      "step1": {
+        "title": "Seu app lê o aparelho",
+        "desc": "O SDK para Expo conecta por Bluetooth a 21 aparelhos: medidores de pressão, oxímetros, termômetros, glicosímetros e balança. As telas são suas."
+      },
+      "step2": {
+        "title": "A EmmiTec guarda e confere",
+        "desc": "Cada leitura fica salva na EmmiTec e é comparada com os limites daquele paciente. Sem internet, o SDK guarda a leitura e envia depois."
+      },
+      "step3": {
+        "title": "Você recebe o alerta pronto",
+        "desc": "O alerta volta na resposta da API e chega por webhook assinado. Você envia a notificação, com o seu nome."
+      }
+    },
+    "payload": {
+      "badge": "Webhook e API",
+      "title": "O alerta chega pronto para virar notificação",
+      "titleEm": "notificação",
+      "subtitle": "Título, texto simples para o paciente, motivo técnico e a leitura completa. Você decide como e quando avisar.",
+      "appName": "Seu app",
+      "now": "agora",
+      "date": "terça-feira, 24 de novembro",
+      "phoneAria": "Exemplo de notificação montada a partir do alerta",
+      "codeAria": "Requisição do webhook com o alerta",
+      "alert": {
+        "title": "Pressão arterial muito alta",
+        "text": "Sua pressão arterial ficou em 182/88 mmHg, acima da sua faixa segura. Se você não estiver se sentindo bem, procure sua equipe de cuidado ou o serviço de emergência.",
+        "reason": "Sistólica 182 mmHg está igual ou acima do limite crítico de 180 mmHg."
+      },
+      "fields": {
+        "title": "Vira o título da notificação.",
+        "text": "Vira o corpo. Escrito para o paciente, em linguagem simples.",
+        "reason": "Qual valor passou de qual limite. Para os seus registros e a equipe clínica.",
+        "reading": "A leitura completa: valores, aparelho e horário. Serve para abrir a tela certa."
+      }
+    },
+    "features": {
+      "badge": "Incluído",
+      "title": "Tudo o que precisa, nada para manter",
+      "titleEm": "nada para manter",
+      "subtitle": "Sem código de Bluetooth para manter e sem regra clínica para escrever. Você conecta e publica.",
+      "items": {
+        "api": {
+          "title": "API REST",
+          "desc": "Pacientes, leituras, limites e eventos em JSON, com paginação, envio sem duplicidade e erros claros."
+        },
+        "sdk": {
+          "title": "SDK para Expo",
+          "desc": "Hook useMeasurement, plugin de configuração que já declara as permissões de Bluetooth e fila offline que envia depois, sem duplicar."
+        },
+        "webhooks": {
+          "title": "Webhooks assinados",
+          "desc": "Assinatura HMAC-SHA256 em cada envio e 8 tentativas ao longo de cerca de 22 horas se o seu servidor não responder."
+        },
+        "sandbox": {
+          "title": "Sandbox gratuito",
+          "desc": "Chaves de teste em um ambiente isolado, com simulador de alerta. Nenhum profissional de saúde é avisado."
+        },
+        "devices": {
+          "title": "21 aparelhos",
+          "desc": "Pressão, oxigenação, temperatura, glicose e peso, de marcas como Accu-Chek, Omron, A&D e TaiDoc.",
+          "link": "Ver os aparelhos"
+        },
+        "locales": {
+          "title": "Alertas em 3 idiomas",
+          "desc": "Título, texto e motivo em português, inglês ou espanhol, à sua escolha."
+        }
+      }
+    },
+    "code": {
+      "badge": "SDK para Expo",
+      "title": "Uma medição em dez linhas",
+      "titleEm": "dez linhas",
+      "text": "O hook cuida da permissão, da busca pelo aparelho, da conexão e do envio. Você recebe a leitura já avaliada e o alerta, quando houver.",
+      "note": "Roda em um development build do Expo. Para testar sem aparelho, ligue o modo simulado.",
+      "link": "Ver a documentação do SDK",
+      "button": "Medir",
+      "codeAria": "Exemplo de código com useMeasurement"
+    },
+    "security": {
+      "badge": "Segurança e dados",
+      "title": "Cada chave no seu lugar",
+      "titleEm": "no seu lugar",
+      "text": "A integração foi desenhada para que o app no celular nunca carregue uma credencial poderosa.",
+      "items": {
+        "secret": "A chave secreta fica só no seu servidor. Ela nunca entra no app nem em um site.",
+        "session": "O celular recebe um token de sessão de um paciente, que só alcança os dados dele e expira em até 30 dias.",
+        "revoke": "Chaves e tokens podem ser revogados a qualquer momento.",
+        "separate": "Teste e produção totalmente separados: a chave de teste nunca vê dados reais, e nenhum parceiro vê os pacientes de outro.",
+        "https": "Tudo trafega por HTTPS, e cada webhook leva assinatura e horário para o seu servidor conferir."
+      }
+    },
+    "cta": {
+      "badge": "Próximo passo",
+      "title": "Comece hoje no sandbox",
+      "titleEm": "sandbox",
+      "subtitle": "A chave de teste é gratuita, usa um ambiente separado e permite simular alertas antes de ir para produção.",
+      "primary": "Pedir chave de sandbox",
+      "secondary": "Ler a documentação",
+      "mailSubject": "Chave de sandbox do EmmiTec RPM",
+      "mailBody": "Empresa:\nNome do app:\nUsa Expo ou React Native?\n"
     }
   },
   "termsPage": {

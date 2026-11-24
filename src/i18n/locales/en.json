@@ -659,6 +659,7 @@
       "apps": "Apps",
       "blog": "Blog",
       "equipment": "Integrated equipment",
+      "integrations": "Integrations",
       "login": "Login",
       "language": "Language"
     },
@@ -679,6 +680,7 @@
       "blog": "Blog",
       "contact": "Contact",
       "apps": "Apps",
+      "integrations": "Integrations",
       "certificates": "Certificates",
       "privacyTerms": "Privacy Policy",
       "terms": "Terms of Use",
@@ -851,6 +853,126 @@
         "title": "Good Manufacturing Practices certificate",
         "detail": "TaiDoc · ANVISA"
       }
+    }
+  },
+  "integrationsPage": {
+    "meta": {
+      "title": "Integrations for health apps",
+      "description": "Bring EmmiTec RPM into your own app: an Expo SDK for 21 Bluetooth devices, a REST API and alerts ready to become push notifications."
+    },
+    "hero": {
+      "badge": "Integrations",
+      "title": "EmmiTec RPM inside your own app",
+      "titleEm": "your own app",
+      "subtitle": "Your app, your brand, your notifications. EmmiTec handles the devices, the data and the alerts.",
+      "docs": "Read the docs",
+      "talk": "Talk to us"
+    },
+    "how": {
+      "badge": "How it works",
+      "title": "Three steps from device to notification",
+      "titleEm": "notification",
+      "subtitle": "Your team keeps the screens and the relationship with the patient. The hard part runs on our side.",
+      "step1": {
+        "title": "Your app reads the device",
+        "desc": "The Expo SDK connects over Bluetooth to 21 devices: blood pressure monitors, oximeters, thermometers, glucose meters and a scale. The screens are yours."
+      },
+      "step2": {
+        "title": "EmmiTec stores and checks",
+        "desc": "Every reading is saved on EmmiTec and compared with that patient's own limits. Offline? The SDK keeps the reading and sends it later."
+      },
+      "step3": {
+        "title": "You receive the alert",
+        "desc": "The alert comes back in the API response and by signed webhook. You send the notification, with your name on it."
+      }
+    },
+    "payload": {
+      "badge": "Webhook and API",
+      "title": "The alert arrives ready to become a notification",
+      "titleEm": "notification",
+      "subtitle": "A title, a plain-language text for the patient, the technical reason and the full reading. You decide how and when to notify.",
+      "appName": "Your app",
+      "now": "now",
+      "date": "Tuesday, November 24",
+      "phoneAria": "Example of a notification built from the alert",
+      "codeAria": "Webhook request with the alert",
+      "alert": {
+        "title": "Very high blood pressure",
+        "text": "Your blood pressure reading was 182/88 mmHg, above your safe range. If you feel unwell, contact your care team or emergency services.",
+        "reason": "Systolic 182 mmHg is at or above the critical limit of 180 mmHg."
+      },
+      "fields": {
+        "title": "Becomes the notification title.",
+        "text": "Becomes the body. Written for the patient, in plain language.",
+        "reason": "Which value crossed which limit. For your logs and the care team.",
+        "reading": "The full reading: values, device and time. Use it to open the right screen."
+      }
+    },
+    "features": {
+      "badge": "Included",
+      "title": "Everything you need, nothing to maintain",
+      "titleEm": "nothing to maintain",
+      "subtitle": "No Bluetooth code to maintain and no clinical rules to write. You plug in and ship.",
+      "items": {
+        "api": {
+          "title": "REST API",
+          "desc": "Patients, readings, limits and events in JSON, with pagination, duplicate-safe writes and clear errors."
+        },
+        "sdk": {
+          "title": "Expo SDK",
+          "desc": "A useMeasurement hook, a config plugin that declares the Bluetooth permissions, and an offline queue that sends later without duplicates."
+        },
+        "webhooks": {
+          "title": "Signed webhooks",
+          "desc": "HMAC-SHA256 signature on every delivery and 8 attempts over about 22 hours if your server does not answer."
+        },
+        "sandbox": {
+          "title": "Free sandbox",
+          "desc": "Test keys in an isolated environment, with an alert simulator. No clinician is ever notified."
+        },
+        "devices": {
+          "title": "21 devices",
+          "desc": "Blood pressure, oxygen, temperature, glucose and weight, from brands like Accu-Chek, Omron, A&D and TaiDoc.",
+          "link": "See the devices"
+        },
+        "locales": {
+          "title": "Alerts in 3 languages",
+          "desc": "Title, text and reason in English, Portuguese or Spanish, your choice."
+        }
+      }
+    },
+    "code": {
+      "badge": "Expo SDK",
+      "title": "A reading in ten lines",
+      "titleEm": "ten lines",
+      "text": "The hook handles permission, device search, connection and upload. You get the reading already evaluated, and the alert when there is one.",
+      "note": "Runs in an Expo development build. To test without a device, turn on simulate mode.",
+      "link": "See the SDK docs",
+      "button": "Measure",
+      "codeAria": "Code example with useMeasurement"
+    },
+    "security": {
+      "badge": "Security and data",
+      "title": "Every key in its place",
+      "titleEm": "in its place",
+      "text": "The integration is designed so that the app on the phone never carries a powerful credential.",
+      "items": {
+        "secret": "The secret key lives only on your server. It never goes into the app or a website.",
+        "session": "The phone gets a session token for one patient, which only reaches that patient's data and expires in up to 30 days.",
+        "revoke": "Keys and tokens can be revoked at any time.",
+        "separate": "Test and live are fully separate: a test key never sees real data, and no partner sees another partner's patients.",
+        "https": "Everything travels over HTTPS, and every webhook carries a signature and a timestamp for your server to check."
+      }
+    },
+    "cta": {
+      "badge": "Next step",
+      "title": "Start today in the sandbox",
+      "titleEm": "sandbox",
+      "subtitle": "The test key is free, runs in a separate environment and lets you simulate alerts before going live.",
+      "primary": "Ask for your sandbox key",
+      "secondary": "Read the docs",
+      "mailSubject": "EmmiTec RPM sandbox key",
+      "mailBody": "Company:\nApp name:\nBuilt with Expo or React Native?\n"
     }
   },
   "termsPage": {

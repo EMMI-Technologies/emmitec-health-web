@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { scrollToEl, stopSmoothScroll } from '../lib/motion'
 import { resetPageMeta } from '../lib/seo'
+import { developerRoutes } from './developers'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -84,6 +85,14 @@ const router = createRouter({
       component: () => import('../views/LinksView.vue'),
       meta: { bare: true },
     },
+    {
+      // integrações para parceiros (app próprio que quer só o RPM): página comercial
+      path: '/integrations',
+      name: 'integrations',
+      component: () => import('../views/IntegrationsView.vue'),
+    },
+    // documentação para desenvolvedores (/developers/...), rotas em ./developers.ts
+    ...developerRoutes,
     {
       // qualquer endereço sem rota cai na 404 (antes a tela ficava só com o rodapé)
       path: '/:pathMatch(.*)*',

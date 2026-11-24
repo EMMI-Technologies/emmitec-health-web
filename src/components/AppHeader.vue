@@ -88,6 +88,7 @@ const aboutChildren = computed(() => [
 const links = computed(() => [
   { n: '03', label: t('header.nav.blog'), to: '/blog', si: 3 },
   { n: '04', label: t('header.nav.equipment'), to: '/equipment', si: 4 },
+  { n: '05', label: t('header.nav.integrations'), to: '/integrations', si: 5 },
 ])
 
 // Fecha ao trocar de página
@@ -261,11 +262,11 @@ onBeforeUnmount(() => {
             </span>
           </RouterLink>
 
-          <div class="em-menu__cta" style="--si: 5">
+          <div class="em-menu__cta" style="--si: 6">
             <EmButton :href="calendlyUrl" :label="t('header.cta')" variant="dark" block />
           </div>
 
-          <div class="em-menu__foot" style="--si: 6">
+          <div class="em-menu__foot" style="--si: 7">
             <span class="em-status"
               ><span class="em-dot em-dot--live" />{{ t('hero.trust.support') }}</span
             >

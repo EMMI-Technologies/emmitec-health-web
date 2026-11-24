@@ -27,6 +27,7 @@ const linksCol = computed(() => [
   { text: t('footer.links.blog'), to: '/blog' },
   { text: t('footer.links.contact'), href: calendlyUrl.value },
   { text: t('footer.links.apps'), to: '/apps' },
+  { text: t('footer.links.integrations'), to: '/integrations' },
   { text: t('footer.links.certificates'), to: '/certificates' },
   { text: t('footer.links.privacyTerms'), to: '/privacy' },
   { text: t('footer.links.terms'), to: '/terms' },

@@ -1,13 +1,19 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+// docs para desenvolvedores (/developers): Markdown vira HTML colorido no build
+import { developersMarkdown } from './src/lib/developers/build/markdown-plugin.mjs'
+// referência da API: o Scalar sai como arquivos próprios em /developers/scalar/ (fora do bundle do site)
+import { developersScalar } from './src/lib/developers/build/scalar-plugin.mjs'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    developersMarkdown() as Plugin,
+    developersScalar() as Plugin,
     tailwindcss(),
     vue(),
     vueDevTools(),
