@@ -200,7 +200,7 @@ Valores comparados com limites:
 
 `GET /patients/{id}/thresholds`
 
-Os limites que valem para o paciente. Em produção, a equipe de cuidado pode definir limites por paciente (`source: "patient"`); sem isso, valem os padrões do cliente (`source: "default"`). Limite que não existe vem `null`. Os padrões da sandbox estão em [Testes e sandbox](/developers/testing#limites-da-sandbox).
+Os limites que valem para o paciente. A equipe de cuidado, ou você com o `PUT /patients/{id}/thresholds`, pode definir limites por paciente (`source: "patient"`); sem isso, valem os padrões do cliente (`source: "default"`). Limite que não existe vem `null`. Os padrões da sandbox estão em [Testes e sandbox](/developers/testing#limites-da-sandbox), e como mudar os limites está em [Configurar alertas e limites](/developers/alert-settings).
 
 ```json title="Resposta 200"
 {

@@ -89,6 +89,7 @@ const links = computed(() => [
   { n: '03', label: t('header.nav.blog'), to: '/blog', si: 3 },
   { n: '04', label: t('header.nav.equipment'), to: '/equipment', si: 4 },
   { n: '05', label: t('header.nav.integrations'), to: '/integrations', si: 5 },
+  { n: '06', label: t('header.nav.portal'), to: '/portal', si: 6 },
 ])
 
 // Fecha ao trocar de página
@@ -262,11 +263,11 @@ onBeforeUnmount(() => {
             </span>
           </RouterLink>
 
-          <div class="em-menu__cta" style="--si: 6">
+          <div class="em-menu__cta" style="--si: 7">
             <EmButton :href="calendlyUrl" :label="t('header.cta')" variant="dark" block />
           </div>
 
-          <div class="em-menu__foot" style="--si: 7">
+          <div class="em-menu__foot" style="--si: 8">
             <span class="em-status"
               ><span class="em-dot em-dot--live" />{{ t('hero.trust.support') }}</span
             >

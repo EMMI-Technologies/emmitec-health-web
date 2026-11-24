@@ -25,9 +25,10 @@ O celular também recebe o alerta na hora, na resposta da medição. Use isso pa
 
 | Parte | Onde roda | O que faz |
 |---|---|---|
-| Partner API | Seu backend | Cria pacientes, gera tokens de sessão, configura o webhook, lê histórico e limites. |
+| Partner API | Seu backend | Cria pacientes, gera tokens de sessão, configura o webhook, lê histórico, define limites de alerta. |
 | SDK para Expo (`emmitec-rpm`) | Seu app | Permissões de Bluetooth, busca do aparelho, leitura e envio da medição, fila offline. |
 | Webhooks | Seu backend | Recebe `reading.alert` (e, se quiser, todo `reading.created`) em chamadas HTTPS assinadas. |
+| [Portal do cliente](/developers/customer-portal) | Seu navegador | Mostra o plano, copia e gera chaves, configura o webhook, liga ou desliga os alertas, acompanha as entregas. |
 
 ## Teste e produção
 
@@ -44,8 +45,10 @@ https://v2-prod-api-patients.emmitec.health/partner/v1
 
 Teste e produção nunca se misturam: a chave de teste não enxerga dados de produção, e cada modo tem os próprios pacientes e o próprio webhook. Dois parceiros nunca veem os pacientes um do outro, nem na sandbox.
 
+Parceiros novos começam com um piloto de 90 dias (plano `trial`). O `GET /ping` devolve o plano e os dias que faltam, e o portal do cliente mostra o mesmo.
+
 ::: note Como conseguir as chaves
-Quem emite as chaves é a EmmiTec. Peça em [contato@emmitec.health](mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys). A chave secreta aparece uma única vez: guarde no seu cofre de segredos na hora.
+A EmmiTec cria o seu acesso ao [portal do cliente](/developers/customer-portal), onde você copia as suas chaves quando precisar e gera chaves novas. Peça o acesso em [contato@emmitec.health](mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys). Guarde as chaves secretas no seu cofre de segredos, nunca no código.
 :::
 
 ## Toda resposta diz onde você está

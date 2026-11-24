@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7d3e9a51-2c4b-4f6e-9a8d-1b5c7e3f0a92",
     "name": "EmmiTec Partner API v1",
-    "description": "EmmiTec Partner API v1 (version 2026-11-24). Set `secretKey` to your `emk_test_...` key and run the requests in order: Create patient sets `patientId`, Mint a session token sets `sessionToken`, Create reading sets `readingId`, Send a test event sets `eventId`. The key prefix decides the mode (test or live); the base URL is the same. Never put a live secret key in a shared workspace. Reading bodies use `{{$isoTimestamp}}` for `measuredAt` so they stay inside the 365-day window.",
+    "description": "EmmiTec Partner API v1 (version 2026-11-24). Set `secretKey` to your `emk_test_...` key and run the requests in order: Create patient sets `patientId`, Mint a session token sets `sessionToken`, Create reading sets `readingId`, Send a test event sets `eventId`. The key prefix decides the mode (test or live); the base URL is the same. Never put a live secret key in a shared workspace. Reading bodies use `{{$isoTimestamp}}` for `measuredAt` so they stay inside the 365-day window. v1.1 adds the Alert settings folder; \"Change the default limits\" needs a live key and answers 403 with a test key (its test expects that).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -79,7 +79,7 @@
                 "ping"
               ]
             },
-            "description": "**Token:** Secret key or session token.\n\nReturns the mode, the kind of token and the integration it belongs to. With a session token, `auth` is `session_token` and `patientId` is the patient of the token."
+            "description": "**Token:** Secret key or session token.\n\nReturns the mode, the kind of token, the integration it belongs to and its plan (`trial` with `trialEndsAt` and `daysLeft` during the 90-day pilot). With a session token, `auth` is `session_token` and `patientId` is the patient of the token."
           },
           "response": []
         }
@@ -402,7 +402,7 @@
     },
     {
       "name": "Readings",
-      "description": "Store device readings and read them back with their level and alert, plus the thresholds behind them.",
+      "description": "Store device readings and read them back with their level and alert.",
       "item": [
         {
           "name": "Create reading (secret key)",
@@ -724,7 +724,13 @@
             "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nReadings of the patient, newest first, `alert` included. Filter by `type` and by a `from`/`to` window."
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Alert settings",
+      "description": "Decide if your integration uses alerts, and set the limits that trigger them: per patient, or as the defaults of your live client. Patients can also have alerts turned off per type.",
+      "item": [
         {
           "name": "List thresholds of a patient",
           "event": [
@@ -754,7 +760,257 @@
                 "thresholds"
               ]
             },
-            "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nThe limits used to compute `level` and `alert`. `source` is `patient` when the care team set them for this patient, `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`."
+            "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nThe limits used to compute `level` and `alert`. `source` is `patient` when the patient has limits of their own (set by the care team or with `PUT /patients/{id}/thresholds`), `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`."
+          },
+          "response": []
+        },
+        {
+          "name": "Set the limits of a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"blood_pressure\",\n  \"limits\": {\n    \"systolic\": {\n      \"criticalHigh\": 170,\n      \"attentionHigh\": 150,\n      \"attentionLow\": 100,\n      \"criticalLow\": 90\n    },\n    \"diastolic\": {\n      \"criticalHigh\": 110,\n      \"attentionHigh\": 95,\n      \"attentionLow\": 60,\n      \"criticalLow\": 50\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/thresholds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "thresholds"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nSets the limits of one patient for one type. They are the same limits the care team sees and edits in the EmmiTec portal, and the next readings of this patient use them right away. In `limits`, send the values you want to change, each with its four limits as numbers (0 to 1000) in order: criticalLow <= attentionLow <= attentionHigh <= criticalHigh. Values you do not send keep the limits that apply today; when one of them has no limits to keep, the API answers 400 with `param` `limits.<value>` (send that value too). Values per type: blood_pressure `systolic`, `diastolic` (mmHg), `pulse` (bpm); oxygen_saturation `spo2` (%), `pulse` (bpm); temperature `temperature` (C); glucose `glucose` (mg/dL). weight has no limits (400). The response lists every value of the type, all with `source: \"patient\"`."
+          },
+          "response": []
+        },
+        {
+          "name": "Turn alerts on or off for a patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"blood_pressure\",\n  \"enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/alerts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "alerts"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nPer patient and type. It is the same switch the care team has in the EmmiTec portal. Off: readings of this patient and type are still stored and get `level` and `levels`, but `alert` is null and no `reading.alert` event is sent. In test mode, `POST /sandbox/simulate-alert` turns alerts back on for the simulated type."
+          },
+          "response": []
+        },
+        {
+          "name": "List the default limits of your client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/thresholds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "thresholds"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nThe default limits of the client of this mode: the shared sandbox defaults with a test key, the defaults of your live client with a live key. They apply to every patient that has no limits of their own (`GET /patients/{id}/thresholds` shows what applies to one patient). Values without default limits are left out."
+          },
+          "response": []
+        },
+        {
+          "name": "Change the default limits (live key only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('2xx with a live key, 403 with a test key', function () {",
+                  "  if (pm.response.headers.get('X-EmmiTec-Mode') === 'test') {",
+                  "    pm.expect(pm.response.code).to.eql(403);",
+                  "  } else {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"glucose\",\n  \"limits\": {\n    \"glucose\": {\n      \"criticalHigh\": 300,\n      \"attentionHigh\": 200,\n      \"attentionLow\": 70,\n      \"criticalLow\": 54\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/thresholds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "thresholds"
+              ]
+            },
+            "description": "**Token:** Secret key, live mode only (`emk_live_...`). A test key or a session token gets 403 `forbidden`.\n\nLive key only. A test key gets 403 `forbidden`: the sandbox defaults are shared by every partner, so set limits per patient with `PUT /patients/{id}/thresholds`. Send one type per call and, in `limits`, the values to change, each with its four limits (same rules as `PUT /patients/{id}/thresholds`). Values you do not send keep their defaults. The new defaults apply to every patient of your live client without limits of their own, including patients the care team added outside the API. 409 `conflict` when your client has no default limits for this type yet: EmmiTec sets them up."
+          },
+          "response": []
+        },
+        {
+          "name": "Get the alert settings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "settings"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nWhether alerts are on for your integration in the mode of the key. Test and live have separate settings. Default: on."
+          },
+          "response": []
+        },
+        {
+          "name": "Turn alerts on or off",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertsEnabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "settings"
+              ]
+            },
+            "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nTurns alerts on or off for your integration in the mode of the key. Off: readings are still stored and still get `level` and `levels`, but `alert` is null in every response (and in the SDK), `reading.alert` is not sent, and `reading.created` (when subscribed) is still sent with `alert: null`. It only changes what EmmiTec sends to you: in live mode the readings still reach the care team."
           },
           "response": []
         }

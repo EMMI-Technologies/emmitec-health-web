@@ -10,6 +10,10 @@ EmmiTec never sends push notifications to your users. It gives you everything yo
 | The response to `POST /readings` (in the SDK: `m.alert`) | Instantly, on the phone that sent the reading | An in-app banner while the app is open |
 | The `reading.alert` webhook | Seconds later, on your server | Push notifications, caregivers, your support team, your records |
 
+::: tip You decide if and when there is an alert
+Alerts are on by default. You can turn them off for your integration (`alertsEnabled`), set the limits of each patient and turn alerts off for one patient. See [Alert settings and thresholds](/developers/alert-settings).
+:::
+
 ## The Alert object
 
 ```json title="Alert"
@@ -37,7 +41,7 @@ EmmiTec never sends push notifications to your users. It gives you everything yo
 
 The reading that triggered the alert is the reading itself: the full Reading object in the `POST /readings` response, or `data.reading` in the webhook (with the patient in `data.patient`).
 
-An alert exists only when the reading's `level` is an attention or a critical level. For `normal` and `unknown`, `alert` is `null` and no `reading.alert` webhook is sent. Weight readings are not evaluated, so they never carry an alert.
+An alert exists only when the reading's `level` is an attention or a critical level. For `normal` and `unknown`, `alert` is `null` and no `reading.alert` webhook is sent. Weight readings are not evaluated, so they never carry an alert. `alert` is also `null` when alerts are off for your integration in that mode (`alertsEnabled: false`) or for that patient and type; the `level` is still there.
 
 ### What the texts look like
 
@@ -210,5 +214,6 @@ curl -X POST "$EMMITEC_API/sandbox/simulate-alert" \
 
 ::: next
 - [Webhooks](/developers/webhooks) Receive `reading.alert` and verify its signature.
+- [Alert settings and thresholds](/developers/alert-settings) Turn alerts on or off and set the limits of each patient.
 - [Testing and sandbox](/developers/testing) Simulate every level before going live.
 :::

@@ -21,7 +21,7 @@ Authorization: Bearer emk_test_...
 |---|---|---|
 | Prefix | `emk_test_` / `emk_live_` | `emst_test_` / `emst_live_` |
 | Lives in | Your backend (secret manager) | The patient's app |
-| Issued by | EmmiTec, shown only once | Your backend, with `POST /patients/{id}/session-tokens` |
+| Issued by | You, in the [customer portal](/developers/customer-portal) (copy it again at any time), or EmmiTec | Your backend, with `POST /patients/{id}/session-tokens` |
 | Scope | Everything in your integration, for that mode | One patient |
 | Lifetime | Until revoked | 7 days by default, 30 days maximum |
 
@@ -128,14 +128,14 @@ Didn't save the EmmiTec patient id? Find it by your own id: `GET /patients?exter
 
 Tokens are random and stored hashed: EmmiTec cannot show a token again after it is minted.
 
-**Secret keys.** EmmiTec issues and revokes them. To rotate a key, ask your EmmiTec contact for a new one, deploy it, then ask to revoke the old key. If a secret key leaks, ask for revocation right away: from that moment the key answers `401`.
+**Secret keys.** You generate and copy them in the [customer portal](/developers/customer-portal); only EmmiTec revokes them. To rotate a key, generate a new one in the portal, deploy it, then ask EmmiTec to revoke the old key. If a secret key leaks, ask for revocation right away: from that moment the key answers `401`.
 
 ## Errors
 
 | Status | `code` | When |
 |---|---|---|
 | 401 | `unauthorized` | The token is missing, invalid or revoked, or expired. The message says which. |
-| 403 | `forbidden` | A session token called something outside its scope, or a live key was used while your integration has no live client yet. |
+| 403 | `forbidden` | A session token called something outside its scope, a live key was used while your integration has no live client yet, or your integration is suspended ("This integration is suspended. Contact EmmiTec."). |
 
 ```json title="401 Unauthorized"
 {

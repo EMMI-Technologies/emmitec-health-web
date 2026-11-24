@@ -39,9 +39,11 @@ curl -X PUT "$EMMITEC_API/webhook" \
 }
 ```
 
-::: warning O segredo aparece uma vez
-O `secret` só vem na primeira criação do webhook (e quando você troca o segredo). Guarde no seu cofre de segredos. Depois, o `GET /webhook` mostra só o `secretHint`.
+::: warning A API mostra o segredo uma vez
+O `secret` só vem na primeira criação do webhook (e quando você troca o segredo). Guarde no seu cofre de segredos. Depois, o `GET /webhook` mostra só o `secretHint`; para copiar o segredo de novo, use o [portal do cliente](/developers/customer-portal).
 :::
+
+Você também pode configurar o webhook, mandar um teste e acompanhar as entregas no portal do cliente, sem código. Portal e API mudam o mesmo webhook.
 
 Os outros endpoints de webhook:
 
@@ -56,9 +58,11 @@ Os outros endpoints de webhook:
 
 | Tipo | Quando | Inscrição |
 |---|---|---|
-| `reading.alert` | Uma medição teve nível de atenção ou crítico. | Padrão |
+| `reading.alert` | Uma medição teve nível de atenção ou crítico, e os alertas estão ligados. | Padrão |
 | `reading.created` | Toda medição nova, com ou sem alerta. | Opcional, em `events` |
 | `ping` | Você chamou `POST /webhook/test`. | Sempre |
+
+Com os alertas desligados para a sua integração (`PUT /settings`) ou para um paciente e tipo (`PUT /patients/{id}/alerts`), o `reading.alert` não é enviado para essas medições; o `reading.created` continua, com `alert: null`. Veja [Configurar alertas e limites](/developers/alert-settings).
 
 ## O envelope do evento
 

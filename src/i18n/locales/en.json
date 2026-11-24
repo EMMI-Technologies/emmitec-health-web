@@ -660,6 +660,7 @@
       "blog": "Blog",
       "equipment": "Integrated equipment",
       "integrations": "Integrations",
+      "portal": "Customer portal",
       "login": "Login",
       "language": "Language"
     },
@@ -859,6 +860,11 @@
     "meta": {
       "title": "Integrations for health apps",
       "description": "Bring EmmiTec RPM into your own app: an Expo SDK for 21 Bluetooth devices, a REST API and alerts ready to become push notifications."
+    },
+    "access": {
+      "label": "Partner access",
+      "developers": "Developers",
+      "portal": "Customer portal"
     },
     "hero": {
       "badge": "Integrations",

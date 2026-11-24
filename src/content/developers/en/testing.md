@@ -14,9 +14,33 @@ Test keys (`emk_test_...`) and the session tokens they mint (`emst_test_...`) wo
 
 Test patients do not move to live. When you go live, your backend creates the live patients again with the live key (the same `externalId` values work).
 
+## Pilot and plan
+
+New partners start with a 90-day pilot. `GET /ping` tells you the plan of your integration, with any key or token:
+
+```json title="GET /ping, response 200"
+{
+  "ok": true,
+  "mode": "test",
+  "auth": "secret_key",
+  "integration": { "id": "4b1e6d2a-9c3f-4e8b-a1d7-5f2c8e0b3a64", "name": "Acme Health" },
+  "patientId": null,
+  "serverTime": "2026-11-24T14:03:00Z",
+  "apiVersion": "2026-11-24",
+  "plan": {
+    "name": "trial",
+    "trialEndsAt": "2027-02-22T14:00:00Z",
+    "daysLeft": 90,
+    "module": "rpm"
+  }
+}
+```
+
+`plan.name` is `trial` during the pilot, `active` for a contracted plan (then `trialEndsAt` and `daysLeft` are `null`) or `suspended`. A suspended integration gets `403 forbidden` on every call. Calls are not blocked automatically when the pilot ends: EmmiTec talks with you about the next step. The [customer portal](/developers/customer-portal) shows the same plan.
+
 ## Sandbox thresholds
 
-Every sandbox patient uses these default limits. In live mode, the limits are the ones the care team sets for each patient, falling back to your client's defaults; check them with `GET /patients/{id}/thresholds`.
+Every sandbox patient starts with these default limits. They are shared by every partner, so they cannot be changed (`PUT /thresholds` answers `403` with a test key), but you can set the limits of any of your test patients with `PUT /patients/{id}/thresholds`. In live mode, a patient uses their own limits, set by the care team or by you, and otherwise your client's defaults; check them with `GET /patients/{id}/thresholds`. See [Alert settings and thresholds](/developers/alert-settings).
 
 | Value | Critical low | Attention low | Attention high | Critical high |
 |---|---|---|---|---|
@@ -49,7 +73,7 @@ curl -X POST "$EMMITEC_API/sandbox/simulate-alert" \
   -d '{ "patientId": "3f0c2a8e-7c1d-4a51-9d2e-0c9b1f6a7e21", "type": "glucose", "level": "attention_high" }'
 ```
 
-Use `"level": "normal"` to check that a normal reading does **not** notify anyone. With a live key, this endpoint answers `403 forbidden`.
+Use `"level": "normal"` to check that a normal reading does **not** notify anyone. With a live key, this endpoint answers `403 forbidden`. If you turned alerts off with `PUT /settings`, the simulated reading still gets its level, but no alert and no `reading.alert`.
 
 ## Test your webhook
 
@@ -87,6 +111,7 @@ Use `"level": "normal"` to check that a normal reading does **not** notify anyon
 - `alert.title` and `alert.text` appear correctly in every language you support.
 - The patient does not get two notifications for the same reading.
 - You tried every level with `simulate-alert`, including `normal`.
+- You decided whether you use alerts (`PUT /settings`) and which limits your patients need (`PUT /patients/{id}/thresholds`).
 
 **App**
 
@@ -96,10 +121,11 @@ Use `"level": "normal"` to check that a normal reading does **not** notify anyon
 
 **Switching to live**
 
-1. Ask EmmiTec for your live key (`emk_live_...`). Your integration needs a live client; until then, live keys answer `403`.
+1. Generate your live key (`emk_live_...`) in the [customer portal](/developers/customer-portal). Your integration needs a live client first: ask EmmiTec to connect it; until then, live keys answer `403`.
 2. Configure the live webhook with `PUT /webhook` using the live key. It is separate from the test one and has its own secret.
-3. Create the live patients and mint live session tokens.
-4. Send one real reading and check it in `GET /patients/{id}/readings` and in your webhook logs.
+3. Choose alerts on or off for live (`PUT /settings` with the live key) and check the live defaults with `GET /thresholds`.
+4. Create the live patients and mint live session tokens.
+5. Send one real reading and check it in `GET /patients/{id}/readings` and in your webhook logs.
 
 ::: next
 - [Errors and rate limits](/developers/errors) Every error code and how to handle it.

@@ -91,6 +91,13 @@ const router = createRouter({
       name: 'integrations',
       component: () => import('../views/IntegrationsView.vue'),
     },
+    {
+      // portal do cliente parceiro (plano, chaves, webhooks, alertas): login próprio, fora do menu do site
+      path: '/portal/:pathMatch(.*)*',
+      name: 'portal',
+      component: () => import('../views/portal/PortalView.vue'),
+      meta: { bare: true },
+    },
     // documentação para desenvolvedores (/developers/...), rotas em ./developers.ts
     ...developerRoutes,
     {

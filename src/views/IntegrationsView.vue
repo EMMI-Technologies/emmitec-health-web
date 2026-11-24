@@ -187,6 +187,16 @@ const sandboxMail = computed(
 
 <template>
   <div class="em-int-page">
+    <!-- acesso direto para quem já é parceiro: docs (/developers) e portal do cliente (/portal) -->
+    <nav class="em-int-access" :aria-label="t(`${P}.access.label`)">
+      <RouterLink to="/developers" class="em-int-access__link">
+        <Braces :stroke-width="1.8" aria-hidden="true" />{{ t(`${P}.access.developers`) }}
+      </RouterLink>
+      <RouterLink to="/portal" class="em-int-access__link">
+        <KeyRound :stroke-width="1.8" aria-hidden="true" />{{ t(`${P}.access.portal`) }}
+      </RouterLink>
+    </nav>
+
     <!-- ════════ HERO ════════ -->
     <EmPageHero
       :eyebrow="t(`${P}.hero.badge`)"
@@ -408,6 +418,59 @@ const sandboxMail = computed(
     --int-mono:
       ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
   }
+  /* atalhos Developers e Portal do cliente: no alto do hero, entre o logo e o menu */
+  .em-int-page {
+    position: relative;
+  }
+  .em-int-access {
+    position: absolute;
+    z-index: 5;
+    top: 16px;
+    left: 50%;
+    display: flex;
+    gap: 2px;
+    padding: 5px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.58);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+      0 8px 24px rgba(14, 17, 23, 0.05);
+    transform: translateX(-50%);
+  }
+  .em-int-access__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background var(--dur-fast) var(--em-ease-out);
+  }
+  .em-int-access__link:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+  .em-int-access__link svg {
+    width: 17px;
+    height: 17px;
+    color: var(--cyan-700);
+  }
+  @media (max-width: 900px) {
+    .em-int-access {
+      top: 84px;
+    }
+    .em-int-access__link {
+      height: 38px;
+      padding: 0 14px;
+      font-size: 14.5px;
+    }
+  }
+
   /* títulos sem palavra sozinha na última linha (ex.: "app" no hero) */
   .em-int-page .em-split,
   .em-int-page h3 {

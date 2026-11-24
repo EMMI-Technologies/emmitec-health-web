@@ -36,9 +36,9 @@ Every response that is not `2xx` has this body:
 | 400 | `invalid_request_error` | `unsupported_type` | The reading `type` is not supported. |
 | 400 | `invalid_request_error` | `unknown_device` | `device.model` is not in the catalog. |
 | 401 | `authentication_error` | `unauthorized` | Token missing, invalid or revoked, or expired. |
-| 403 | `permission_error` | `forbidden` | Session token outside its scope, sandbox route with a live key, or live key while your integration has no live client. |
+| 403 | `permission_error` | `forbidden` | Session token outside its scope, sandbox route with a live key, live key while your integration has no live client, `PUT /thresholds` with a test key, or your integration is suspended. |
 | 404 | `invalid_request_error` | `not_found` | Patient, reading or event not found for your integration in this mode. |
-| 409 | `invalid_request_error` | `conflict` | For example, the email is already used by another person on the client. |
+| 409 | `invalid_request_error` | `conflict` | For example, the email is already used by another person on the client, or `PUT /thresholds` for a type your live client has no default limits for. |
 | 422 | `invalid_request_error` | `patient_disabled` | The patient is disabled for measurements. |
 | 429 | `rate_limit_error` | `rate_limited` | Too many requests. Wait `Retry-After` seconds. |
 | 500 | `api_error` | `internal_error` | Unexpected error on EmmiTec. The message is generic; the `requestId` lets us find it. |
@@ -49,7 +49,7 @@ Every response that is not `2xx` has this body:
 |---|---|
 | `400` | Fix the request. Do not retry it as is. `param` tells you which field. |
 | `401` | Get a new token: in the app, the SDK calls your `onTokenExpired`. On the server, check the key. |
-| `403` | Check which token you are using and for which route. |
+| `403` | Check which token you are using and for which route. If the message is "This integration is suspended. Contact EmmiTec.", every call answers `403` until EmmiTec reactivates your integration: do not retry, contact us. |
 | `404` | Check the id and the mode: a test key never sees live data. |
 | `409`, `422` | Show a clear message to your user or your support team. |
 | `429` | Wait the number of seconds in `Retry-After`, then retry. |

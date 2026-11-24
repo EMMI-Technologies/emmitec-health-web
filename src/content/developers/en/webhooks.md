@@ -39,9 +39,11 @@ curl -X PUT "$EMMITEC_API/webhook" \
 }
 ```
 
-::: warning The secret is shown once
-`secret` appears only when the webhook is first created (and when you rotate it). Save it in your secret manager. Later, `GET /webhook` shows only `secretHint`.
+::: warning The API shows the secret once
+`secret` appears only when the webhook is first created (and when you rotate it). Save it in your secret manager. Later, `GET /webhook` shows only `secretHint`; to copy the secret again, use the [customer portal](/developers/customer-portal).
 :::
+
+You can also set up the webhook, send a test and follow the deliveries in the customer portal, without code. Portal and API change the same webhook.
 
 Other webhook endpoints:
 
@@ -56,9 +58,11 @@ Other webhook endpoints:
 
 | Type | When | Subscription |
 |---|---|---|
-| `reading.alert` | A reading has an attention or critical level. | Default |
+| `reading.alert` | A reading has an attention or critical level, and alerts are on. | Default |
 | `reading.created` | Every new reading, with or without alert. | Opt in with `events` |
 | `ping` | You called `POST /webhook/test`. | Always |
+
+With alerts turned off for your integration (`PUT /settings`) or for a patient and type (`PUT /patients/{id}/alerts`), `reading.alert` is not sent for those readings; `reading.created` still is, with `alert: null`. See [Alert settings and thresholds](/developers/alert-settings).
 
 ## The event envelope
 

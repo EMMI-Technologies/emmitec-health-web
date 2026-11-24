@@ -10,6 +10,10 @@ A EmmiTec nunca manda notificação push para os seus usuários. Ela entrega tud
 | A resposta do `POST /readings` (no SDK: `m.alert`) | Na hora, no celular que enviou a medição | Um aviso dentro do app enquanto ele está aberto |
 | O webhook `reading.alert` | Segundos depois, no seu servidor | Notificações push, cuidadores, o seu suporte, os seus registros |
 
+::: tip Você decide se e quando há alerta
+Os alertas vêm ligados. Você pode desligar para a sua integração inteira (`alertsEnabled`), definir os limites de cada paciente e desligar os alertas de um paciente. Veja [Configurar alertas e limites](/developers/alert-settings).
+:::
+
 ## O objeto Alert
 
 ```json title="Alert (locale pt)"
@@ -42,7 +46,7 @@ O que é cada coisa, sem rodeio:
 | `locale` | `en`, `pt` ou `es`. | O idioma em que os textos vieram. |
 | `triggeredBy` | Cada valor fora da faixa: `value`, `measured`, `unit`, `level`, `limit`. | Destacar o número na sua tela, análises. |
 
-Só existe alerta quando o `level` da medição é de atenção ou crítico. Para `normal` e `unknown`, o `alert` vem `null` e nenhum webhook `reading.alert` é enviado. Medições de peso não são avaliadas, então nunca trazem alerta.
+Só existe alerta quando o `level` da medição é de atenção ou crítico. Para `normal` e `unknown`, o `alert` vem `null` e nenhum webhook `reading.alert` é enviado. Medições de peso não são avaliadas, então nunca trazem alerta. O `alert` também vem `null` quando os alertas estão desligados para a sua integração naquele modo (`alertsEnabled: false`) ou para aquele paciente e tipo; o `level` continua lá.
 
 ### Como são os textos
 
@@ -215,5 +219,6 @@ curl -X POST "$EMMITEC_API/sandbox/simulate-alert" \
 
 ::: next
 - [Webhooks](/developers/webhooks) Receba o `reading.alert` e confira a assinatura.
+- [Configurar alertas e limites](/developers/alert-settings) Ligue ou desligue os alertas e defina os limites de cada paciente.
 - [Testes e sandbox](/developers/testing) Simule todos os níveis antes de ir para produção.
 :::

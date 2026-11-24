@@ -13,6 +13,17 @@ Build your integration so it keeps working as the API grows: ignore fields you d
 
 ## Changelog
 
+### 2026-11-24: Partner API v1.1
+
+Additive: existing calls work as before, and `apiVersion` stays `2026-11-24`.
+
+- Plan in `GET /ping`: `plan` with `name` (`trial`, `active` or `suspended`), `trialEndsAt`, `daysLeft` and `module`. A suspended integration gets `403 forbidden`.
+- Alert settings per mode: `GET /settings` and `PUT /settings` (`alertsEnabled`). With alerts off, readings keep their `level`, `alert` is `null` and `reading.alert` is not sent.
+- Thresholds: `PUT /patients/{id}/thresholds` sets the limits of a patient (the same limits the care team sees), `GET /thresholds` lists the client defaults and `PUT /thresholds` changes the defaults of your live client.
+- Per-patient alerts: `PUT /patients/{id}/alerts` turns alerts on or off for one patient and type.
+- [Customer portal](/developers/customer-portal) at emmitec.health/portal: plan, keys you can copy at any time, new keys, webhook, alerts on or off, deliveries.
+- New page: [Alert settings and thresholds](/developers/alert-settings). The OpenAPI file and the Postman collection have the new endpoints.
+
 ### 2026-11-24: Partner API v1 and emmitec-rpm 1.0.0
 
 First public version.

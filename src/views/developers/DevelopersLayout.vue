@@ -6,7 +6,7 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { Menu, Search, X } from 'lucide-vue-next'
+import { ArrowUpRight, Menu, Search, X } from 'lucide-vue-next'
 import DocsNav from '@/components/developers/DocsNav.vue'
 import DocsSearch from '@/components/developers/DocsSearch.vue'
 import DocsLangSwitch from '@/components/developers/DocsLangSwitch.vue'
@@ -21,7 +21,7 @@ import {
   settleInstantSwap,
   sideMemory,
 } from '@/lib/developers/view'
-import { KEYS_MAILTO } from '@/content/developers/ui'
+import { KEYS_MAILTO, PORTAL_PATH } from '@/content/developers/ui'
 import type { DocsLang } from '@/lib/developers/types'
 import './docs.css'
 
@@ -142,6 +142,7 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
           <RouterLink to="/developers/api-reference" class="dx-top__link" :class="{ 'is-active': isReference }">
             {{ t('apiReference') }}
           </RouterLink>
+          <RouterLink :to="PORTAL_PATH" class="dx-top__link">{{ t('customerPortal') }}</RouterLink>
           <a :href="KEYS_MAILTO" class="dx-btn">{{ t('getKeys') }}</a>
           <button type="button" class="dx-icon-btn dx-search-icon" :aria-label="t('search')" @click="searchOpen = true">
             <Search :size="19" :stroke-width="1.8" />
@@ -174,6 +175,10 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
             <div class="dx-drawer__tools">
               <DocsLangSwitch :lang="lang" :label="t('language')" @change="switchLang" />
               <a :href="KEYS_MAILTO" class="dx-btn">{{ t('getKeys') }}</a>
+              <RouterLink :to="PORTAL_PATH" class="dx-drawer__portal" @click="drawerOpen = false">
+                {{ t('openPortal') }}
+                <ArrowUpRight :size="16" :stroke-width="1.8" aria-hidden="true" />
+              </RouterLink>
             </div>
             <DocsNav @navigate="drawerOpen = false" />
           </div>

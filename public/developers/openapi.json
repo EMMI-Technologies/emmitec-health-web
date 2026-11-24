@@ -44,7 +44,11 @@
     },
     {
       "name": "Readings",
-      "description": "Store device readings and read them back with their level and alert, plus the thresholds behind them."
+      "description": "Store device readings and read them back with their level and alert."
+    },
+    {
+      "name": "Alert settings",
+      "description": "Decide if your integration uses alerts, and set the limits that trigger them: per patient, or as the defaults of your live client. Patients can also have alerts turned off per type."
     },
     {
       "name": "Devices",
@@ -71,7 +75,7 @@
           "Status"
         ],
         "summary": "Check a token",
-        "description": "**Token:** Secret key or session token.\n\nReturns the mode, the kind of token and the integration it belongs to. With a session token, `auth` is `session_token` and `patientId` is the patient of the token.",
+        "description": "**Token:** Secret key or session token.\n\nReturns the mode, the kind of token, the integration it belongs to and its plan (`trial` with `trialEndsAt` and `daysLeft` during the 90-day pilot). With a session token, `auth` is `session_token` and `patientId` is the patient of the token.",
         "responses": {
           "200": {
             "description": "The token works.",
@@ -90,7 +94,7 @@
                 },
                 "examples": {
                   "secretKey": {
-                    "summary": "With a secret key",
+                    "summary": "With a secret key (pilot)",
                     "value": {
                       "ok": true,
                       "mode": "test",
@@ -101,7 +105,13 @@
                       },
                       "patientId": null,
                       "serverTime": "2026-11-24T14:03:00Z",
-                      "apiVersion": "2026-11-24"
+                      "apiVersion": "2026-11-24",
+                      "plan": {
+                        "name": "trial",
+                        "trialEndsAt": "2027-02-22T14:00:00Z",
+                        "daysLeft": 90,
+                        "module": "rpm"
+                      }
                     }
                   },
                   "sessionToken": {
@@ -116,7 +126,34 @@
                       },
                       "patientId": "3f0c2a8e-7c1d-4a51-9d2e-0c9b1f6a7e21",
                       "serverTime": "2026-11-24T14:03:00Z",
-                      "apiVersion": "2026-11-24"
+                      "apiVersion": "2026-11-24",
+                      "plan": {
+                        "name": "trial",
+                        "trialEndsAt": "2027-02-22T14:00:00Z",
+                        "daysLeft": 90,
+                        "module": "rpm"
+                      }
+                    }
+                  },
+                  "activePlan": {
+                    "summary": "Active plan",
+                    "value": {
+                      "ok": true,
+                      "mode": "test",
+                      "auth": "secret_key",
+                      "integration": {
+                        "id": "4b1e6d2a-9c3f-4e8b-a1d7-5f2c8e0b3a64",
+                        "name": "Acme Health"
+                      },
+                      "patientId": null,
+                      "serverTime": "2026-11-24T14:03:00Z",
+                      "apiVersion": "2026-11-24",
+                      "plan": {
+                        "name": "active",
+                        "trialEndsAt": null,
+                        "daysLeft": null,
+                        "module": "rpm"
+                      }
                     }
                   }
                 }
@@ -1551,10 +1588,10 @@
       "get": {
         "operationId": "listPatientThresholds",
         "tags": [
-          "Readings"
+          "Alert settings"
         ],
         "summary": "List thresholds of a patient",
-        "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nThe limits used to compute `level` and `alert`. `source` is `patient` when the care team set them for this patient, `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`.",
+        "description": "**Token:** Secret key or session token. Session token: only for its own patient (`id` must be the patient of the token), else 403 `forbidden`.\n\nThe limits used to compute `level` and `alert`. `source` is `patient` when the patient has limits of their own (set by the care team or with `PUT /patients/{id}/thresholds`), `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PatientId"
@@ -1626,6 +1663,610 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updatePatientThresholds",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "Set the limits of a patient",
+        "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nSets the limits of one patient for one type. They are the same limits the care team sees and edits in the EmmiTec portal, and the next readings of this patient use them right away. In `limits`, send the values you want to change, each with its four limits as numbers (0 to 1000) in order: criticalLow <= attentionLow <= attentionHigh <= criticalHigh. Values you do not send keep the limits that apply today; when one of them has no limits to keep, the API answers 400 with `param` `limits.<value>` (send that value too). Values per type: blood_pressure `systolic`, `diastolic` (mmHg), `pulse` (bpm); oxygen_saturation `spo2` (%), `pulse` (bpm); temperature `temperature` (C); glucose `glucose` (mg/dL). weight has no limits (400). The response lists every value of the type, all with `source: \"patient\"`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PatientId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThresholdsUpdate"
+              },
+              "examples": {
+                "bloodPressure": {
+                  "summary": "Blood pressure: systolic and diastolic",
+                  "value": {
+                    "type": "blood_pressure",
+                    "limits": {
+                      "systolic": {
+                        "criticalHigh": 170,
+                        "attentionHigh": 150,
+                        "attentionLow": 100,
+                        "criticalLow": 90
+                      },
+                      "diastolic": {
+                        "criticalHigh": 110,
+                        "attentionHigh": 95,
+                        "attentionLow": 60,
+                        "criticalLow": 50
+                      }
+                    }
+                  }
+                },
+                "oxygenSaturation": {
+                  "summary": "Oxygen saturation: SpO2 (no high alert) and pulse",
+                  "value": {
+                    "type": "oxygen_saturation",
+                    "limits": {
+                      "spo2": {
+                        "criticalHigh": 101,
+                        "attentionHigh": 101,
+                        "attentionLow": 89,
+                        "criticalLow": 85
+                      },
+                      "pulse": {
+                        "criticalHigh": 120,
+                        "attentionHigh": 105,
+                        "attentionLow": 50,
+                        "criticalLow": 40
+                      }
+                    }
+                  }
+                },
+                "temperature": {
+                  "summary": "Temperature in C",
+                  "value": {
+                    "type": "temperature",
+                    "limits": {
+                      "temperature": {
+                        "criticalHigh": 39.5,
+                        "attentionHigh": 38,
+                        "attentionLow": 35.5,
+                        "criticalLow": 35
+                      }
+                    }
+                  }
+                },
+                "glucose": {
+                  "summary": "Glucose in mg/dL",
+                  "value": {
+                    "type": "glucose",
+                    "limits": {
+                      "glucose": {
+                        "criticalHigh": 300,
+                        "attentionHigh": 220,
+                        "attentionLow": 70,
+                        "criticalLow": 54
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Every value of the type, with the limits that now apply.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdList"
+                },
+                "examples": {
+                  "bloodPressure": {
+                    "summary": "Blood pressure (pulse was not sent and kept its limits)",
+                    "value": {
+                      "data": [
+                        {
+                          "type": "blood_pressure",
+                          "value": "systolic",
+                          "unit": "mmHg",
+                          "criticalHigh": 170,
+                          "attentionHigh": 150,
+                          "attentionLow": 100,
+                          "criticalLow": 90,
+                          "source": "patient"
+                        },
+                        {
+                          "type": "blood_pressure",
+                          "value": "diastolic",
+                          "unit": "mmHg",
+                          "criticalHigh": 110,
+                          "attentionHigh": 95,
+                          "attentionLow": 60,
+                          "criticalLow": 50,
+                          "source": "patient"
+                        },
+                        {
+                          "type": "blood_pressure",
+                          "value": "pulse",
+                          "unit": "bpm",
+                          "criticalHigh": 130,
+                          "attentionHigh": 100,
+                          "attentionLow": 50,
+                          "criticalLow": 40,
+                          "source": "patient"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/patients/{id}/alerts": {
+      "put": {
+        "operationId": "updatePatientAlerts",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "Turn alerts on or off for a patient",
+        "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nPer patient and type. It is the same switch the care team has in the EmmiTec portal. Off: readings of this patient and type are still stored and get `level` and `levels`, but `alert` is null and no `reading.alert` event is sent. In test mode, `POST /sandbox/simulate-alert` turns alerts back on for the simulated type.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PatientId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatientAlertsUpdate"
+              },
+              "examples": {
+                "off": {
+                  "summary": "No blood pressure alerts for this patient",
+                  "value": {
+                    "type": "blood_pressure",
+                    "enabled": false
+                  }
+                },
+                "on": {
+                  "summary": "Blood pressure alerts back on",
+                  "value": {
+                    "type": "blood_pressure",
+                    "enabled": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The switch, as saved.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientAlerts"
+                },
+                "examples": {
+                  "off": {
+                    "summary": "Blood pressure alerts off",
+                    "value": {
+                      "type": "blood_pressure",
+                      "enabled": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/thresholds": {
+      "get": {
+        "operationId": "listClientThresholds",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "List the default limits of your client",
+        "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nThe default limits of the client of this mode: the shared sandbox defaults with a test key, the defaults of your live client with a live key. They apply to every patient that has no limits of their own (`GET /patients/{id}/thresholds` shows what applies to one patient). Values without default limits are left out.",
+        "responses": {
+          "200": {
+            "description": "Default limits, all with `source: \"default\"`.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdList"
+                },
+                "examples": {
+                  "sandbox": {
+                    "summary": "Sandbox defaults (test key)",
+                    "value": {
+                      "data": [
+                        {
+                          "type": "blood_pressure",
+                          "value": "systolic",
+                          "unit": "mmHg",
+                          "criticalHigh": 180,
+                          "attentionHigh": 140,
+                          "attentionLow": 90,
+                          "criticalLow": 80,
+                          "source": "default"
+                        },
+                        {
+                          "type": "blood_pressure",
+                          "value": "diastolic",
+                          "unit": "mmHg",
+                          "criticalHigh": 120,
+                          "attentionHigh": 90,
+                          "attentionLow": 60,
+                          "criticalLow": 50,
+                          "source": "default"
+                        },
+                        {
+                          "type": "blood_pressure",
+                          "value": "pulse",
+                          "unit": "bpm",
+                          "criticalHigh": 130,
+                          "attentionHigh": 100,
+                          "attentionLow": 50,
+                          "criticalLow": 40,
+                          "source": "default"
+                        },
+                        {
+                          "type": "oxygen_saturation",
+                          "value": "spo2",
+                          "unit": "%",
+                          "criticalHigh": null,
+                          "attentionHigh": null,
+                          "attentionLow": 94,
+                          "criticalLow": 90,
+                          "source": "default"
+                        },
+                        {
+                          "type": "oxygen_saturation",
+                          "value": "pulse",
+                          "unit": "bpm",
+                          "criticalHigh": 130,
+                          "attentionHigh": 100,
+                          "attentionLow": 50,
+                          "criticalLow": 40,
+                          "source": "default"
+                        },
+                        {
+                          "type": "temperature",
+                          "value": "temperature",
+                          "unit": "C",
+                          "criticalHigh": 39,
+                          "attentionHigh": 37.8,
+                          "attentionLow": 35.5,
+                          "criticalLow": 35,
+                          "source": "default"
+                        },
+                        {
+                          "type": "glucose",
+                          "value": "glucose",
+                          "unit": "mg/dL",
+                          "criticalHigh": 250,
+                          "attentionHigh": 180,
+                          "attentionLow": 70,
+                          "criticalLow": 54,
+                          "source": "default"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateClientThresholds",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "Change the default limits of your live client",
+        "description": "**Token:** Secret key, live mode only (`emk_live_...`). A test key or a session token gets 403 `forbidden`.\n\nLive key only. A test key gets 403 `forbidden`: the sandbox defaults are shared by every partner, so set limits per patient with `PUT /patients/{id}/thresholds`. Send one type per call and, in `limits`, the values to change, each with its four limits (same rules as `PUT /patients/{id}/thresholds`). Values you do not send keep their defaults. The new defaults apply to every patient of your live client without limits of their own, including patients the care team added outside the API. 409 `conflict` when your client has no default limits for this type yet: EmmiTec sets them up.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThresholdsUpdate"
+              },
+              "examples": {
+                "glucose": {
+                  "summary": "Glucose default",
+                  "value": {
+                    "type": "glucose",
+                    "limits": {
+                      "glucose": {
+                        "criticalHigh": 300,
+                        "attentionHigh": 200,
+                        "attentionLow": 70,
+                        "criticalLow": 54
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The defaults of the type, as saved.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdList"
+                },
+                "examples": {
+                  "glucose": {
+                    "summary": "Glucose default (live)",
+                    "value": {
+                      "data": [
+                        {
+                          "type": "glucose",
+                          "value": "glucose",
+                          "unit": "mg/dL",
+                          "criticalHigh": 300,
+                          "attentionHigh": 200,
+                          "attentionLow": 70,
+                          "criticalLow": 54,
+                          "source": "default"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "operationId": "getSettings",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "Get the alert settings",
+        "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nWhether alerts are on for your integration in the mode of the key. Test and live have separate settings. Default: on.",
+        "responses": {
+          "200": {
+            "description": "The settings of this mode.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                },
+                "examples": {
+                  "on": {
+                    "summary": "Alerts on (the default)",
+                    "value": {
+                      "mode": "test",
+                      "alertsEnabled": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSettings",
+        "tags": [
+          "Alert settings"
+        ],
+        "summary": "Turn alerts on or off",
+        "description": "**Token:** Secret key. A session token gets 403 `forbidden`.\n\nTurns alerts on or off for your integration in the mode of the key. Off: readings are still stored and still get `level` and `levels`, but `alert` is null in every response (and in the SDK), `reading.alert` is not sent, and `reading.created` (when subscribed) is still sent with `alert: null`. It only changes what EmmiTec sends to you: in live mode the readings still reach the care team.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsUpdate"
+              },
+              "examples": {
+                "off": {
+                  "summary": "Turn alerts off",
+                  "value": {
+                    "alertsEnabled": false
+                  }
+                },
+                "on": {
+                  "summary": "Turn alerts back on",
+                  "value": {
+                    "alertsEnabled": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The settings, as saved.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                },
+                "examples": {
+                  "off": {
+                    "summary": "Alerts off",
+                    "value": {
+                      "mode": "test",
+                      "alertsEnabled": false
+                    }
+                  },
+                  "on": {
+                    "summary": "Alerts on",
+                    "value": {
+                      "mode": "test",
+                      "alertsEnabled": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -3031,7 +3672,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "`Authorization: Bearer <token>` on every request. Two kinds of token:\n\n- **Secret key** (`emk_test_...` or `emk_live_...`): issued by EmmiTec, shown only once, revocable. Server to server only: never ship it inside a mobile app or a website.\n- **Patient session token** (`emst_test_...` or `emst_live_...`): minted by your backend with `POST /patients/{id}/session-tokens` for ONE patient and handed to your mobile app. It can only call `GET /ping`, `GET /me`, `GET /devices`, `POST /readings`, `POST /readings/batch`, `GET /readings/{id}`, and `GET /patients/{id}/readings` and `GET /patients/{id}/thresholds` for its own patient; anything else gets 403 `forbidden`.\n\nMissing, invalid, revoked or expired token: 401 `unauthorized`."
+        "description": "`Authorization: Bearer <token>` on every request. Two kinds of token:\n\n- **Secret key** (`emk_test_...` or `emk_live_...`): generated in the customer portal (https://emmitec.health/portal), where you can copy it again at any time, or issued by EmmiTec. Only EmmiTec revokes keys. Server to server only: never ship it inside a mobile app or a website.\n- **Patient session token** (`emst_test_...` or `emst_live_...`): minted by your backend with `POST /patients/{id}/session-tokens` for ONE patient and handed to your mobile app. It can only call `GET /ping`, `GET /me`, `GET /devices`, `POST /readings`, `POST /readings/batch`, `GET /readings/{id}`, and `GET /patients/{id}/readings` and `GET /patients/{id}/thresholds` for its own patient; anything else gets 403 `forbidden`.\n\nMissing, invalid, revoked or expired token: 401 `unauthorized`."
       }
     },
     "headers": {
@@ -3270,6 +3911,30 @@
                     "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
                   }
                 }
+              },
+              "limitsOrder": {
+                "summary": "Limits out of order",
+                "value": {
+                  "error": {
+                    "type": "invalid_request_error",
+                    "code": "validation_failed",
+                    "message": "limits.systolic must satisfy criticalLow <= attentionLow <= attentionHigh <= criticalHigh.",
+                    "param": "limits.systolic",
+                    "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
+                  }
+                }
+              },
+              "limitMissing": {
+                "summary": "One of the four limits is missing",
+                "value": {
+                  "error": {
+                    "type": "invalid_request_error",
+                    "code": "validation_failed",
+                    "message": "limits.glucose.attentionLow is required, a number between 0 and 1000 (send all four limits).",
+                    "param": "limits.glucose.attentionLow",
+                    "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
+                  }
+                }
               }
             }
           }
@@ -3329,7 +3994,7 @@
         }
       },
       "Forbidden": {
-        "description": "The token cannot do this: a session token outside its scope, a live key when the integration has no live client, or a live key on a sandbox helper.",
+        "description": "The token cannot do this: a session token outside its scope, a live key when the integration has no live client, a live key on a sandbox helper, a test key on `PUT /thresholds`, or the integration is suspended.",
         "headers": {
           "X-Request-Id": {
             "$ref": "#/components/headers/XRequestId"
@@ -3344,6 +4009,30 @@
               "$ref": "#/components/schemas/Error"
             },
             "examples": {
+              "integrationSuspended": {
+                "summary": "Integration suspended",
+                "value": {
+                  "error": {
+                    "type": "permission_error",
+                    "code": "forbidden",
+                    "message": "This integration is suspended. Contact EmmiTec.",
+                    "param": null,
+                    "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
+                  }
+                }
+              },
+              "sandboxDefaults": {
+                "summary": "Test key on PUT /thresholds",
+                "value": {
+                  "error": {
+                    "type": "permission_error",
+                    "code": "forbidden",
+                    "message": "The sandbox defaults are shared; set limits per patient with PUT /patients/{id}/thresholds.",
+                    "param": null,
+                    "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
+                  }
+                }
+              },
               "sessionTokenScope": {
                 "summary": "Session token outside its scope",
                 "value": {
@@ -3453,7 +4142,7 @@
         }
       },
       "Conflict": {
-        "description": "Conflict with existing data, for example an email already used by another person on the client.",
+        "description": "Conflict with existing data, for example an email already used by another person on the client, or no default limits to change for this type.",
         "headers": {
           "X-Request-Id": {
             "$ref": "#/components/headers/XRequestId"
@@ -3476,6 +4165,18 @@
                     "code": "conflict",
                     "message": "This email is already used by another person on the client.",
                     "param": "email",
+                    "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
+                  }
+                }
+              },
+              "noClientDefaults": {
+                "summary": "No default limits for this type",
+                "value": {
+                  "error": {
+                    "type": "invalid_request_error",
+                    "code": "conflict",
+                    "message": "This client has no default limits for this type yet. Contact EmmiTec.",
+                    "param": null,
                     "requestId": "req_01JDJ3K8Q5R4T6V8X0Z2B4D6F8"
                   }
                 }
@@ -3622,7 +4323,7 @@
               "rate_limited",
               "internal_error"
             ],
-            "description": "Exact cause:\n- `invalid_json`: 400: the body is not valid JSON.\n- `validation_failed`: 400: a field or parameter is invalid (see `param`).\n- `unsupported_type`: 400: `type` is not one of the supported reading types.\n- `unknown_device`: 400: `device.model` is not an id from `GET /devices`, `manual` or `other`.\n- `unauthorized`: 401: token missing, invalid or revoked, or expired.\n- `forbidden`: 403: session token outside its scope, live key when the integration has no live client, or live key on a sandbox helper.\n- `not_found`: 404: not found for this integration and mode.\n- `conflict`: 409: conflict, for example an email already used by another person on the client.\n- `patient_disabled`: 422: the patient is disabled for measurements.\n- `rate_limited`: 429: more than 30 requests per second for this key or session token.\n- `internal_error`: 500: unexpected error. The message is generic; the requestId is in our logs."
+            "description": "Exact cause:\n- `invalid_json`: 400: the body is not valid JSON.\n- `validation_failed`: 400: a field or parameter is invalid (see `param`).\n- `unsupported_type`: 400: `type` is not one of the supported reading types.\n- `unknown_device`: 400: `device.model` is not an id from `GET /devices`, `manual` or `other`.\n- `unauthorized`: 401: token missing, invalid or revoked, or expired.\n- `forbidden`: 403: session token outside its scope, live key when the integration has no live client, live key on a sandbox helper, test key on `PUT /thresholds`, or the integration is suspended.\n- `not_found`: 404: not found for this integration and mode.\n- `conflict`: 409: conflict, for example an email already used by another person on the client, or no default limits to change for this type.\n- `patient_disabled`: 422: the patient is disabled for measurements.\n- `rate_limited`: 429: more than 30 requests per second for this key or session token.\n- `internal_error`: 500: unexpected error. The message is generic; the requestId is in our logs."
           },
           "message": {
             "type": "string",
@@ -3674,9 +4375,70 @@
           }
         ]
       },
+      "Plan": {
+        "type": "object",
+        "description": "Plan of your integration. New partners start with a 90-day pilot (`trial`). Requests are not blocked automatically when the trial ends: EmmiTec decides the next step with you. A `suspended` integration gets 403 `forbidden` on every call.",
+        "required": [
+          "name",
+          "trialEndsAt",
+          "daysLeft",
+          "module"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "`trial` (pilot), `active` or `suspended`.",
+            "enum": [
+              "trial",
+              "active",
+              "suspended"
+            ],
+            "examples": [
+              "trial"
+            ]
+          },
+          "trialEndsAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the trial ends. null when the plan is not `trial`.",
+            "examples": [
+              "2027-02-22T14:00:00Z"
+            ]
+          },
+          "daysLeft": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Whole days until `trialEndsAt` (rounded up, never negative). null when the plan is not `trial`.",
+            "minimum": 0,
+            "examples": [
+              90
+            ]
+          },
+          "module": {
+            "type": "string",
+            "description": "Module of the integration. `rpm` (remote patient monitoring) is the only one in v1.",
+            "enum": [
+              "rpm"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "name": "trial",
+            "trialEndsAt": "2027-02-22T14:00:00Z",
+            "daysLeft": 90,
+            "module": "rpm"
+          }
+        ]
+      },
       "Ping": {
         "type": "object",
-        "description": "Result of `GET /ping`: who is calling and in which mode.",
+        "description": "Result of `GET /ping`: who is calling, in which mode, and the plan of the integration.",
         "required": [
           "ok",
           "mode",
@@ -3684,7 +4446,8 @@
           "integration",
           "patientId",
           "serverTime",
-          "apiVersion"
+          "apiVersion",
+          "plan"
         ],
         "properties": {
           "ok": {
@@ -3760,6 +4523,9 @@
             "examples": [
               "2026-11-24"
             ]
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
           }
         },
         "examples": [
@@ -3773,7 +4539,13 @@
             },
             "patientId": null,
             "serverTime": "2026-11-24T14:03:00Z",
-            "apiVersion": "2026-11-24"
+            "apiVersion": "2026-11-24",
+            "plan": {
+              "name": "trial",
+              "trialEndsAt": "2027-02-22T14:00:00Z",
+              "daysLeft": 90,
+              "module": "rpm"
+            }
           }
         ]
       },
@@ -5595,7 +6367,7 @@
       },
       "Threshold": {
         "type": "object",
-        "description": "Limits of one value for one patient.",
+        "description": "Limits of one value: of one patient (`GET /patients/{id}/thresholds`) or the client default (`GET /thresholds`).",
         "required": [
           "type",
           "value",
@@ -5628,7 +6400,7 @@
           },
           "unit": {
             "type": "string",
-            "description": "Unit of the limits.",
+            "description": "Unit of the limits: mmHg, bpm (pulse), %, C or mg/dL.",
             "examples": [
               "mmHg"
             ]
@@ -5663,7 +6435,7 @@
           },
           "source": {
             "type": "string",
-            "description": "`patient`: set for this patient by the care team. `default`: client default.",
+            "description": "`patient`: limits of this patient, set by the care team or with `PUT /patients/{id}/thresholds` (both see the same limits). `default`: client default.",
             "enum": [
               "patient",
               "default"
@@ -5685,7 +6457,7 @@
       },
       "ThresholdList": {
         "type": "object",
-        "description": "Thresholds of a patient.",
+        "description": "Thresholds, one item per type and evaluated value.",
         "required": [
           "data"
         ],
@@ -5731,6 +6503,241 @@
                 "source": "default"
               }
             ]
+          }
+        ]
+      },
+      "Limits": {
+        "type": "object",
+        "description": "The four limits of one value, in the unit of the value (mmHg, bpm, %, C, mg/dL). All four are required, as numbers from 0 to 1000 (rounded to 2 decimals), and must satisfy criticalLow <= attentionLow <= attentionHigh <= criticalHigh. A reading at or above `criticalHigh` is critical_high, at or above `attentionHigh` attention_high, at or below `criticalLow` critical_low, at or below `attentionLow` attention_low, else normal.",
+        "required": [
+          "criticalHigh",
+          "attentionHigh",
+          "attentionLow",
+          "criticalLow"
+        ],
+        "properties": {
+          "criticalHigh": {
+            "type": "number",
+            "description": "At or above = critical_high.",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "attentionHigh": {
+            "type": "number",
+            "description": "At or above = attention_high.",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "attentionLow": {
+            "type": "number",
+            "description": "At or below = attention_low.",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "criticalLow": {
+            "type": "number",
+            "description": "At or below = critical_low.",
+            "minimum": 0,
+            "maximum": 1000
+          }
+        },
+        "examples": [
+          {
+            "criticalHigh": 170,
+            "attentionHigh": 150,
+            "attentionLow": 100,
+            "criticalLow": 90
+          }
+        ]
+      },
+      "ThresholdsUpdate": {
+        "type": "object",
+        "description": "Body of `PUT /patients/{id}/thresholds` and `PUT /thresholds`: one type per call and, in `limits`, the values to change. Values per type: blood_pressure `systolic`, `diastolic`, `pulse`; oxygen_saturation `spo2`, `pulse`; temperature `temperature` (C); glucose `glucose` (mg/dL). weight has no limits (400).",
+        "required": [
+          "type",
+          "limits"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Reading type.",
+            "enum": [
+              "blood_pressure",
+              "oxygen_saturation",
+              "temperature",
+              "glucose"
+            ],
+            "examples": [
+              "blood_pressure"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "description": "The values to change, each with its four limits. At least one. Values not sent keep their limits.",
+            "minProperties": 1,
+            "propertyNames": {
+              "enum": [
+                "systolic",
+                "diastolic",
+                "pulse",
+                "spo2",
+                "temperature",
+                "glucose"
+              ]
+            },
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Limits"
+            },
+            "examples": [
+              {
+                "systolic": {
+                  "criticalHigh": 170,
+                  "attentionHigh": 150,
+                  "attentionLow": 100,
+                  "criticalLow": 90
+                },
+                "diastolic": {
+                  "criticalHigh": 110,
+                  "attentionHigh": 95,
+                  "attentionLow": 60,
+                  "criticalLow": 50
+                }
+              }
+            ]
+          }
+        },
+        "examples": [
+          {
+            "type": "blood_pressure",
+            "limits": {
+              "systolic": {
+                "criticalHigh": 170,
+                "attentionHigh": 150,
+                "attentionLow": 100,
+                "criticalLow": 90
+              },
+              "diastolic": {
+                "criticalHigh": 110,
+                "attentionHigh": 95,
+                "attentionLow": 60,
+                "criticalLow": 50
+              }
+            }
+          }
+        ]
+      },
+      "Settings": {
+        "type": "object",
+        "description": "Alert settings of your integration for the mode of the key. Each mode has its own.",
+        "required": [
+          "mode",
+          "alertsEnabled"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "test",
+              "live"
+            ],
+            "description": "Mode of the key used: `test` (sandbox client) or `live` (your real client).",
+            "examples": [
+              "test"
+            ]
+          },
+          "alertsEnabled": {
+            "type": "boolean",
+            "description": "true (default): readings out of range carry an `alert` and send `reading.alert`. false: `alert` is always null and `reading.alert` is not sent; `level` and `levels` are still there."
+          }
+        },
+        "examples": [
+          {
+            "mode": "test",
+            "alertsEnabled": true
+          }
+        ]
+      },
+      "SettingsUpdate": {
+        "type": "object",
+        "description": "Body of `PUT /settings`.",
+        "required": [
+          "alertsEnabled"
+        ],
+        "properties": {
+          "alertsEnabled": {
+            "type": "boolean",
+            "description": "true to use alerts, false to turn them off for this mode."
+          }
+        },
+        "examples": [
+          {
+            "alertsEnabled": false
+          }
+        ]
+      },
+      "PatientAlertsUpdate": {
+        "type": "object",
+        "description": "Body of `PUT /patients/{id}/alerts`.",
+        "required": [
+          "type",
+          "enabled"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Reading type.",
+            "enum": [
+              "blood_pressure",
+              "oxygen_saturation",
+              "temperature",
+              "glucose"
+            ],
+            "examples": [
+              "blood_pressure"
+            ]
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "false: no alert for this patient and type. true: alerts again."
+          }
+        },
+        "examples": [
+          {
+            "type": "blood_pressure",
+            "enabled": false
+          }
+        ]
+      },
+      "PatientAlerts": {
+        "type": "object",
+        "description": "The alert switch of one patient for one type.",
+        "required": [
+          "type",
+          "enabled"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Reading type.",
+            "enum": [
+              "blood_pressure",
+              "oxygen_saturation",
+              "temperature",
+              "glucose"
+            ],
+            "examples": [
+              "blood_pressure"
+            ]
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether this patient gets alerts for this type."
+          }
+        },
+        "examples": [
+          {
+            "type": "blood_pressure",
+            "enabled": false
           }
         ]
       },

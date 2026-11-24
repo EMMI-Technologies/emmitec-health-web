@@ -25,9 +25,10 @@ The phone also gets the alert right away, in the response to the reading. Use it
 
 | Piece | Where it runs | What it does |
 |---|---|---|
-| Partner API | Your backend | Create patients, mint session tokens, configure webhooks, read history and thresholds. |
+| Partner API | Your backend | Create patients, mint session tokens, configure webhooks, read history, set alert limits. |
 | Expo SDK (`emmitec-rpm`) | Your mobile app | Bluetooth permissions, device discovery, reading and saving measurements, offline queue. |
 | Webhooks | Your backend | Receive `reading.alert` (and, if you want, every `reading.created`) as signed HTTPS calls. |
+| [Customer portal](/developers/customer-portal) | Your browser | See the plan, copy and generate keys, set up the webhook, turn alerts on or off, follow deliveries. |
 
 ## Test and live
 
@@ -44,8 +45,10 @@ https://v2-prod-api-patients.emmitec.health/partner/v1
 
 Test and live never mix: a test key never sees live data, and each mode has its own patients and its own webhook. Two partners never see each other's patients, not even in the sandbox.
 
+New partners start with a 90-day pilot (plan `trial`). `GET /ping` returns the plan and the days left, and the customer portal shows the same.
+
 ::: note Getting keys
-EmmiTec issues your keys. Ask for them at [contato@emmitec.health](mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys). A secret key is shown only once, so store it in your secret manager right away.
+EmmiTec creates your access to the [customer portal](/developers/customer-portal), where you copy your keys at any time and generate new ones. Ask for access at [contato@emmitec.health](mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys). Keep secret keys in your secret manager, never in code.
 :::
 
 ## Every response tells you where you are

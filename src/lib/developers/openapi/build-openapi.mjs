@@ -1,8 +1,13 @@
 /*
  * EmmiTec Partner API v1: machine-readable description.
  *
- * Source of truth: docs/integracao/partner-api-v1-contrato.md (sections 1 to 4.6; the backoffice routes of section 5
- * and the SDK of section 6 are not part of this file). If the contract changes, change it there first, then here.
+ * Source of truth: docs/integracao/partner-api-v1-contrato.md (sections 1 to 4.6, plus v1.1 sections 8.1 to 8.3; the
+ * backoffice routes of sections 5 and 8.5, the SDK of section 6 and the customer portal routes of section 8.4
+ * (/portal/*, they serve only https://emmitec.health/portal) are not part of this file). If the contract changes,
+ * change it there first, then here.
+ *
+ * v1.1 note: PUT /thresholds and PUT /patients/{id}/thresholds follow the implementation
+ * (sr-backend-patients/src/parceiros/limites.ts): every value sent needs its four limits as numbers.
  *
  * Writes, from the same operation list:
  *   public/developers/openapi.json                                 (OpenAPI 3.1)
@@ -59,6 +64,11 @@ const GLUCOSE_CONTEXTS = [
   'casual',
   'generic',
 ]
+const PLANS = ['trial', 'active', 'suspended']
+/** Types with alert limits (weight is not evaluated). */
+const LIMIT_TYPES = ['blood_pressure', 'oxygen_saturation', 'temperature', 'glucose']
+/** Values that take limits, per type (contract 8.3). */
+const LIMIT_VALUES = ['systolic', 'diastolic', 'pulse', 'spo2', 'temperature', 'glucose']
 const SUBSCRIBABLE_EVENTS = ['reading.alert', 'reading.created']
 const EVENT_TYPES = ['reading.alert', 'reading.created', 'ping']
 const EVENT_STATUSES = ['pending', 'delivered', 'failed']
@@ -76,9 +86,10 @@ const ERROR_CODES = {
   unknown_device: '400: `device.model` is not an id from `GET /devices`, `manual` or `other`.',
   unauthorized: '401: token missing, invalid or revoked, or expired.',
   forbidden:
-    '403: session token outside its scope, live key when the integration has no live client, or live key on a sandbox helper.',
+    '403: session token outside its scope, live key when the integration has no live client, live key on a sandbox helper, test key on `PUT /thresholds`, or the integration is suspended.',
   not_found: '404: not found for this integration and mode.',
-  conflict: '409: conflict, for example an email already used by another person on the client.',
+  conflict:
+    '409: conflict, for example an email already used by another person on the client, or no default limits to change for this type.',
   patient_disabled: '422: the patient is disabled for measurements.',
   rate_limited: '429: more than 30 requests per second for this key or session token.',
   internal_error: '500: unexpected error. The message is generic; the requestId is in our logs.',
@@ -163,6 +174,10 @@ const CONTRACT_ERROR = {
   requestId: REQUEST_ID,
 }
 
+/** 90-day pilot started 2026-11-24T14:00:00Z, seen 3 minutes later. */
+const PLAN = { name: 'trial', trialEndsAt: '2027-02-22T14:00:00Z', daysLeft: 90, module: 'rpm' }
+const PLAN_ACTIVE = { name: 'active', trialEndsAt: null, daysLeft: null, module: 'rpm' }
+
 const PING_SECRET = {
   ok: true,
   mode: 'test',
@@ -171,6 +186,7 @@ const PING_SECRET = {
   patientId: null,
   serverTime: '2026-11-24T14:03:00Z',
   apiVersion: API_VERSION,
+  plan: PLAN,
 }
 const PING_SESSION = { ...PING_SECRET, auth: 'session_token', patientId: PATIENT_ID }
 
@@ -447,6 +463,81 @@ const THRESHOLDS = {
   ],
 }
 
+// v1.1 (contract 8.2 and 8.3): alert settings and limits
+
+const SETTINGS_ON = { mode: 'test', alertsEnabled: true }
+const SETTINGS_OFF = { mode: 'test', alertsEnabled: false }
+
+const limitRow = (type, value, unit, [criticalHigh, attentionHigh, attentionLow, criticalLow], source) => ({
+  type,
+  value,
+  unit,
+  criticalHigh,
+  attentionHigh,
+  attentionLow,
+  criticalLow,
+  source,
+})
+const fourLimits = ([criticalHigh, attentionHigh, attentionLow, criticalLow]) => ({
+  criticalHigh,
+  attentionHigh,
+  attentionLow,
+  criticalLow,
+})
+
+/** GET /thresholds with a test key: the shared sandbox defaults (contract 4.3). */
+const SANDBOX_DEFAULTS = {
+  data: [
+    limitRow('blood_pressure', 'systolic', 'mmHg', [180, 140, 90, 80], 'default'),
+    limitRow('blood_pressure', 'diastolic', 'mmHg', [120, 90, 60, 50], 'default'),
+    limitRow('blood_pressure', 'pulse', 'bpm', [130, 100, 50, 40], 'default'),
+    limitRow('oxygen_saturation', 'spo2', '%', [null, null, 94, 90], 'default'),
+    limitRow('oxygen_saturation', 'pulse', 'bpm', [130, 100, 50, 40], 'default'),
+    limitRow('temperature', 'temperature', 'C', [39, 37.8, 35.5, 35], 'default'),
+    limitRow('glucose', 'glucose', 'mg/dL', [250, 180, 70, 54], 'default'),
+  ],
+}
+
+/** PUT /patients/{id}/thresholds, one example per type. */
+const PATIENT_LIMITS_BP = {
+  type: 'blood_pressure',
+  limits: {
+    systolic: fourLimits([170, 150, 100, 90]),
+    diastolic: fourLimits([110, 95, 60, 50]),
+  },
+}
+const PATIENT_LIMITS_SPO2 = {
+  type: 'oxygen_saturation',
+  limits: {
+    spo2: fourLimits([101, 101, 89, 85]),
+    pulse: fourLimits([120, 105, 50, 40]),
+  },
+}
+const PATIENT_LIMITS_TEMPERATURE = {
+  type: 'temperature',
+  limits: { temperature: fourLimits([39.5, 38, 35.5, 35]) },
+}
+const PATIENT_LIMITS_GLUCOSE = {
+  type: 'glucose',
+  limits: { glucose: fourLimits([300, 220, 70, 54]) },
+}
+/** Response to PATIENT_LIMITS_BP on a sandbox patient: pulse was not sent and keeps the limits it had. */
+const PATIENT_LIMITS_BP_RESULT = {
+  data: [
+    limitRow('blood_pressure', 'systolic', 'mmHg', [170, 150, 100, 90], 'patient'),
+    limitRow('blood_pressure', 'diastolic', 'mmHg', [110, 95, 60, 50], 'patient'),
+    limitRow('blood_pressure', 'pulse', 'bpm', [130, 100, 50, 40], 'patient'),
+  ],
+}
+
+/** PUT /thresholds (live key): new glucose default of the live client. */
+const CLIENT_LIMITS_GLUCOSE = { type: 'glucose', limits: { glucose: fourLimits([300, 200, 70, 54]) } }
+const CLIENT_LIMITS_GLUCOSE_RESULT = {
+  data: [limitRow('glucose', 'glucose', 'mg/dL', [300, 200, 70, 54], 'default')],
+}
+
+const PATIENT_ALERTS_OFF = { type: 'blood_pressure', enabled: false }
+
 /** Catalog v1 (contract 4.4): model, name, manufacturer, type, pairing. */
 const CATALOG = [
   ['td3140', 'TaiDoc TD-3140', 'TaiDoc Technology Corp.', 'blood_pressure', false],
@@ -619,8 +710,30 @@ SCHEMAS.Error = object(
   { example: { error: CONTRACT_ERROR } },
 )
 
+SCHEMAS.Plan = object(
+  [
+    'Plan of your integration. New partners start with a 90-day pilot (`trial`).',
+    'Requests are not blocked automatically when the trial ends: EmmiTec decides the next step with you.',
+    'A `suspended` integration gets 403 `forbidden` on every call.',
+  ].join(' '),
+  {
+    name: str('`trial` (pilot), `active` or `suspended`.', { enum: PLANS, examples: ['trial'] }),
+    trialEndsAt: nul(dateTime('When the trial ends. null when the plan is not `trial`.', '2027-02-22T14:00:00Z')),
+    daysLeft: nul(
+      int('Whole days until `trialEndsAt` (rounded up, never negative). null when the plan is not `trial`.', {
+        minimum: 0,
+        examples: [90],
+      }),
+    ),
+    module: str('Module of the integration. `rpm` (remote patient monitoring) is the only one in v1.', {
+      enum: ['rpm'],
+    }),
+  },
+  { example: PLAN },
+)
+
 SCHEMAS.Ping = object(
-  'Result of `GET /ping`: who is calling and in which mode.',
+  'Result of `GET /ping`: who is calling, in which mode, and the plan of the integration.',
   {
     ok: bool('Always true when the token works.'),
     mode: modeProp(),
@@ -632,6 +745,7 @@ SCHEMAS.Ping = object(
     patientId: nul(uuid('Patient of the session token. null with a secret key.', PATIENT_ID)),
     serverTime: dateTime('Current server time (UTC).', '2026-11-24T14:03:00Z'),
     apiVersion: str('Version of the API contract.', { examples: [API_VERSION] }),
+    plan: ref('Plan'),
   },
   { example: PING_SECRET },
 )
@@ -992,26 +1106,100 @@ SCHEMAS.BatchResult = object(
 
 const limitField = (description) => nul(num(description))
 SCHEMAS.Threshold = object(
-  'Limits of one value for one patient.',
+  'Limits of one value: of one patient (`GET /patients/{id}/thresholds`) or the client default (`GET /thresholds`).',
   {
     type: ref('ReadingType'),
     value: str('Evaluated value.', { enum: EVALUATED_VALUES, examples: ['systolic'] }),
-    unit: str('Unit of the limits.', { examples: ['mmHg'] }),
+    unit: str('Unit of the limits: mmHg, bpm (pulse), %, C or mg/dL.', { examples: ['mmHg'] }),
     criticalHigh: limitField('At or above = critical_high. null when not set.'),
     attentionHigh: limitField('At or above = attention_high. null when not set.'),
     attentionLow: limitField('At or below = attention_low. null when not set.'),
     criticalLow: limitField('At or below = critical_low. null when not set.'),
-    source: str('`patient`: set for this patient by the care team. `default`: client default.', {
-      enum: ['patient', 'default'],
-    }),
+    source: str(
+      '`patient`: limits of this patient, set by the care team or with `PUT /patients/{id}/thresholds` (both see the same limits). `default`: client default.',
+      { enum: ['patient', 'default'] },
+    ),
   },
   { example: THRESHOLDS.data[0] },
 )
 
 SCHEMAS.ThresholdList = object(
-  'Thresholds of a patient.',
+  'Thresholds, one item per type and evaluated value.',
   { data: { type: 'array', items: ref('Threshold') } },
   { example: THRESHOLDS },
+)
+
+const limitInput = (description) => num(description, { minimum: 0, maximum: 1000 })
+SCHEMAS.Limits = object(
+  [
+    'The four limits of one value, in the unit of the value (mmHg, bpm, %, C, mg/dL). All four are required,',
+    'as numbers from 0 to 1000 (rounded to 2 decimals), and must satisfy',
+    'criticalLow <= attentionLow <= attentionHigh <= criticalHigh.',
+    'A reading at or above `criticalHigh` is critical_high, at or above `attentionHigh` attention_high,',
+    'at or below `criticalLow` critical_low, at or below `attentionLow` attention_low, else normal.',
+  ].join(' '),
+  {
+    criticalHigh: limitInput('At or above = critical_high.'),
+    attentionHigh: limitInput('At or above = attention_high.'),
+    attentionLow: limitInput('At or below = attention_low.'),
+    criticalLow: limitInput('At or below = critical_low.'),
+  },
+  { example: PATIENT_LIMITS_BP.limits.systolic },
+)
+
+SCHEMAS.ThresholdsUpdate = object(
+  [
+    'Body of `PUT /patients/{id}/thresholds` and `PUT /thresholds`: one type per call and, in `limits`, the values to',
+    'change. Values per type: blood_pressure `systolic`, `diastolic`, `pulse`; oxygen_saturation `spo2`, `pulse`;',
+    'temperature `temperature` (C); glucose `glucose` (mg/dL). weight has no limits (400).',
+  ].join(' '),
+  {
+    type: str('Reading type.', { enum: LIMIT_TYPES, examples: ['blood_pressure'] }),
+    limits: {
+      type: 'object',
+      description: 'The values to change, each with its four limits. At least one. Values not sent keep their limits.',
+      minProperties: 1,
+      propertyNames: { enum: LIMIT_VALUES },
+      additionalProperties: ref('Limits'),
+      examples: [PATIENT_LIMITS_BP.limits],
+    },
+  },
+  { example: PATIENT_LIMITS_BP },
+)
+
+SCHEMAS.Settings = object(
+  'Alert settings of your integration for the mode of the key. Each mode has its own.',
+  {
+    mode: modeProp(),
+    alertsEnabled: bool(
+      'true (default): readings out of range carry an `alert` and send `reading.alert`. false: `alert` is always null and `reading.alert` is not sent; `level` and `levels` are still there.',
+    ),
+  },
+  { example: SETTINGS_ON },
+)
+
+SCHEMAS.SettingsUpdate = object(
+  'Body of `PUT /settings`.',
+  { alertsEnabled: bool('true to use alerts, false to turn them off for this mode.') },
+  { example: { alertsEnabled: false } },
+)
+
+SCHEMAS.PatientAlertsUpdate = object(
+  'Body of `PUT /patients/{id}/alerts`.',
+  {
+    type: str('Reading type.', { enum: LIMIT_TYPES, examples: ['blood_pressure'] }),
+    enabled: bool('false: no alert for this patient and type. true: alerts again.'),
+  },
+  { example: PATIENT_ALERTS_OFF },
+)
+
+SCHEMAS.PatientAlerts = object(
+  'The alert switch of one patient for one type.',
+  {
+    type: str('Reading type.', { enum: LIMIT_TYPES, examples: ['blood_pressure'] }),
+    enabled: bool('Whether this patient gets alerts for this type.'),
+  },
+  { example: PATIENT_ALERTS_OFF },
 )
 
 SCHEMAS.Device = object(
@@ -1401,6 +1589,20 @@ const RESPONSES = {
       'device.model must be an id from GET /devices, "manual" or "other".',
       'device.model',
     ),
+    limitsOrder: errorExample(
+      'Limits out of order',
+      'invalid_request_error',
+      'validation_failed',
+      'limits.systolic must satisfy criticalLow <= attentionLow <= attentionHigh <= criticalHigh.',
+      'limits.systolic',
+    ),
+    limitMissing: errorExample(
+      'One of the four limits is missing',
+      'invalid_request_error',
+      'validation_failed',
+      'limits.glucose.attentionLow is required, a number between 0 and 1000 (send all four limits).',
+      'limits.glucose.attentionLow',
+    ),
   }),
   Unauthorized: errorResponse(
     'Token missing, invalid or revoked, or expired. The message says which. The token is never echoed.',
@@ -1416,8 +1618,20 @@ const RESPONSES = {
     },
   ),
   Forbidden: errorResponse(
-    'The token cannot do this: a session token outside its scope, a live key when the integration has no live client, or a live key on a sandbox helper.',
+    'The token cannot do this: a session token outside its scope, a live key when the integration has no live client, a live key on a sandbox helper, a test key on `PUT /thresholds`, or the integration is suspended.',
     {
+      integrationSuspended: errorExample(
+        'Integration suspended',
+        'permission_error',
+        'forbidden',
+        'This integration is suspended. Contact EmmiTec.',
+      ),
+      sandboxDefaults: errorExample(
+        'Test key on PUT /thresholds',
+        'permission_error',
+        'forbidden',
+        'The sandbox defaults are shared; set limits per patient with PUT /patients/{id}/thresholds.',
+      ),
       sessionTokenScope: errorExample(
         'Session token outside its scope',
         'permission_error',
@@ -1449,15 +1663,24 @@ const RESPONSES = {
     ),
     event: errorExample('Event not found', 'invalid_request_error', 'not_found', 'Event not found.', 'id'),
   }),
-  Conflict: errorResponse('Conflict with existing data, for example an email already used by another person on the client.', {
-    emailInUse: errorExample(
-      'Email already used',
-      'invalid_request_error',
-      'conflict',
-      'This email is already used by another person on the client.',
-      'email',
-    ),
-  }),
+  Conflict: errorResponse(
+    'Conflict with existing data, for example an email already used by another person on the client, or no default limits to change for this type.',
+    {
+      emailInUse: errorExample(
+        'Email already used',
+        'invalid_request_error',
+        'conflict',
+        'This email is already used by another person on the client.',
+        'email',
+      ),
+      noClientDefaults: errorExample(
+        'No default limits for this type',
+        'invalid_request_error',
+        'conflict',
+        'This client has no default limits for this type yet. Contact EmmiTec.',
+      ),
+    },
+  ),
   PatientDisabled: errorResponse('The patient is disabled for measurements.', {
     patientDisabled: errorExample(
       'Patient disabled',
@@ -1518,7 +1741,12 @@ const TAGS = [
   },
   {
     name: 'Readings',
-    description: 'Store device readings and read them back with their level and alert, plus the thresholds behind them.',
+    description: 'Store device readings and read them back with their level and alert.',
+  },
+  {
+    name: 'Alert settings',
+    description:
+      'Decide if your integration uses alerts, and set the limits that trigger them: per patient, or as the defaults of your live client. Patients can also have alerts turned off per type.',
   },
   { name: 'Devices', description: 'The catalog of supported devices. Use a model id in `device.model`.' },
   {
@@ -1540,6 +1768,7 @@ const TOKEN = {
   reading:
     'Secret key or session token. With a secret key, `patientId` is required. With a session token it may be omitted; if sent, it must be the patient of the token.',
   sandbox: 'Secret key, test mode only (`emk_test_...`). A live key or a session token gets 403 `forbidden`.',
+  liveOnly: 'Secret key, live mode only (`emk_live_...`). A test key or a session token gets 403 `forbidden`.',
 }
 
 const json = (schema, examples) => ({ 'application/json': { schema, examples } })
@@ -1564,11 +1793,12 @@ add('get', '/ping', {
   summary: 'Check a token',
   token: TOKEN.any,
   description:
-    'Returns the mode, the kind of token and the integration it belongs to. With a session token, `auth` is `session_token` and `patientId` is the patient of the token.',
+    'Returns the mode, the kind of token, the integration it belongs to and its plan (`trial` with `trialEndsAt` and `daysLeft` during the 90-day pilot). With a session token, `auth` is `session_token` and `patientId` is the patient of the token.',
   responses: {
     200: ok('The token works.', ref('Ping'), {
-      secretKey: ex('With a secret key', PING_SECRET),
+      secretKey: ex('With a secret key (pilot)', PING_SECRET),
       sessionToken: ex('With a session token', PING_SESSION),
+      activePlan: ex('Active plan', { ...PING_SECRET, plan: PLAN_ACTIVE }),
     }),
   },
   errors: [401, 403, 429, 500],
@@ -1761,14 +1991,137 @@ add('get', '/patients/{id}/readings', {
 
 add('get', '/patients/{id}/thresholds', {
   id: 'listPatientThresholds',
-  tag: 'Readings',
+  tag: 'Alert settings',
   summary: 'List thresholds of a patient',
   token: TOKEN.ownPatient,
   description:
-    'The limits used to compute `level` and `alert`. `source` is `patient` when the care team set them for this patient, `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`.',
+    'The limits used to compute `level` and `alert`. `source` is `patient` when the patient has limits of their own (set by the care team or with `PUT /patients/{id}/thresholds`), `default` when they come from the client default. Missing limits are null; a value without limits gets level `unknown`.',
   params: ['PatientId'],
   responses: { 200: ok('Thresholds of the patient.', ref('ThresholdList'), { thresholds: ex('Thresholds', THRESHOLDS) }) },
   errors: [401, 403, 404, 429, 500],
+})
+
+add('put', '/patients/{id}/thresholds', {
+  id: 'updatePatientThresholds',
+  tag: 'Alert settings',
+  summary: 'Set the limits of a patient',
+  token: TOKEN.secret,
+  description: [
+    'Sets the limits of one patient for one type. They are the same limits the care team sees and edits in the EmmiTec portal, and the next readings of this patient use them right away.',
+    'In `limits`, send the values you want to change, each with its four limits as numbers (0 to 1000) in order: criticalLow <= attentionLow <= attentionHigh <= criticalHigh.',
+    'Values you do not send keep the limits that apply today; when one of them has no limits to keep, the API answers 400 with `param` `limits.<value>` (send that value too).',
+    'Values per type: blood_pressure `systolic`, `diastolic` (mmHg), `pulse` (bpm); oxygen_saturation `spo2` (%), `pulse` (bpm); temperature `temperature` (C); glucose `glucose` (mg/dL). weight has no limits (400).',
+    'The response lists every value of the type, all with `source: "patient"`.',
+  ].join(' '),
+  params: ['PatientId'],
+  body: body('ThresholdsUpdate', {
+    bloodPressure: ex('Blood pressure: systolic and diastolic', PATIENT_LIMITS_BP),
+    oxygenSaturation: ex('Oxygen saturation: SpO2 (no high alert) and pulse', PATIENT_LIMITS_SPO2),
+    temperature: ex('Temperature in C', PATIENT_LIMITS_TEMPERATURE),
+    glucose: ex('Glucose in mg/dL', PATIENT_LIMITS_GLUCOSE),
+  }),
+  responses: {
+    200: ok('Every value of the type, with the limits that now apply.', ref('ThresholdList'), {
+      bloodPressure: ex('Blood pressure (pulse was not sent and kept its limits)', PATIENT_LIMITS_BP_RESULT),
+    }),
+  },
+  errors: [400, 401, 403, 404, 429, 500],
+})
+
+add('put', '/patients/{id}/alerts', {
+  id: 'updatePatientAlerts',
+  tag: 'Alert settings',
+  summary: 'Turn alerts on or off for a patient',
+  token: TOKEN.secret,
+  description: [
+    'Per patient and type. It is the same switch the care team has in the EmmiTec portal.',
+    'Off: readings of this patient and type are still stored and get `level` and `levels`, but `alert` is null and no `reading.alert` event is sent.',
+    'In test mode, `POST /sandbox/simulate-alert` turns alerts back on for the simulated type.',
+  ].join(' '),
+  params: ['PatientId'],
+  body: body('PatientAlertsUpdate', {
+    off: ex('No blood pressure alerts for this patient', PATIENT_ALERTS_OFF),
+    on: ex('Blood pressure alerts back on', { ...PATIENT_ALERTS_OFF, enabled: true }),
+  }),
+  responses: {
+    200: ok('The switch, as saved.', ref('PatientAlerts'), { off: ex('Blood pressure alerts off', PATIENT_ALERTS_OFF) }),
+  },
+  errors: [400, 401, 403, 404, 429, 500],
+  // running the collection in order must not leave the test patient without alerts
+  postman: [{ example: 'on' }],
+})
+
+add('get', '/thresholds', {
+  id: 'listClientThresholds',
+  tag: 'Alert settings',
+  summary: 'List the default limits of your client',
+  token: TOKEN.secret,
+  description: [
+    'The default limits of the client of this mode: the shared sandbox defaults with a test key, the defaults of your live client with a live key.',
+    'They apply to every patient that has no limits of their own (`GET /patients/{id}/thresholds` shows what applies to one patient). Values without default limits are left out.',
+  ].join(' '),
+  responses: {
+    200: ok('Default limits, all with `source: "default"`.', ref('ThresholdList'), {
+      sandbox: ex('Sandbox defaults (test key)', SANDBOX_DEFAULTS),
+    }),
+  },
+  errors: [401, 403, 429, 500],
+})
+
+add('put', '/thresholds', {
+  id: 'updateClientThresholds',
+  tag: 'Alert settings',
+  summary: 'Change the default limits of your live client',
+  token: TOKEN.liveOnly,
+  description: [
+    'Live key only. A test key gets 403 `forbidden`: the sandbox defaults are shared by every partner, so set limits per patient with `PUT /patients/{id}/thresholds`.',
+    'Send one type per call and, in `limits`, the values to change, each with its four limits (same rules as `PUT /patients/{id}/thresholds`). Values you do not send keep their defaults.',
+    'The new defaults apply to every patient of your live client without limits of their own, including patients the care team added outside the API.',
+    '409 `conflict` when your client has no default limits for this type yet: EmmiTec sets them up.',
+  ].join(' '),
+  body: body('ThresholdsUpdate', { glucose: ex('Glucose default', CLIENT_LIMITS_GLUCOSE) }),
+  responses: {
+    200: ok('The defaults of the type, as saved.', ref('ThresholdList'), {
+      glucose: ex('Glucose default (live)', CLIENT_LIMITS_GLUCOSE_RESULT),
+    }),
+  },
+  errors: [400, 401, 403, 409, 429, 500],
+  postman: [{ name: 'Change the default limits (live key only)', test: 'liveOnly' }],
+})
+
+add('get', '/settings', {
+  id: 'getSettings',
+  tag: 'Alert settings',
+  summary: 'Get the alert settings',
+  token: TOKEN.secret,
+  description: 'Whether alerts are on for your integration in the mode of the key. Test and live have separate settings. Default: on.',
+  responses: { 200: ok('The settings of this mode.', ref('Settings'), { on: ex('Alerts on (the default)', SETTINGS_ON) }) },
+  errors: [401, 403, 429, 500],
+})
+
+add('put', '/settings', {
+  id: 'updateSettings',
+  tag: 'Alert settings',
+  summary: 'Turn alerts on or off',
+  token: TOKEN.secret,
+  description: [
+    'Turns alerts on or off for your integration in the mode of the key.',
+    'Off: readings are still stored and still get `level` and `levels`, but `alert` is null in every response (and in the SDK), `reading.alert` is not sent, and `reading.created` (when subscribed) is still sent with `alert: null`.',
+    'It only changes what EmmiTec sends to you: in live mode the readings still reach the care team.',
+  ].join(' '),
+  body: body('SettingsUpdate', {
+    off: ex('Turn alerts off', { alertsEnabled: false }),
+    on: ex('Turn alerts back on', { alertsEnabled: true }),
+  }),
+  responses: {
+    200: ok('The settings, as saved.', ref('Settings'), {
+      off: ex('Alerts off', SETTINGS_OFF),
+      on: ex('Alerts on', SETTINGS_ON),
+    }),
+  },
+  errors: [400, 401, 403, 429, 500],
+  // running the collection in order must not leave the sandbox without alerts
+  postman: [{ example: 'on' }],
 })
 
 add('get', '/devices', {
@@ -2046,7 +2399,7 @@ const openapi = {
         scheme: 'bearer',
         description: [
           '`Authorization: Bearer <token>` on every request. Two kinds of token:',
-          '\n\n- **Secret key** (`emk_test_...` or `emk_live_...`): issued by EmmiTec, shown only once, revocable. Server to server only: never ship it inside a mobile app or a website.',
+          '\n\n- **Secret key** (`emk_test_...` or `emk_live_...`): generated in the customer portal (https://emmitec.health/portal), where you can copy it again at any time, or issued by EmmiTec. Only EmmiTec revokes keys. Server to server only: never ship it inside a mobile app or a website.',
           '\n- **Patient session token** (`emst_test_...` or `emst_live_...`): minted by your backend with `POST /patients/{id}/session-tokens` for ONE patient and handed to your mobile app. It can only call `GET /ping`, `GET /me`, `GET /devices`, `POST /readings`, `POST /readings/batch`, `GET /readings/{id}`, and `GET /patients/{id}/readings` and `GET /patients/{id}/thresholds` for its own patient; anything else gets 403 `forbidden`.',
           '\n\nMissing, invalid, revoked or expired token: 401 `unauthorized`.',
         ].join(''),
@@ -2104,6 +2457,19 @@ const SETTERS = {
 }
 
 function testScript(variable) {
+  if (variable === 'liveOnly') {
+    // live-only route: with the default test key the expected answer is 403
+    const lines = [
+      "pm.test('2xx with a live key, 403 with a test key', function () {",
+      "  if (pm.response.headers.get('X-EmmiTec-Mode') === 'test') {",
+      '    pm.expect(pm.response.code).to.eql(403);',
+      '  } else {',
+      '    pm.expect(pm.response.code).to.be.within(200, 299);',
+      '  }',
+      '});',
+    ]
+    return [{ listen: 'test', script: { type: 'text/javascript', exec: lines } }]
+  }
   const lines = [
     "pm.test('Status is 2xx', function () {",
     '  pm.expect(pm.response.code).to.be.within(200, 299);',
@@ -2165,6 +2531,7 @@ const postman = {
       'Create patient sets `patientId`, Mint a session token sets `sessionToken`, Create reading sets `readingId`, Send a test event sets `eventId`.',
       'The key prefix decides the mode (test or live); the base URL is the same. Never put a live secret key in a shared workspace.',
       'Reading bodies use `{{$isoTimestamp}}` for `measuredAt` so they stay inside the 365-day window.',
+      'v1.1 adds the Alert settings folder; "Change the default limits" needs a live key and answers 403 with a test key (its test expects that).',
     ].join(' '),
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },

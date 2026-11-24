@@ -200,7 +200,7 @@ Values checked against limits:
 
 `GET /patients/{id}/thresholds`
 
-The limits that apply to the patient. In live mode the care team can set them per patient (`source: "patient"`); otherwise the client defaults apply (`source: "default"`). A missing limit is `null`. The sandbox defaults are listed on [Testing and sandbox](/developers/testing#sandbox-thresholds).
+The limits that apply to the patient. The care team, or you with `PUT /patients/{id}/thresholds`, can set them per patient (`source: "patient"`); otherwise the client defaults apply (`source: "default"`). A missing limit is `null`. The sandbox defaults are listed on [Testing and sandbox](/developers/testing#sandbox-thresholds), and how to change limits is on [Alert settings and thresholds](/developers/alert-settings).
 
 ```json title="Response 200"
 {

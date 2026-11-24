@@ -9,7 +9,7 @@ Você precisa de uma chave secreta de teste (`emk_test_...`), de um terminal com
 
 ## Pegue sua chave de teste
 
-O seu contato na EmmiTec envia uma chave secreta de teste. Guarde em variáveis de ambiente, nunca no código.
+Copie a sua chave secreta de teste no [portal do cliente](/developers/customer-portal) (a EmmiTec cria a sua conta). Guarde em variáveis de ambiente, nunca no código.
 
 ```bash title="Terminal"
 export EMMITEC_API="https://v2-prod-api-patients.emmitec.health/partner/v1"
@@ -31,7 +31,13 @@ curl "$EMMITEC_API/ping" \
   "integration": { "id": "4b1e6d2a-9c3f-4e8b-a1d7-5f2c8e0b3a64", "name": "Acme Health" },
   "patientId": null,
   "serverTime": "2026-11-24T14:03:00Z",
-  "apiVersion": "2026-11-24"
+  "apiVersion": "2026-11-24",
+  "plan": {
+    "name": "trial",
+    "trialEndsAt": "2027-02-22T14:00:00Z",
+    "daysLeft": 90,
+    "module": "rpm"
+  }
 }
 ```
 
@@ -214,7 +220,7 @@ curl -X PUT "$EMMITEC_API/webhook" \
   }'
 ```
 
-Na primeira configuração, a resposta traz o segredo de assinatura. Ele aparece uma única vez:
+Na primeira configuração, a resposta traz o segredo de assinatura. A API mostra o segredo uma única vez (o portal do cliente consegue mostrar de novo):
 
 ```json title="Resposta 200"
 {

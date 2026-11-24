@@ -1282,12 +1282,27 @@ html.dx-locked {
 }
 .dx-drawer__tools {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin: 8px 0 22px;
   padding: 0 0 18px 10px;
   border-bottom: 1px solid var(--dx-line);
+}
+/* portal do cliente: linha própria embaixo do idioma e do botão */
+.dx-drawer__portal {
+  display: inline-flex;
+  flex-basis: 100%;
+  align-items: center;
+  gap: 6px;
+  padding-top: 2px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--dx-ink);
+}
+.dx-drawer__portal:hover {
+  color: var(--dx-brand);
 }
 .dx-drawer-enter-active,
 .dx-drawer-leave-active {
@@ -1312,6 +1327,22 @@ html.dx-locked {
     grid-template-columns: minmax(0, 1fr);
   }
   .dx-aside {
+    display: none;
+  }
+}
+/* barra do topo: com os dois links e o botão, a busca larga só cabe acima de 1160px;
+   abaixo disso ela vira o ícone (como no celular). Abaixo de 1000px o idioma fica só na gaveta. */
+@media (max-width: 1160px) {
+  .dx-search-btn {
+    display: none;
+  }
+  .dx-search-icon {
+    display: inline-grid;
+    order: -1;
+  }
+}
+@media (max-width: 1000px) {
+  .dx-top__lang {
     display: none;
   }
 }

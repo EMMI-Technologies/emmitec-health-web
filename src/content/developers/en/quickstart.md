@@ -9,7 +9,7 @@ You need a test secret key (`emk_test_...`), a terminal with `curl`, and a URL t
 
 ## Get your test key
 
-Your EmmiTec contact sends you a test secret key. Keep it in environment variables, never in code.
+Copy your test secret key in the [customer portal](/developers/customer-portal) (EmmiTec creates your account). Keep it in environment variables, never in code.
 
 ```bash title="Terminal"
 export EMMITEC_API="https://v2-prod-api-patients.emmitec.health/partner/v1"
@@ -31,7 +31,13 @@ curl "$EMMITEC_API/ping" \
   "integration": { "id": "4b1e6d2a-9c3f-4e8b-a1d7-5f2c8e0b3a64", "name": "Acme Health" },
   "patientId": null,
   "serverTime": "2026-11-24T14:03:00Z",
-  "apiVersion": "2026-11-24"
+  "apiVersion": "2026-11-24",
+  "plan": {
+    "name": "trial",
+    "trialEndsAt": "2027-02-22T14:00:00Z",
+    "daysLeft": 90,
+    "module": "rpm"
+  }
 }
 ```
 
@@ -214,7 +220,7 @@ curl -X PUT "$EMMITEC_API/webhook" \
   }'
 ```
 
-The first time you configure it, the response includes the signing secret. It is shown only once:
+The first time you configure it, the response includes the signing secret. The API shows it only once (the customer portal can show it again):
 
 ```json title="Response 200"
 {

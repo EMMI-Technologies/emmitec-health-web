@@ -14,9 +14,33 @@ As chaves de teste (`emk_test_...`) e os tokens de sessão que elas geram (`emst
 
 Os pacientes de teste não passam para a produção. Na virada, o seu backend cria os pacientes de novo com a chave de produção (os mesmos `externalId` servem).
 
+## Piloto e plano
+
+Parceiros novos começam com um piloto de 90 dias. O `GET /ping` diz o plano da sua integração, com qualquer chave ou token:
+
+```json title="GET /ping, resposta 200"
+{
+  "ok": true,
+  "mode": "test",
+  "auth": "secret_key",
+  "integration": { "id": "4b1e6d2a-9c3f-4e8b-a1d7-5f2c8e0b3a64", "name": "Acme Health" },
+  "patientId": null,
+  "serverTime": "2026-11-24T14:03:00Z",
+  "apiVersion": "2026-11-24",
+  "plan": {
+    "name": "trial",
+    "trialEndsAt": "2027-02-22T14:00:00Z",
+    "daysLeft": 90,
+    "module": "rpm"
+  }
+}
+```
+
+O `plan.name` é `trial` durante o piloto, `active` num plano contratado (aí o `trialEndsAt` e o `daysLeft` vêm `null`) ou `suspended`. Uma integração suspensa recebe `403 forbidden` em toda chamada. As chamadas não são bloqueadas sozinhas quando o piloto termina: a EmmiTec conversa com você sobre o próximo passo. O [portal do cliente](/developers/customer-portal) mostra o mesmo plano.
+
 ## Limites da sandbox
 
-Todo paciente da sandbox usa estes limites padrão. Em produção, valem os limites que a equipe de cuidado define para cada paciente e, sem eles, os padrões do seu cliente; confira com `GET /patients/{id}/thresholds`.
+Todo paciente da sandbox começa com estes limites padrão. Eles são compartilhados por todos os parceiros, então não mudam (o `PUT /thresholds` responde `403` com a chave de teste), mas você pode definir os limites de qualquer paciente de teste seu com `PUT /patients/{id}/thresholds`. Em produção, o paciente usa os limites próprios, definidos pela equipe de cuidado ou por você, e, sem eles, os padrões do seu cliente; confira com `GET /patients/{id}/thresholds`. Veja [Configurar alertas e limites](/developers/alert-settings).
 
 | Valor | Crítico baixo | Atenção baixo | Atenção alto | Crítico alto |
 |---|---|---|---|---|
@@ -49,7 +73,7 @@ curl -X POST "$EMMITEC_API/sandbox/simulate-alert" \
   -d '{ "patientId": "3f0c2a8e-7c1d-4a51-9d2e-0c9b1f6a7e21", "type": "glucose", "level": "attention_high" }'
 ```
 
-Use `"level": "normal"` para conferir que uma medição normal **não** avisa ninguém. Com chave de produção, este endpoint responde `403 forbidden`.
+Use `"level": "normal"` para conferir que uma medição normal **não** avisa ninguém. Com chave de produção, este endpoint responde `403 forbidden`. Se você desligou os alertas com `PUT /settings`, a medição simulada continua com o nível, mas sem alerta e sem `reading.alert`.
 
 ## Teste o seu webhook
 
@@ -87,6 +111,7 @@ O `EmmiTec.configure({ ..., simulate: true })` troca o Bluetooth por aparelhos s
 - O `alert.title` e o `alert.text` aparecem certos em todos os idiomas que você atende.
 - O paciente não recebe duas notificações da mesma medição.
 - Você testou todos os níveis com o `simulate-alert`, inclusive o `normal`.
+- Você decidiu se usa alertas (`PUT /settings`) e quais limites os seus pacientes precisam (`PUT /patients/{id}/thresholds`).
 
 **App**
 
@@ -96,10 +121,11 @@ O `EmmiTec.configure({ ..., simulate: true })` troca o Bluetooth por aparelhos s
 
 **Virada para a produção**
 
-1. Peça à EmmiTec a sua chave de produção (`emk_live_...`). A integração precisa de um cliente em produção; até lá, as chaves de produção respondem `403`.
+1. Gere a sua chave de produção (`emk_live_...`) no [portal do cliente](/developers/customer-portal). Antes, a integração precisa de um cliente em produção: peça à EmmiTec para ligar; até lá, as chaves de produção respondem `403`.
 2. Configure o webhook de produção com `PUT /webhook` usando a chave de produção. Ele é separado do de teste e tem o próprio segredo.
-3. Crie os pacientes de produção e gere tokens de sessão de produção.
-4. Envie uma medição real e confira em `GET /patients/{id}/readings` e nos logs do seu webhook.
+3. Escolha alertas ligados ou desligados na produção (`PUT /settings` com a chave de produção) e confira os padrões de produção com `GET /thresholds`.
+4. Crie os pacientes de produção e gere tokens de sessão de produção.
+5. Envie uma medição real e confira em `GET /patients/{id}/readings` e nos logs do seu webhook.
 
 ::: next
 - [Erros e limites](/developers/errors) Todos os códigos de erro e como tratar cada um.

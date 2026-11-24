@@ -36,9 +36,9 @@ Toda resposta que não é `2xx` tem este corpo:
 | 400 | `invalid_request_error` | `unsupported_type` | O `type` da medição não é aceito. |
 | 400 | `invalid_request_error` | `unknown_device` | O `device.model` não está no catálogo. |
 | 401 | `authentication_error` | `unauthorized` | Token ausente, inválido ou revogado, ou expirado. |
-| 403 | `permission_error` | `forbidden` | Token de sessão fora do alcance dele, rota da sandbox com chave de produção, ou chave de produção sem cliente em produção na integração. |
+| 403 | `permission_error` | `forbidden` | Token de sessão fora do alcance dele, rota da sandbox com chave de produção, chave de produção sem cliente em produção na integração, `PUT /thresholds` com chave de teste, ou a sua integração está suspensa. |
 | 404 | `invalid_request_error` | `not_found` | Paciente, medição ou evento não encontrado na sua integração, neste modo. |
-| 409 | `invalid_request_error` | `conflict` | Por exemplo, o e-mail já é usado por outra pessoa no cliente. |
+| 409 | `invalid_request_error` | `conflict` | Por exemplo, o e-mail já é usado por outra pessoa no cliente, ou `PUT /thresholds` de um tipo sem limite padrão no seu cliente em produção. |
 | 422 | `invalid_request_error` | `patient_disabled` | O paciente está desativado para medições. |
 | 429 | `rate_limit_error` | `rate_limited` | Chamadas demais. Espere os segundos do `Retry-After`. |
 | 500 | `api_error` | `internal_error` | Erro inesperado na EmmiTec. A mensagem é genérica; o `requestId` permite achar o caso. |
@@ -49,7 +49,7 @@ Toda resposta que não é `2xx` tem este corpo:
 |---|---|
 | `400` | Corrija a requisição. Não repita do mesmo jeito. O `param` diz qual campo. |
 | `401` | Consiga um token novo: no app, o SDK chama o seu `onTokenExpired`. No servidor, confira a chave. |
-| `403` | Confira qual token está usando e em qual rota. |
+| `403` | Confira qual token está usando e em qual rota. Se a mensagem for "This integration is suspended. Contact EmmiTec.", toda chamada responde `403` até a EmmiTec reativar a integração: não repita, fale com a gente. |
 | `404` | Confira o id e o modo: a chave de teste nunca vê dados de produção. |
 | `409`, `422` | Mostre uma mensagem clara para o usuário ou para o seu suporte. |
 | `429` | Espere os segundos do `Retry-After` e tente de novo. |

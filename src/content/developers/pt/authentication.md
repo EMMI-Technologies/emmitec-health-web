@@ -21,7 +21,7 @@ Authorization: Bearer emk_test_...
 |---|---|---|
 | Prefixo | `emk_test_` / `emk_live_` | `emst_test_` / `emst_live_` |
 | Fica em | Seu backend (cofre de segredos) | O app do paciente |
-| Quem emite | A EmmiTec, mostrada uma única vez | O seu backend, com `POST /patients/{id}/session-tokens` |
+| Quem emite | Você, no [portal do cliente](/developers/customer-portal) (copie de novo quando precisar), ou a EmmiTec | O seu backend, com `POST /patients/{id}/session-tokens` |
 | Alcance | Tudo da sua integração, naquele modo | Um paciente |
 | Validade | Até ser revogada | 7 dias por padrão, no máximo 30 dias |
 
@@ -128,14 +128,14 @@ Não guardou o id do paciente na EmmiTec? Procure pelo seu próprio id: `GET /pa
 
 Os tokens são aleatórios e ficam guardados só como hash: depois de gerado, a EmmiTec não consegue mostrar o token de novo.
 
-**Chaves secretas.** Quem emite e revoga é a EmmiTec. Para trocar uma chave, peça uma nova ao seu contato, publique a nova no seu backend e só então peça a revogação da antiga. Se uma chave vazar, peça a revogação na hora: a partir daí ela responde `401`.
+**Chaves secretas.** Você gera e copia as chaves no [portal do cliente](/developers/customer-portal); só a EmmiTec revoga. Para trocar uma chave, gere uma nova no portal, publique no seu backend e só então peça à EmmiTec a revogação da antiga. Se uma chave vazar, peça a revogação na hora: a partir daí ela responde `401`.
 
 ## Erros
 
 | Status | `code` | Quando |
 |---|---|---|
 | 401 | `unauthorized` | O token não veio, é inválido ou foi revogado, ou expirou. A mensagem diz qual dos casos. |
-| 403 | `forbidden` | Um token de sessão chamou algo fora do alcance dele, ou uma chave de produção foi usada quando a integração ainda não tem cliente em produção. |
+| 403 | `forbidden` | Um token de sessão chamou algo fora do alcance dele, uma chave de produção foi usada quando a integração ainda não tem cliente em produção, ou a sua integração está suspensa ("This integration is suspended. Contact EmmiTec."). |
 
 ```json title="401 Unauthorized"
 {

@@ -17,6 +17,8 @@ export const UI = {
     searchOpen: 'to open',
     searchClose: 'to close',
     apiReference: 'API reference',
+    customerPortal: 'Customer portal',
+    openPortal: 'Open the customer portal',
     getKeys: 'Get API keys',
     onThisPage: 'On this page',
     previous: 'Previous',
@@ -51,6 +53,8 @@ export const UI = {
     searchOpen: 'para abrir',
     searchClose: 'para fechar',
     apiReference: 'Referência da API',
+    customerPortal: 'Portal do cliente',
+    openPortal: 'Abrir o portal do cliente',
     getKeys: 'Pedir chaves de API',
     onThisPage: 'Nesta página',
     previous: 'Anterior',
@@ -79,6 +83,8 @@ export const UI = {
 export type UiKey = keyof (typeof UI)['en']
 
 export const KEYS_MAILTO = 'mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys'
+/** Portal do cliente parceiro (rota do site, fora das docs). */
+export const PORTAL_PATH = '/portal'
 export const OPENAPI_URL = '/developers/openapi.json'
 export const POSTMAN_URL = '/developers/emmitec-partner-api.postman_collection.json'
 export const API_BASE_URL = 'https://v2-prod-api-patients.emmitec.health/partner/v1'
