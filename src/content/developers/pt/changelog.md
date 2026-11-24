@@ -35,7 +35,7 @@ Primeira versão pública.
 - Catálogo com 21 aparelhos Bluetooth, mais `manual` e `other`.
 - Webhooks: `reading.alert`, `reading.created` e `ping`, assinados com HMAC-SHA256, repetidos por cerca de 22 horas, com registro de eventos e reenvio.
 - Sandbox: chaves de teste, `POST /sandbox/simulate-alert`, `POST /webhook/test`.
-- SDK para Expo `emmitec-rpm` 1.0.0: config plugin, `useMeasurement`, medições digitadas, fila offline, modo simulado. Entregue como `.tgz` junto com a chave da sandbox; a publicação no npm sai em breve.
+- SDK para Expo `emmitec-rpm` 1.0.0: config plugin, `useMeasurement`, medições digitadas, fila offline, modo simulado. Publicado no npm como `emmitec-rpm` (`npx expo install emmitec-rpm`).
 - [Arquivo OpenAPI 3.1](/developers/openapi.json) e [coleção do Postman](/developers/emmitec-partner-api.postman_collection.json).
 
 ::: next

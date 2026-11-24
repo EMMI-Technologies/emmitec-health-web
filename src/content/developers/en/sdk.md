@@ -12,15 +12,12 @@ description: emmitec-rpm reads Bluetooth medical devices from your Expo or React
 
 ## Install
 
-The package is not on npm yet. **Your EmmiTec contact sends `emmitec-rpm-1.0.0.tgz` together with your sandbox key.** Put the file in your project and install it:
+The SDK is on npm as [`emmitec-rpm`](https://www.npmjs.com/package/emmitec-rpm). Install it with its peer dependencies:
 
 ```bash title="Terminal"
-npm install ./emmitec-rpm-1.0.0.tgz
-npx expo install react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store
+npx expo install emmitec-rpm react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store
 npx expo install expo-crypto
 ```
-
-When the npm publication is out (coming soon), the first line becomes `npx expo install emmitec-rpm`.
 
 ## Add the config plugin
 
