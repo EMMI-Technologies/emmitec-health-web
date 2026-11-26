@@ -5,9 +5,15 @@
  */
 import { computed } from 'vue'
 import { readSession } from '@/lib/portal/api'
-import { boot, logout, portal } from '@/lib/portal/store'
+import { boot, logout, onSessionReset, portal } from '@/lib/portal/store'
 import { clearDocs } from './pages'
 import { clearIndex } from './search'
+
+// sessão encerrada (Sair aqui ou no portal, 401): nada da documentação fica na memória da aba
+onSessionReset(() => {
+  clearDocs()
+  clearIndex()
+})
 
 /** Documentação liberada (a troca obrigatória de senha do portal não impede a leitura). */
 export const docsOpen = computed(() => portal.phase === 'app' || portal.phase === 'password')
@@ -27,9 +33,7 @@ export async function checkAccess() {
   await boot()
 }
 
-/** Sair pelas docs: encerra a sessão do portal e esquece as páginas baixadas. */
+/** Sair pelas docs: encerra a sessão do portal (o gancho acima esquece as páginas baixadas). */
 export async function leaveDocsAccess() {
   await logout()
-  clearDocs()
-  clearIndex()
 }

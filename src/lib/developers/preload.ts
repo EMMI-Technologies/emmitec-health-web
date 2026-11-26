@@ -8,5 +8,9 @@ import { initialDocsLang } from './lang'
 export async function preloadDoc(to: RouteLocationNormalized) {
   // sem sessão a rota mostra a entrada; a página vem depois do login
   if (!hasSession()) return
-  await loadDoc(initialDocsLang(to.query.lang), slugFromPath(to.path))
+  try {
+    await loadDoc(initialDocsLang(to.query.lang), slugFromPath(to.path))
+  } catch {
+    // sem rede ou servidor: a rota troca e a página mostra "tentar de novo"
+  }
 }

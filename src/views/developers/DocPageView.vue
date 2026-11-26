@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /**
  * Página das docs escrita em Markdown (src/content/developers/<en|pt>/<slug>.md).
- * O HTML chega pronto do build; aqui ficam os comportamentos: copiar código, abas de
+ * O HTML chega pronto do backend do portal (GET /portal/docs, só com sessão; gerado por
+ * lib/developers/build/build-private-docs.mjs). Aqui ficam os comportamentos: copiar código, abas de
  * linguagem (a escolha vale para a página toda e fica salva), links internos pelo roteador,
  * âncoras com rolagem nativa, sumário, anterior/próxima e título da aba.
  */
 import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, RefreshCw } from 'lucide-vue-next'
 import DocsToc from '@/components/developers/DocsToc.vue'
 import { cachedDoc, loadDoc } from '@/lib/developers/pages'
 import { findItem, neighbours, sectionOf, slugFromPath } from '@/lib/developers/nav'
@@ -23,21 +24,29 @@ const { lang, t } = useDocsLang()
 
 const slug = computed(() => slugFromPath(route.path))
 const doc = shallowRef<DocModule | null | undefined>(cachedDoc(lang.value, slug.value))
+/** sem rede ou servidor ao baixar a página (não é 404): mostra "tentar de novo" */
+const failed = ref(false)
 const prose = ref<HTMLElement | null>(null)
 
-watch(
-  [lang, slug],
-  async ([l, s]) => {
-    const hit = cachedDoc(l, s)
-    if (hit !== undefined) {
-      doc.value = hit
-      return
-    }
+async function fetchDoc() {
+  const l = lang.value
+  const s = slug.value
+  failed.value = false
+  const hit = cachedDoc(l, s)
+  if (hit !== undefined) {
+    doc.value = hit
+    return
+  }
+  doc.value = undefined
+  try {
     const loaded = await loadDoc(l, s)
     if (l === lang.value && s === slug.value) doc.value = loaded
-  },
-  { immediate: true },
-)
+  } catch {
+    if (l === lang.value && s === slug.value) failed.value = true
+  }
+}
+
+watch([lang, slug], () => void fetchDoc(), { immediate: true })
 
 const section = computed(() => sectionOf(slug.value)?.title[lang.value] ?? '')
 const near = computed(() => neighbours(slug.value))
@@ -196,6 +205,17 @@ watch(
         </p>
         <p class="dx-foot__copy">© {{ new Date().getFullYear() }} EmmiTec Health</p>
       </footer>
+    </article>
+
+    <article v-else-if="failed" class="dx-article dx-missing">
+      <header class="dx-head">
+        <p class="dx-eyebrow">{{ item?.title[lang] ?? 'Docs' }}</p>
+        <h1 class="dx-h1">{{ t('loadFailedTitle') }}</h1>
+        <p class="dx-lead">{{ t('loadFailedText') }}</p>
+      </header>
+      <button type="button" class="dx-btn dx-btn--line dx-retry" @click="fetchDoc">
+        <RefreshCw :size="15" :stroke-width="1.8" aria-hidden="true" />{{ t('retry') }}
+      </button>
     </article>
 
     <article v-else-if="doc === null" class="dx-article dx-missing">

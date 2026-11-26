@@ -15,7 +15,7 @@ import PortalApp from '@/components/portal/PortalApp.vue'
 import PortalPasswordForm from '@/components/portal/PortalPasswordForm.vue'
 import PortalErrorMsg from '@/components/portal/PortalErrorMsg.vue'
 import { usePortalLang } from '@/lib/portal/i18n'
-import { boot, errorView, logout, portal, toast } from '@/lib/portal/store'
+import { boot, errorView, logout, portal, refreshMe, signedIn, toast } from '@/lib/portal/store'
 import { usePageMeta } from '@/lib/seo'
 import './portal.css'
 
@@ -39,7 +39,9 @@ onMounted(() => {
   robots.name = 'robots'
   robots.content = 'noindex, nofollow'
   document.head.appendChild(robots)
-  void boot()
+  // quem chega das docs já entrou (mesmo estado): só atualiza os números, sem a tela de carregamento
+  if (signedIn()) void refreshMe().catch(() => undefined)
+  else void boot()
 })
 onBeforeUnmount(() => {
   document.documentElement.classList.remove('po-on')

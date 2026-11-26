@@ -15,6 +15,7 @@
  *
  * Uso: npm run docs:privadas   (gera o OpenAPI e o Postman antes; ou node este-arquivo para só as páginas)
  */
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -34,6 +35,12 @@ const ARQUIVOS = [
 function writeJson(file, data) {
   fs.mkdirSync(path.dirname(file), { recursive: true })
   fs.writeFileSync(file, JSON.stringify(data), 'utf8')
+}
+
+// sem DOCS_PRIVADAS_DIR, a pasta pai (src/parceiros do backend) precisa existir: nada de criar árvore num lugar errado
+if (!process.env.DOCS_PRIVADAS_DIR && !fs.existsSync(path.dirname(OUT_DIR))) {
+  console.error(`backend não encontrado em ${path.dirname(OUT_DIR)} (clone sr-backend-patients ao lado ou defina DOCS_PRIVADAS_DIR)`)
+  process.exit(1)
 }
 
 const files = listContentFiles()
@@ -79,8 +86,28 @@ for (const [origem, destino] of ARQUIVOS) {
   arquivos++
 }
 
+// geradoEm só muda quando o conteúdo muda: rodar o script sem mexer no Markdown não suja o repositório do backend
+const hash = createHash('sha256')
+for (const lang of ['en', 'pt']) {
+  const dir = path.join(OUT_DIR, 'paginas', lang)
+  for (const f of fs.readdirSync(dir).sort()) hash.update(fs.readFileSync(path.join(dir, f)))
+}
+for (const [, destino] of ARQUIVOS) hash.update(fs.readFileSync(path.join(OUT_DIR, 'arquivos', destino)))
+hash.update(JSON.stringify(indice))
+const conteudo = hash.digest('hex')
+const indiceArq = path.join(OUT_DIR, 'indice.json')
+let anterior = null
+try {
+  anterior = JSON.parse(fs.readFileSync(indiceArq, 'utf8'))
+} catch {
+  anterior = null
+}
+if (anterior?.conteudo === conteudo) {
+  console.log(`nada mudou: ${indice.length} páginas e ${arquivos} arquivos iguais aos de ${anterior.geradoEm}`)
+  process.exit(0)
+}
 const geradoEm = new Date().toISOString()
-writeJson(path.join(OUT_DIR, 'indice.json'), { geradoEm, paginas: indice })
+writeJson(indiceArq, { geradoEm, conteudo, paginas: indice })
 fs.writeFileSync(
   path.join(OUT_DIR, 'README.md'),
   [

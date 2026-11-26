@@ -2,6 +2,8 @@
  * Páginas das docs: vêm do backend do portal (GET /portal/docs/<lang>/<slug>), só com sessão.
  * O cache deixa a troca de página síncrona: a rota espera a página antes de trocar, e a segunda
  * visita não baixa de novo. Um 401 no meio derruba a sessão (lib/portal/api) e a entrada aparece.
+ * Só o 404 é definitivo (null); sem rede, 5xx ou tempo esgotado, loadDoc lança o PortalError e a
+ * página mostra "tentar de novo" em vez de "não encontrada".
  */
 import { shallowReactive } from 'vue'
 import { portalApi, PortalError } from '@/lib/portal/api'
@@ -33,9 +35,11 @@ export async function loadDoc(lang: DocsLang, slug: string): Promise<DocModule |
     cache.set(k, page)
     return page
   } catch (e) {
-    // só o 404 é definitivo; sem sessão ou sem rede, tenta de novo na próxima
-    if (e instanceof PortalError && e.status === 404) cache.set(k, null)
-    return null
+    if (e instanceof PortalError && e.status === 404) {
+      cache.set(k, null)
+      return null
+    }
+    throw e
   }
 }
 

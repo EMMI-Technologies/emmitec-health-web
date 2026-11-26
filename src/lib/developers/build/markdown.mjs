@@ -401,11 +401,6 @@ function createMd(lang) {
 const mds = {}
 const mdFor = (lang) => (mds[lang] ??= createMd(lang))
 
-export function langOf(file) {
-  const dir = path.basename(path.dirname(file))
-  return LANGS.includes(dir) ? dir : 'en'
-}
-
 /** Página completa (HTML + sumário). */
 export async function renderPage(src, lang) {
   await getHighlighter()

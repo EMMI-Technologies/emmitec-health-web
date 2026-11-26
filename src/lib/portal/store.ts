@@ -49,12 +49,19 @@ export const portal = reactive({
 /** Segredos já buscados nesta sessão (chave -> segredo), só em memória. */
 export const secrets = reactive(new Map<string, string>())
 
+/** Quem guarda algo da sessão fora daqui (as docs) registra como limpar; roda no "Sair" e em qualquer 401. */
+const resetHooks = new Set<() => void>()
+export function onSessionReset(fn: () => void) {
+  resetHooks.add(fn)
+}
+
 function reset() {
   portal.user = null
   portal.integration = null
   portal.loginPassword = ''
   portal.mode = 'test'
   secrets.clear()
+  for (const fn of resetHooks) fn()
 }
 
 setUnauthorizedHandler(() => {
@@ -69,6 +76,9 @@ function enter(user: PortalUser, integration: PortalIntegration) {
   portal.integration = integration
   portal.phase = user.mustChangePassword ? 'password' : 'app'
 }
+
+/** Sessão já aberta nesta aba (pelo portal ou pelas docs, que dividem o estado). */
+export const signedIn = () => portal.phase === 'app' || portal.phase === 'password'
 
 /** Ao abrir a página: sessão guardada e válida vai direto para dentro. */
 export async function boot() {

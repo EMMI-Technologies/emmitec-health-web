@@ -1050,6 +1050,51 @@
             "description": "**Token:** Any token (secret key or session token).\n\nThe v1 catalog, plus `manual` (typed by a person) and `other` (a device not in the catalog). Send the `model` in `device.model` of a reading. `pairing: true` means the device must be paired with the phone first (`uam820bt` asks for a pairing code). `hc059` sends its weight by Bluetooth advertising only (no connection)."
           },
           "response": []
+        },
+        {
+          "name": "Send app diagnostics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"installationId\": \"inst_4hT9qL2mXa7RkP0w\",\n  \"events\": [\n    {\n      \"at\": \"2026-11-24T14:03:00Z\",\n      \"type\": \"ble.scan_started\"\n    },\n    {\n      \"at\": \"2026-11-24T14:03:09Z\",\n      \"type\": \"ble.connect_failed\",\n      \"deviceModel\": \"omron-hem-7156t\",\n      \"code\": \"connection_failed\",\n      \"message\": \"We could not connect to your device. Turn it off and on, then try again.\",\n      \"durationMs\": 9120\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/diagnostics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "diagnostics"
+              ]
+            },
+            "description": "**Token:** Secret key or session token.\n\nUsed by the SDK (from 1.1.0) to tell EmmiTec support what happened on the phone: Bluetooth steps and failures and the offline queue. Never send names, measured values or tokens. Only EmmiTec reads it (90 days). You do not need to call it yourself; the SDK does."
+          },
+          "response": []
         }
       ]
     },

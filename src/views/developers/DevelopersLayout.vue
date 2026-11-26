@@ -63,7 +63,11 @@ function switchLang(l: DocsLang) {
 // troca de página dentro das docs: baixa a página nova antes e troca sem animação
 onBeforeRouteUpdate(async (to, from) => {
   if (to.path === from.path || !docsOpen.value) return
-  await loadDoc(initialDocsLang(to.query.lang), slugFromPath(to.path))
+  try {
+    await loadDoc(initialDocsLang(to.query.lang), slugFromPath(to.path))
+  } catch {
+    // sem rede ou servidor: a página mostra "tentar de novo"
+  }
   prepareInstantSwap(root.value)
 })
 
@@ -178,7 +182,7 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
           >
             {{ t('apiReference') }}
           </RouterLink>
-          <RouterLink :to="PORTAL_PATH" class="dx-top__link dx-top__portal">{{ t('customerPortal') }}</RouterLink>
+          <RouterLink :to="PORTAL_PATH" class="dx-top__link">{{ t('customerPortal') }}</RouterLink>
           <button v-if="docsOpen" type="button" class="dx-btn dx-btn--line dx-top__out" @click="signOut">
             <LogOut :size="15" :stroke-width="1.8" aria-hidden="true" />{{ t('signOut') }}
           </button>

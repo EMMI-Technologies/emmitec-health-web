@@ -45,7 +45,7 @@ Primeira versão pública.
 - Webhooks: `reading.alert`, `reading.created` e `ping`, assinados com HMAC-SHA256, repetidos por cerca de 22 horas, com registro de eventos e reenvio.
 - Sandbox: chaves de teste, `POST /sandbox/simulate-alert`, `POST /webhook/test`.
 - SDK para Expo `emmitec-rpm` 1.0.0: config plugin, `useMeasurement`, medições digitadas, fila offline, modo simulado. Publicado no npm como `emmitec-rpm` (`npx expo install emmitec-rpm`).
-- [Arquivo OpenAPI 3.1](/developers/openapi.json) e [coleção do Postman](/developers/emmitec-partner-api.postman_collection.json).
+- Arquivo OpenAPI 3.1 e coleção do Postman: botões de download na [referência da API](/developers/api-reference) e no menu (com login).
 
 ::: next
 - [Referência da API](/developers/api-reference) Todos os endpoints, com "Test request".

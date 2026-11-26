@@ -210,6 +210,9 @@ html.dx-locked {
 .dx-btn--line:hover {
   background: var(--dx-soft);
 }
+.dx-retry {
+  gap: 8px;
+}
 .dx-icon-btn {
   display: inline-grid;
   place-items: center;

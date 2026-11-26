@@ -681,6 +681,21 @@ function signatureOf(event) {
 }
 
 // -------------------------------------------------------------------------------------------------------------------
+const DIAGNOSTICS_FAILURE = {
+  installationId: 'inst_4hT9qL2mXa7RkP0w',
+  events: [
+    { at: '2026-11-24T14:03:00Z', type: 'ble.scan_started' },
+    {
+      at: '2026-11-24T14:03:09Z',
+      type: 'ble.connect_failed',
+      deviceModel: 'omron-hem-7156t',
+      code: 'connection_failed',
+      message: 'We could not connect to your device. Turn it off and on, then try again.',
+      durationMs: 9120,
+    },
+  ],
+}
+
 // components.schemas
 
 const SCHEMAS = {}
@@ -1283,6 +1298,64 @@ SCHEMAS.WebhookDeleted = object(
   'Result of `DELETE /webhook`.',
   { deleted: bool('Always true.', { examples: [true] }) },
   { example: { deleted: true } },
+)
+
+SCHEMAS.DiagnosticsRequest = object(
+  'What the SDK (1.1.0+) tells EmmiTec support about the phone: steps and failures of a measurement and the offline queue. Never names, measured values or tokens.',
+  {
+    installationId: str('Random id of the app installation (not tied to the patient), to count phones.', {
+      pattern: '^[0-9A-Za-z_-]{8,40}$',
+      examples: ['inst_4hT9qL2mXa7RkP0w'],
+    }),
+    patientId: uuid(
+      'Only with a secret key: the patient the events belong to. With a session token the patient comes from the token.',
+      PATIENT_ID,
+    ),
+    events: {
+      type: 'array',
+      description: 'One entry per step, oldest first.',
+      minItems: 1,
+      maxItems: 100,
+      items: object(
+        'A step of the measurement on the phone.',
+        {
+          at: dateTime('When it happened on the phone. Missing, in the future or older than 7 days: the time it arrived.', '2026-11-24T14:03:09Z'),
+          type: str('The step. Unknown types are kept as `other`.', {
+            enum: [
+              'ble.permission_denied',
+              'ble.powered_off',
+              'ble.unavailable',
+              'ble.scan_started',
+              'ble.scan_timeout',
+              'ble.device_found',
+              'ble.connect_failed',
+              'ble.connected',
+              'ble.disconnected',
+              'ble.reading_parsed',
+              'ble.parse_failed',
+              'ble.measure_failed',
+              'upload.failed',
+              'queue.stored_offline',
+              'queue.flushed',
+              'sdk.error',
+            ],
+          }),
+          deviceModel: str('Device model of the catalog (`GET /devices`).', { maxLength: 40, examples: ['omron-hem-7156t'] }),
+          code: str('Error code of the SDK.', { maxLength: 60, examples: ['connection_failed'] }),
+          message: str('A fixed message of the SDK. Never names or measured values.', { maxLength: 300 }),
+          durationMs: int('How long the step took, in milliseconds.', { minimum: 0, examples: [9120] }),
+        },
+        { required: ['type'] },
+      ),
+    },
+  },
+  { required: ['events'], example: DIAGNOSTICS_FAILURE },
+)
+
+SCHEMAS.DiagnosticsAccepted = object(
+  'How many events were stored.',
+  { accepted: int('Number of events stored.', { minimum: 0, examples: [2] }) },
+  { example: { accepted: 2 } },
 )
 
 SCHEMAS.WebhookTestResult = object(
@@ -2137,6 +2210,21 @@ add('get', '/devices', {
   ].join(' '),
   responses: { 200: ok('The catalog.', ref('DeviceList'), { catalog: ex('Catalog v1', DEVICES) }) },
   errors: [401, 403, 429, 500],
+})
+
+add('post', '/diagnostics', {
+  id: 'sendDiagnostics',
+  tag: 'Devices',
+  summary: 'Send app diagnostics',
+  token: TOKEN.any,
+  description: [
+    'Used by the SDK (from 1.1.0) to tell EmmiTec support what happened on the phone: Bluetooth steps and failures',
+    'and the offline queue. Never send names, measured values or tokens. Only EmmiTec reads it (90 days).',
+    'You do not need to call it yourself; the SDK does.',
+  ].join(' '),
+  body: body('DiagnosticsRequest', { failure: ex('A connection that failed', DIAGNOSTICS_FAILURE) }),
+  responses: { 202: ok('Accepted.', ref('DiagnosticsAccepted'), { ok: ex('Accepted', { accepted: 2 }) }) },
+  errors: [400, 401, 404, 429, 500],
 })
 
 add('get', '/webhook', {

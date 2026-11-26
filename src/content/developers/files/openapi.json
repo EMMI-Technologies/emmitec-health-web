@@ -2535,6 +2535,91 @@
         }
       }
     },
+    "/diagnostics": {
+      "post": {
+        "operationId": "sendDiagnostics",
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Send app diagnostics",
+        "description": "**Token:** Secret key or session token.\n\nUsed by the SDK (from 1.1.0) to tell EmmiTec support what happened on the phone: Bluetooth steps and failures and the offline queue. Never send names, measured values or tokens. Only EmmiTec reads it (90 days). You do not need to call it yourself; the SDK does.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosticsRequest"
+              },
+              "examples": {
+                "failure": {
+                  "summary": "A connection that failed",
+                  "value": {
+                    "installationId": "inst_4hT9qL2mXa7RkP0w",
+                    "events": [
+                      {
+                        "at": "2026-11-24T14:03:00Z",
+                        "type": "ble.scan_started"
+                      },
+                      {
+                        "at": "2026-11-24T14:03:09Z",
+                        "type": "ble.connect_failed",
+                        "deviceModel": "omron-hem-7156t",
+                        "code": "connection_failed",
+                        "message": "We could not connect to your device. Turn it off and on, then try again.",
+                        "durationMs": 9120
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              },
+              "X-EmmiTec-Mode": {
+                "$ref": "#/components/headers/XEmmiTecMode"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosticsAccepted"
+                },
+                "examples": {
+                  "ok": {
+                    "summary": "Accepted",
+                    "value": {
+                      "accepted": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
     "/webhook": {
       "get": {
         "operationId": "getWebhook",
@@ -7242,6 +7327,146 @@
         "examples": [
           {
             "deleted": true
+          }
+        ]
+      },
+      "DiagnosticsRequest": {
+        "type": "object",
+        "description": "What the SDK (1.1.0+) tells EmmiTec support about the phone: steps and failures of a measurement and the offline queue. Never names, measured values or tokens.",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "installationId": {
+            "type": "string",
+            "description": "Random id of the app installation (not tied to the patient), to count phones.",
+            "pattern": "^[0-9A-Za-z_-]{8,40}$",
+            "examples": [
+              "inst_4hT9qL2mXa7RkP0w"
+            ]
+          },
+          "patientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Only with a secret key: the patient the events belong to. With a session token the patient comes from the token.",
+            "examples": [
+              "3f0c2a8e-7c1d-4a51-9d2e-0c9b1f6a7e21"
+            ]
+          },
+          "events": {
+            "type": "array",
+            "description": "One entry per step, oldest first.",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "description": "A step of the measurement on the phone.",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When it happened on the phone. Missing, in the future or older than 7 days: the time it arrived.",
+                  "examples": [
+                    "2026-11-24T14:03:09Z"
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "description": "The step. Unknown types are kept as `other`.",
+                  "enum": [
+                    "ble.permission_denied",
+                    "ble.powered_off",
+                    "ble.unavailable",
+                    "ble.scan_started",
+                    "ble.scan_timeout",
+                    "ble.device_found",
+                    "ble.connect_failed",
+                    "ble.connected",
+                    "ble.disconnected",
+                    "ble.reading_parsed",
+                    "ble.parse_failed",
+                    "ble.measure_failed",
+                    "upload.failed",
+                    "queue.stored_offline",
+                    "queue.flushed",
+                    "sdk.error"
+                  ]
+                },
+                "deviceModel": {
+                  "type": "string",
+                  "description": "Device model of the catalog (`GET /devices`).",
+                  "maxLength": 40,
+                  "examples": [
+                    "omron-hem-7156t"
+                  ]
+                },
+                "code": {
+                  "type": "string",
+                  "description": "Error code of the SDK.",
+                  "maxLength": 60,
+                  "examples": [
+                    "connection_failed"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "description": "A fixed message of the SDK. Never names or measured values.",
+                  "maxLength": 300
+                },
+                "durationMs": {
+                  "type": "integer",
+                  "description": "How long the step took, in milliseconds.",
+                  "minimum": 0,
+                  "examples": [
+                    9120
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "examples": [
+          {
+            "installationId": "inst_4hT9qL2mXa7RkP0w",
+            "events": [
+              {
+                "at": "2026-11-24T14:03:00Z",
+                "type": "ble.scan_started"
+              },
+              {
+                "at": "2026-11-24T14:03:09Z",
+                "type": "ble.connect_failed",
+                "deviceModel": "omron-hem-7156t",
+                "code": "connection_failed",
+                "message": "We could not connect to your device. Turn it off and on, then try again.",
+                "durationMs": 9120
+              }
+            ]
+          }
+        ]
+      },
+      "DiagnosticsAccepted": {
+        "type": "object",
+        "description": "How many events were stored.",
+        "required": [
+          "accepted"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "integer",
+            "description": "Number of events stored.",
+            "minimum": 0,
+            "examples": [
+              2
+            ]
+          }
+        },
+        "examples": [
+          {
+            "accepted": 2
           }
         ]
       },

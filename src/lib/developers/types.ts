@@ -8,7 +8,7 @@ export interface TocItem {
   level: number
 }
 
-/** Módulo gerado de cada .md (plugin em ./build/markdown-plugin.mjs). */
+/** Página gerada de cada .md (./build/markdown.mjs), servida por GET /portal/docs/<lang>/<slug>. */
 export interface DocModule {
   title: string
   description: string
@@ -16,7 +16,7 @@ export interface DocModule {
   toc: TocItem[]
 }
 
-/** Entrada do índice de busca (virtual:developers-index). */
+/** Entrada do índice de busca (GET /portal/docs). */
 export interface DocIndexEntry {
   lang: DocsLang
   slug: string

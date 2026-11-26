@@ -19,7 +19,6 @@ export const UI = {
     apiReference: 'API reference',
     customerPortal: 'Customer portal',
     openPortal: 'Open the customer portal',
-    getKeys: 'Get API keys',
     onThisPage: 'On this page',
     previous: 'Previous',
     next: 'Next',
@@ -69,7 +68,8 @@ export const UI = {
     gateInside: 'What is inside',
     gateInsideLead: 'Guides in English and Portuguese, the interactive API reference, the Expo SDK and the 21 supported devices.',
     gateChecking: 'Checking your session',
-    gateSignedIn: 'Signed in as',
+    loadFailedTitle: 'This page did not load',
+    loadFailedText: 'We could not reach EmmiTec right now. Check your connection and try again.',
   },
   pt: {
     developers: 'Developers',
@@ -84,7 +84,6 @@ export const UI = {
     apiReference: 'Referência da API',
     customerPortal: 'Portal do cliente',
     openPortal: 'Abrir o portal do cliente',
-    getKeys: 'Pedir chaves de API',
     onThisPage: 'Nesta página',
     previous: 'Anterior',
     next: 'Próxima',
@@ -134,7 +133,8 @@ export const UI = {
     gateInside: 'O que tem aqui dentro',
     gateInsideLead: 'Guias em inglês e português, a referência interativa da API, o SDK para Expo e os 21 aparelhos compatíveis.',
     gateChecking: 'Conferindo a sua sessão',
-    gateSignedIn: 'Conectado como',
+    loadFailedTitle: 'A página não carregou',
+    loadFailedText: 'Não foi possível falar com a EmmiTec agora. Confira sua internet e tente de novo.',
   },
 } satisfies Record<DocsLang, Record<string, string>>
 
