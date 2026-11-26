@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Referência interativa da Partner API, desenhada a partir de /developers/openapi.json
- * com o @scalar/api-reference. Só esta rota baixa o Scalar (ver o comentário abaixo).
+ * Referência interativa da Partner API, desenhada com o @scalar/api-reference a partir do OpenAPI que
+ * vem do backend do portal (GET /portal/docs/files/openapi.json, só com sessão). Só esta rota baixa o Scalar.
  *
  * "Test request" chama a API direto do navegador (a API responde CORS * em /partner/v1):
  * sem proxy de terceiros, sem fontes externas, sem telemetria, sem agente/MCP do Scalar e
@@ -9,9 +9,11 @@
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useDocsLang } from '@/lib/developers/lang'
+import { downloadDocsFile } from '@/lib/developers/files'
+import { portalApi, type DocsFileName } from '@/lib/portal/api'
 import { usePageMeta } from '@/lib/seo'
 import type { ApiReferenceConfiguration } from '@scalar/api-reference'
-import { API_BASE_URL, OPENAPI_URL, POSTMAN_URL } from '@/content/developers/ui'
+import { API_BASE_URL } from '@/content/developers/ui'
 
 const { t } = useDocsLang()
 const host = ref<HTMLElement | null>(null)
@@ -34,15 +36,24 @@ type ScalarModule = { createApiReference: (el: Element, config: Record<string, u
 let instance: ScalarInstance | null = null
 let alive = true
 
-onMounted(async () => {
+async function start() {
+  state.value = 'loading'
   try {
-    const mod = (await import(/* @vite-ignore */ `${__SCALAR_BASE__}standalone.esm.js`)) as ScalarModule
+    const [mod, spec] = await Promise.all([
+      import(/* @vite-ignore */ `${__SCALAR_BASE__}standalone.esm.js`) as Promise<ScalarModule>,
+      portalApi.docsFile('openapi.json'),
+    ])
     if (!alive || !host.value) return
-    instance = mod.createApiReference(host.value, configuration as Record<string, unknown>)
+    instance?.destroy()
+    instance = mod.createApiReference(host.value, { ...configuration, content: spec } as Record<string, unknown>)
     state.value = 'ready'
   } catch {
     state.value = 'failed'
   }
+}
+
+onMounted(() => {
+  void start()
 })
 
 onBeforeUnmount(() => {
@@ -50,6 +61,22 @@ onBeforeUnmount(() => {
   instance?.destroy()
   instance = null
 })
+
+/* downloads com a sessão (não há mais arquivo público) */
+const busy = ref<DocsFileName | ''>('')
+const downloadFailed = ref(false)
+async function download(name: DocsFileName) {
+  if (busy.value) return
+  busy.value = name
+  downloadFailed.value = false
+  try {
+    await downloadDocsFile(name)
+  } catch {
+    downloadFailed.value = true
+  } finally {
+    busy.value = ''
+  }
+}
 
 const customCss = `
 .scalar-app {
@@ -96,7 +123,6 @@ const customCss = `
 // o "Ask AI" (agent) vale por documento e liga sozinho em localhost: sempre desligado
 const configuration: Partial<ApiReferenceConfiguration> & { agent?: { disabled?: boolean } } = {
   agent: { disabled: true },
-  url: OPENAPI_URL,
   servers: [{ url: API_BASE_URL, description: 'Test and live (the key decides the mode)' }],
   layout: 'modern',
   theme: 'default',
@@ -124,12 +150,15 @@ const configuration: Partial<ApiReferenceConfiguration> & { agent?: { disabled?:
   <div class="dx-ref">
     <p class="dx-ref__note">
       {{ t('referenceIntro') }}
-      <a :href="OPENAPI_URL" download="emmitec-partner-api-openapi.json">{{ t('openapi') }}</a>
+      <button type="button" class="dx-ref__file" :disabled="!!busy" @click="download('openapi.json')">{{ t('openapi') }}</button>
       <span aria-hidden="true">·</span>
-      <a :href="POSTMAN_URL" download="emmitec-partner-api.postman_collection.json">{{ t('postman') }}</a>
+      <button type="button" class="dx-ref__file" :disabled="!!busy" @click="download('postman.json')">{{ t('postman') }}</button>
+      <span v-if="busy" role="status">{{ t('downloading') }}</span>
+      <span v-else-if="downloadFailed" class="dx-ref__bad" role="alert">{{ t('downloadFailed') }}</span>
     </p>
     <p v-if="state === 'failed'" class="dx-ref__loading">
-      {{ t('referenceError') }} <a :href="OPENAPI_URL">{{ OPENAPI_URL }}</a>
+      {{ t('referenceError') }}
+      <button type="button" class="dx-btn dx-btn--line dx-ref__retry" @click="start">{{ t('retry') }}</button>
     </p>
     <p v-else-if="state === 'loading'" class="dx-ref__loading">{{ t('referenceLoading') }}</p>
     <div ref="host" class="dx-ref__host" />

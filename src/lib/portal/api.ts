@@ -7,6 +7,8 @@
  * fechar a aba), sai no "Sair" e em qualquer 401.
  */
 
+import type { DocIndexEntry, DocModule } from '@/lib/developers/types'
+
 export type Mode = 'test' | 'live'
 export type WebhookLocale = 'en' | 'pt' | 'es'
 export type PlanName = 'trial' | 'active' | 'suspended'
@@ -100,6 +102,8 @@ export interface WebhookTestResult {
   eventId: string | null
   error: string | null
 }
+
+export type DocsFileName = 'openapi.json' | 'postman.json'
 
 export interface LoginResult {
   token: string
@@ -306,6 +310,12 @@ export const portalApi = {
     request<{ mode: Mode; alertsEnabled: boolean }>('PUT', `/settings/${mode}`, {
       body: { alertsEnabled },
     }),
+
+  // documentação (spec docs-de-parceiros-so-com-login): só com sessão
+  docsIndex: () => request<{ generatedAt: string | null; pages: DocIndexEntry[] }>('GET', '/docs'),
+  doc: (lang: 'en' | 'pt', slug: string) =>
+    request<DocModule>('GET', `/docs/${lang}/${encodeURIComponent(slug)}`),
+  docsFile: (name: DocsFileName) => request<unknown>('GET', `/docs/files/${name}`, { timeoutMs: 40000 }),
 
   events: (mode: Mode, limit = 50) =>
     request<{ data: PortalEvent[] }>('GET', `/events?mode=${mode}&limit=${limit}`),

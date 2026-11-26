@@ -1,11 +1,11 @@
 /*
- * Docs para desenvolvedores: transforma src/content/developers/<lang>/<slug>.md em módulos JS
- * na hora do build (markdown-it + shiki). O navegador recebe HTML pronto e já colorido, sem
- * nenhum highlighter em tempo de execução.
+ * Docs para desenvolvedores: transforma o Markdown de src/content/developers/<lang>/<slug>.md em HTML pronto e já
+ * colorido (markdown-it + shiki), no Node. Desde 26/11/2026 NÃO é mais plugin do Vite: o conteúdo não entra no site,
+ * vai para o backend do portal pelo build-private-docs.mjs (só quem tem sessão lê).
  *
- * - import page from '.../en/webhooks.md'  ->  { title, description, html, toc }
- * - import index from 'virtual:developers-index'  ->  títulos, intertítulos e endpoints de todas
- *   as páginas nos dois idiomas (para a busca), sem o HTML.
+ * - renderPage(src, lang)  ->  { title, description, html, toc }
+ * - indexPage(src, lang)   ->  títulos, intertítulos e endpoints (para a busca), sem o HTML
+ * - listContentFiles()     ->  [{ lang, file }] de todas as páginas
  *
  * Sintaxe extra no Markdown:
  * - ```bash title="Create a patient"        bloco com título
@@ -15,8 +15,7 @@
  * - ::: next    lista de links do "próximo passo"
  * - um parágrafo só com `POST /patients`  vira o selo do endpoint
  *
- * Arquivo .mjs (e não .ts) porque roda no Node, e o tsconfig do app (DOM, sem tipos do Node)
- * inclui todo o src/. A assinatura para o vite.config.ts está em markdown-plugin.d.mts.
+ * Arquivo .mjs (e não .ts) porque roda no Node, e o tsconfig do app (DOM, sem tipos do Node) inclui todo o src/.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -27,8 +26,6 @@ import { createHighlighter } from 'shiki'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const CONTENT_DIR = path.resolve(HERE, '../../../content/developers')
-const VIRTUAL_ID = 'virtual:developers-index'
-const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
 const LANGS = ['en', 'pt']
 
 /* ---------------------------------------------------------------
@@ -404,7 +401,7 @@ function createMd(lang) {
 const mds = {}
 const mdFor = (lang) => (mds[lang] ??= createMd(lang))
 
-function langOf(file) {
+export function langOf(file) {
   const dir = path.basename(path.dirname(file))
   return LANGS.includes(dir) ? dir : 'en'
 }
@@ -424,7 +421,7 @@ export async function renderPage(src, lang) {
 }
 
 /** Só o que a busca precisa (sem HTML). */
-async function indexPage(src, lang) {
+export async function indexPage(src, lang) {
   await getHighlighter()
   const { data, body } = parseFrontmatter(src)
   const env = {}
@@ -438,7 +435,7 @@ async function indexPage(src, lang) {
   }
 }
 
-function listContentFiles() {
+export function listContentFiles() {
   const out = []
   for (const lang of LANGS) {
     const dir = path.join(CONTENT_DIR, lang)
@@ -446,48 +443,4 @@ function listContentFiles() {
     for (const f of fs.readdirSync(dir)) if (f.endsWith('.md')) out.push({ lang, file: path.join(dir, f) })
   }
   return out
-}
-
-/** Plugin do Vite. */
-export function developersMarkdown() {
-  const isDocMd = (id) => {
-    const clean = id.split('?')[0].replace(/\\/g, '/')
-    return clean.endsWith('.md') && clean.includes('/src/content/developers/')
-  }
-  return {
-    name: 'emmitec-developers-markdown',
-    enforce: 'pre',
-    // no dev, página nova ou apagada também refaz o índice da busca
-    configureServer(server) {
-      const refresh = (file) => {
-        if (!isDocMd(file)) return
-        const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID)
-        if (mod) server.moduleGraph.invalidateModule(mod)
-      }
-      server.watcher.on('add', refresh)
-      server.watcher.on('unlink', refresh)
-      server.watcher.on('change', refresh)
-    },
-    resolveId(id) {
-      if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
-      return null
-    },
-    async load(id) {
-      if (id !== RESOLVED_VIRTUAL_ID) return null
-      const pages = []
-      for (const { lang, file } of listContentFiles()) {
-        this.addWatchFile(file)
-        const src = fs.readFileSync(file, 'utf8')
-        const slug = path.basename(file, '.md')
-        pages.push({ lang, slug, ...(await indexPage(src, lang)) })
-      }
-      return { code: `export default ${JSON.stringify(pages)}`, map: null, moduleType: 'js' }
-    },
-    async transform(src, id) {
-      if (!isDocMd(id)) return null
-      const file = id.split('?')[0]
-      const page = await renderPage(src, langOf(file))
-      return { code: `export default ${JSON.stringify(page)}`, map: null, moduleType: 'js' }
-    },
-  }
 }

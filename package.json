@@ -13,7 +13,8 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "docs:openapi": "node src/lib/developers/openapi/build-openapi.mjs"
+    "docs:openapi": "node src/lib/developers/openapi/build-openapi.mjs",
+    "docs:privadas": "node src/lib/developers/openapi/build-openapi.mjs && node src/lib/developers/build/build-private-docs.mjs"
   },
   "dependencies": {
     "@scalar/api-reference": "^1.83.0",

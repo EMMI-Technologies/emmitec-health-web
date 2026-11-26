@@ -9,9 +9,10 @@
  * v1.1 note: PUT /thresholds and PUT /patients/{id}/thresholds follow the implementation
  * (sr-backend-patients/src/parceiros/limites.ts): every value sent needs its four limits as numbers.
  *
- * Writes, from the same operation list:
- *   public/developers/openapi.json                                 (OpenAPI 3.1)
- *   public/developers/emmitec-partner-api.postman_collection.json  (Postman collection v2.1)
+ * Writes, from the same operation list (NOT public: since 26/11/2026 the docs are served by the portal backend only
+ * to signed-in partners; `npm run docs:privadas` runs this and copies both files to the backend):
+ *   src/content/developers/files/openapi.json                                 (OpenAPI 3.1)
+ *   src/content/developers/files/emmitec-partner-api.postman_collection.json  (Postman collection v2.1)
  *
  * Zero dependencies. Run: node src/lib/developers/openapi/build-openapi.mjs
  * The run fails when any output has a non-ASCII character (no long dashes, no typographic quotes).
@@ -22,7 +23,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
-const OUT_DIR = resolve(HERE, '../../../../public/developers')
+const OUT_DIR = resolve(HERE, '../../../content/developers/files')
 
 // -------------------------------------------------------------------------------------------------------------------
 // Constants and example values (taken from the contract)

@@ -8,14 +8,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { ArrowLeft, BookOpen, Check, Eye, EyeOff, Info } from 'lucide-vue-next'
 import { usePortalLang } from '@/lib/portal/i18n'
 import { PortalError } from '@/lib/portal/api'
-import {
-  docsHref,
-  errorView,
-  login,
-  portal,
-  SUPPORT_EMAIL,
-  type ErrorView,
-} from '@/lib/portal/store'
+import { errorView, login, portal, SUPPORT_EMAIL, type ErrorView } from '@/lib/portal/store'
 import PortalErrorMsg from './PortalErrorMsg.vue'
 
 const { t } = usePortalLang()
@@ -145,7 +138,8 @@ async function submit() {
           <RouterLink to="/">
             <ArrowLeft :size="16" :stroke-width="1.8" aria-hidden="true" />{{ t('login.backSite') }}
           </RouterLink>
-          <RouterLink :to="docsHref()">
+          <!-- a documentação também pede login; para quem ainda não entrou, a prévia pública é /integrations -->
+          <RouterLink to="/integrations">
             <BookOpen :size="16" :stroke-width="1.8" aria-hidden="true" />{{ t('login.devDocs') }}
           </RouterLink>
         </nav>

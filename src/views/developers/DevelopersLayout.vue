@@ -1,19 +1,24 @@
 <script setup lang="ts">
 /**
  * Layout das docs para desenvolvedores (/developers/...): barra no topo (logo, busca, EN/PT,
- * referência da API, pedir chaves), menu lateral, gaveta no celular e a página da rota.
+ * referência da API, portal, sair), menu lateral, gaveta no celular e a página da rota.
+ * Sem sessão do portal do cliente, mostra a entrada (DocsGate) no lugar da documentação
+ * (spec docs-de-parceiros-so-com-login): o conteúdo só chega ao navegador depois do login.
  * Rolagem nativa e troca de página instantânea entre páginas das docs (ver lib/developers/view.ts).
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { ArrowUpRight, Menu, Search, X } from 'lucide-vue-next'
+import { ArrowUpRight, LogOut, Menu, Search, X } from 'lucide-vue-next'
 import DocsNav from '@/components/developers/DocsNav.vue'
 import DocsSearch from '@/components/developers/DocsSearch.vue'
 import DocsLangSwitch from '@/components/developers/DocsLangSwitch.vue'
+import DocsGate from '@/components/developers/DocsGate.vue'
 import { LOGO_SRC } from '@/lib/site'
 import { initialDocsLang, isDocsLang, useDocsLang } from '@/lib/developers/lang'
 import { loadDoc } from '@/lib/developers/pages'
 import { slugFromPath } from '@/lib/developers/nav'
+import { checkAccess, docsOpen, leaveDocsAccess } from '@/lib/developers/access'
+import { loadIndex } from '@/lib/developers/search'
 import {
   enterDocs,
   leaveDocs,
@@ -21,7 +26,7 @@ import {
   settleInstantSwap,
   sideMemory,
 } from '@/lib/developers/view'
-import { KEYS_MAILTO, PORTAL_PATH } from '@/content/developers/ui'
+import { PORTAL_PATH } from '@/content/developers/ui'
 import type { DocsLang } from '@/lib/developers/types'
 import './docs.css'
 
@@ -57,7 +62,7 @@ function switchLang(l: DocsLang) {
 
 // troca de página dentro das docs: baixa a página nova antes e troca sem animação
 onBeforeRouteUpdate(async (to, from) => {
-  if (to.path === from.path) return
+  if (to.path === from.path || !docsOpen.value) return
   await loadDoc(initialDocsLang(to.query.lang), slugFromPath(to.path))
   prepareInstantSwap(root.value)
 })
@@ -76,6 +81,7 @@ function isTyping(el: EventTarget | null) {
 }
 
 function onKey(e: KeyboardEvent) {
+  if (!docsOpen.value) return
   const k = e.key.toLowerCase()
   // na referência da API o Ctrl/Cmd+K fica com a busca de endpoints dela
   if (k === 'k' && (e.metaKey || e.ctrlKey) && !isReference.value) {
@@ -90,17 +96,42 @@ function onKey(e: KeyboardEvent) {
 }
 
 // a posição do menu lateral sobrevive à troca de página (o layout é recriado a cada página)
+let robots: HTMLMetaElement | null = null
 onMounted(() => {
   enterDocs()
   settleInstantSwap(root.value)
   document.addEventListener('keydown', onKey)
   if (side.value && sideMemory.y) side.value.scrollTop = sideMemory.y
+  // área com login: fora dos buscadores
+  robots = document.createElement('meta')
+  robots.name = 'robots'
+  robots.content = 'noindex, nofollow'
+  document.head.appendChild(robots)
+  void checkAccess()
 })
 onBeforeUnmount(() => {
   if (side.value) sideMemory.y = side.value.scrollTop
   leaveDocs()
   document.removeEventListener('keydown', onKey)
+  robots?.remove()
 })
+
+// sessão aberta (login na entrada ou sessão guardada): índice da busca e a página da rota
+watch(
+  docsOpen,
+  (open) => {
+    if (!open) return
+    void loadIndex()
+    drawerOpen.value = false
+  },
+  { immediate: true },
+)
+
+async function signOut() {
+  drawerOpen.value = false
+  searchOpen.value = false
+  await leaveDocsAccess()
+}
 
 watch(drawerOpen, (o) => {
   document.documentElement.classList.toggle('dx-locked', o)
@@ -120,7 +151,7 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
 
     <header class="dx-top">
       <div class="dx-top__in">
-        <button type="button" class="dx-icon-btn dx-burger" :aria-label="t('menu')" @click="drawerOpen = true">
+        <button v-if="docsOpen" type="button" class="dx-icon-btn dx-burger" :aria-label="t('menu')" @click="drawerOpen = true">
           <Menu :size="20" :stroke-width="1.8" />
         </button>
         <div class="dx-brand">
@@ -131,7 +162,7 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
           <RouterLink to="/developers" class="dx-brand__label">{{ t('developers') }}</RouterLink>
         </div>
 
-        <button type="button" class="dx-search-btn" @click="searchOpen = true">
+        <button v-if="docsOpen" type="button" class="dx-search-btn" @click="searchOpen = true">
           <Search :size="16" :stroke-width="1.8" aria-hidden="true" />
           <span class="dx-search-btn__text">{{ t('search') }}</span>
           <kbd class="dx-kbd">{{ modKey }} K</kbd>
@@ -139,19 +170,32 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
 
         <div class="dx-top__end">
           <DocsLangSwitch class="dx-top__lang" :lang="lang" :label="t('language')" @change="switchLang" />
-          <RouterLink to="/developers/api-reference" class="dx-top__link" :class="{ 'is-active': isReference }">
+          <RouterLink
+            v-if="docsOpen"
+            to="/developers/api-reference"
+            class="dx-top__link"
+            :class="{ 'is-active': isReference }"
+          >
             {{ t('apiReference') }}
           </RouterLink>
-          <RouterLink :to="PORTAL_PATH" class="dx-top__link">{{ t('customerPortal') }}</RouterLink>
-          <a :href="KEYS_MAILTO" class="dx-btn">{{ t('getKeys') }}</a>
-          <button type="button" class="dx-icon-btn dx-search-icon" :aria-label="t('search')" @click="searchOpen = true">
+          <RouterLink :to="PORTAL_PATH" class="dx-top__link dx-top__portal">{{ t('customerPortal') }}</RouterLink>
+          <button v-if="docsOpen" type="button" class="dx-btn dx-btn--line dx-top__out" @click="signOut">
+            <LogOut :size="15" :stroke-width="1.8" aria-hidden="true" />{{ t('signOut') }}
+          </button>
+          <button
+            v-if="docsOpen"
+            type="button"
+            class="dx-icon-btn dx-search-icon"
+            :aria-label="t('search')"
+            @click="searchOpen = true"
+          >
             <Search :size="19" :stroke-width="1.8" />
           </button>
         </div>
       </div>
     </header>
 
-    <div class="dx-body">
+    <div v-if="docsOpen" class="dx-body">
       <aside v-if="!isReference" ref="side" class="dx-side" data-native-scroll>
         <DocsNav />
       </aside>
@@ -159,8 +203,11 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
         <RouterView />
       </main>
     </div>
+    <main v-else id="dx-main" class="dx-main dx-main--gate">
+      <DocsGate />
+    </main>
 
-    <DocsSearch v-model:open="searchOpen" />
+    <DocsSearch v-if="docsOpen" v-model:open="searchOpen" />
 
     <Teleport to="body">
       <Transition name="dx-drawer">
@@ -174,7 +221,9 @@ onBeforeUnmount(() => document.documentElement.classList.remove('dx-locked'))
             </div>
             <div class="dx-drawer__tools">
               <DocsLangSwitch :lang="lang" :label="t('language')" @change="switchLang" />
-              <a :href="KEYS_MAILTO" class="dx-btn">{{ t('getKeys') }}</a>
+              <button type="button" class="dx-btn dx-btn--line dx-top__out" @click="signOut">
+                <LogOut :size="15" :stroke-width="1.8" aria-hidden="true" />{{ t('signOut') }}
+              </button>
               <RouterLink :to="PORTAL_PATH" class="dx-drawer__portal" @click="drawerOpen = false">
                 {{ t('openPortal') }}
                 <ArrowUpRight :size="16" :stroke-width="1.8" aria-hidden="true" />

@@ -12,6 +12,7 @@ O portal do cliente fica em [emmitec.health/portal](https://emmitec.health/porta
 - Esqueceu a senha? Peça à EmmiTec uma nova senha temporária.
 - Depois de 10 tentativas erradas em 15 minutos com o mesmo e-mail, espere 15 minutos antes de tentar de novo.
 - A sessão dura até 12 horas.
+- A mesma conta abre esta [documentação](/developers). Sem entrar, o site mostra só a tela de entrada.
 
 ## O que dá para fazer lá
 

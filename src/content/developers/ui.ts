@@ -40,7 +40,36 @@ export const UI = {
     otherLanguage: 'Português',
     referenceIntro: 'Every endpoint of the Partner API v1. Use "Test request" with a test key (emk_test_...) to call the API from your browser.',
     referenceLoading: 'Loading the API reference',
-    referenceError: 'The API reference could not be loaded. Download the OpenAPI file instead:',
+    referenceError: 'The API reference could not be loaded.',
+    retry: 'Try again',
+    signOut: 'Sign out',
+    download: 'Download',
+    downloading: 'Preparing the download',
+    downloadFailed: 'The download did not work. Try again.',
+    gateEyebrow: 'Partner documentation',
+    gateTitle: 'Sign in to read the documentation',
+    gateLead: 'The EmmiTec technical documentation is for partner companies. Use your customer portal account.',
+    gateEmail: 'Email',
+    gatePassword: 'Password',
+    gateShowPassword: 'Show password',
+    gateHidePassword: 'Hide password',
+    gateSubmit: 'Sign in',
+    gateSubmitting: 'Signing in...',
+    gateErrRequired: 'Enter your email and password.',
+    gateErrWrong: 'Wrong email or password.',
+    gateErrTooMany: 'Too many attempts. Wait 15 minutes and try again.',
+    gateErrNetwork: "We couldn't reach EmmiTec. Check your connection and try again.",
+    gateErrServer: 'Something went wrong on our side. Try again in a moment.',
+    gateSessionEnded: 'Your session ended. Sign in again.',
+    gateHelp: 'No account or forgot your password?',
+    gateHelpLink: 'Write to',
+    gateNotPartner: 'Not a partner yet?',
+    gateHow: 'See how the integration works',
+    gateAsk: 'Ask for access',
+    gateInside: 'What is inside',
+    gateInsideLead: 'Guides in English and Portuguese, the interactive API reference, the Expo SDK and the 21 supported devices.',
+    gateChecking: 'Checking your session',
+    gateSignedIn: 'Signed in as',
   },
   pt: {
     developers: 'Developers',
@@ -76,15 +105,45 @@ export const UI = {
     otherLanguage: 'English',
     referenceIntro: 'Todos os endpoints da Partner API v1. Use "Test request" com uma chave de teste (emk_test_...) para chamar a API direto do navegador.',
     referenceLoading: 'Carregando a referência da API',
-    referenceError: 'Não foi possível carregar a referência. Baixe o arquivo OpenAPI:',
+    referenceError: 'Não foi possível carregar a referência.',
+    retry: 'Tentar de novo',
+    signOut: 'Sair',
+    download: 'Baixar',
+    downloading: 'Preparando o download',
+    downloadFailed: 'O download não funcionou. Tente de novo.',
+    gateEyebrow: 'Documentação para parceiros',
+    gateTitle: 'Entre para ler a documentação',
+    gateLead: 'A documentação técnica da EmmiTec é para empresas parceiras. Use a sua conta do portal do cliente.',
+    gateEmail: 'E-mail',
+    gatePassword: 'Senha',
+    gateShowPassword: 'Mostrar senha',
+    gateHidePassword: 'Ocultar senha',
+    gateSubmit: 'Entrar',
+    gateSubmitting: 'Entrando...',
+    gateErrRequired: 'Preencha o e-mail e a senha.',
+    gateErrWrong: 'E-mail ou senha incorretos.',
+    gateErrTooMany: 'Muitas tentativas. Espere 15 minutos e tente de novo.',
+    gateErrNetwork: 'Não foi possível falar com a EmmiTec. Confira sua internet e tente de novo.',
+    gateErrServer: 'Algo deu errado do nosso lado. Tente de novo em instantes.',
+    gateSessionEnded: 'Sua sessão terminou. Entre de novo.',
+    gateHelp: 'Sem conta ou esqueceu a senha?',
+    gateHelpLink: 'Escreva para',
+    gateNotPartner: 'Ainda não é parceiro?',
+    gateHow: 'Veja como funciona a integração',
+    gateAsk: 'Pedir acesso',
+    gateInside: 'O que tem aqui dentro',
+    gateInsideLead: 'Guias em inglês e português, a referência interativa da API, o SDK para Expo e os 21 aparelhos compatíveis.',
+    gateChecking: 'Conferindo a sua sessão',
+    gateSignedIn: 'Conectado como',
   },
 } satisfies Record<DocsLang, Record<string, string>>
 
 export type UiKey = keyof (typeof UI)['en']
 
-export const KEYS_MAILTO = 'mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20keys'
+/** Pedir acesso (conta do portal, que também abre a documentação). */
+export const ACCESS_MAILTO = 'mailto:contato@emmitec.health?subject=EmmiTec%20Partner%20API%20access'
 /** Portal do cliente parceiro (rota do site, fora das docs). */
 export const PORTAL_PATH = '/portal'
-export const OPENAPI_URL = '/developers/openapi.json'
-export const POSTMAN_URL = '/developers/emmitec-partner-api.postman_collection.json'
+/** Página comercial da integração (a prévia pública). */
+export const INTEGRATIONS_PATH = '/integrations'
 export const API_BASE_URL = 'https://v2-prod-api-patients.emmitec.health/partner/v1'

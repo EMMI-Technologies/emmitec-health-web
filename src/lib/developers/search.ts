@@ -2,10 +2,38 @@
  * Busca das docs (Ctrl/Cmd+K): títulos, intertítulos e endpoints das páginas, nos dois idiomas.
  * O texto em inglês e em português da mesma seção é procurado junto (as páginas têm a mesma
  * estrutura nos dois idiomas), e o resultado abre sempre no idioma em uso.
+ *
+ * O índice vem do backend do portal (GET /portal/docs), só com sessão: até chegar, a busca acha só os
+ * títulos do menu.
  */
-import index from 'virtual:developers-index'
+import { portalApi } from '@/lib/portal/api'
 import { findItem, NAV_ITEMS } from './nav'
 import type { DocIndexEntry, DocsLang } from './types'
+
+let index: DocIndexEntry[] = []
+let loading: Promise<void> | null = null
+
+/** Baixa o índice uma vez por sessão da aba (chamado ao liberar as docs e ao abrir a busca). */
+export function loadIndex(): Promise<void> {
+  if (index.length) return Promise.resolve()
+  loading ??= portalApi
+    .docsIndex()
+    .then((r) => {
+      index = r.pages
+      candidates = null
+    })
+    .catch(() => undefined)
+    .finally(() => {
+      loading = null
+    })
+  return loading
+}
+
+/** Ao sair: o índice também vai embora. */
+export function clearIndex() {
+  index = []
+  candidates = null
+}
 
 export interface SearchHit {
   key: string

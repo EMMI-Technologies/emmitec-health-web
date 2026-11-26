@@ -1,16 +1,33 @@
 <script setup lang="ts">
-/** Menu das docs (lateral no desktop, gaveta no celular). */
+/** Menu das docs (lateral no desktop, gaveta no celular). Os downloads vêm do backend com a sessão. */
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Download } from 'lucide-vue-next'
 import { NAV, slugFromPath } from '@/lib/developers/nav'
 import { useDocsLang } from '@/lib/developers/lang'
-import { OPENAPI_URL, POSTMAN_URL } from '@/content/developers/ui'
+import { downloadDocsFile } from '@/lib/developers/files'
+import type { DocsFileName } from '@/lib/portal/api'
 
 const emit = defineEmits<{ navigate: [] }>()
 const route = useRoute()
 const { lang, t } = useDocsLang()
 
 const isActive = (slug: string) => slugFromPath(route.path) === slug
+
+const busy = ref<DocsFileName | ''>('')
+const failed = ref(false)
+async function download(name: DocsFileName) {
+  if (busy.value) return
+  busy.value = name
+  failed.value = false
+  try {
+    await downloadDocsFile(name)
+  } catch {
+    failed.value = true
+  } finally {
+    busy.value = ''
+  }
+}
 </script>
 
 <template>
@@ -35,16 +52,18 @@ const isActive = (slug: string) => slugFromPath(route.path) === slug
       <p class="dx-nav__title">{{ t('downloads') }}</p>
       <ul>
         <li>
-          <a class="dx-nav__link dx-nav__file" :href="OPENAPI_URL" download="emmitec-partner-api-openapi.json">
+          <button type="button" class="dx-nav__link dx-nav__file" :disabled="!!busy" @click="download('openapi.json')">
             <Download :size="14" :stroke-width="1.8" aria-hidden="true" />{{ t('openapi') }}
-          </a>
+          </button>
         </li>
         <li>
-          <a class="dx-nav__link dx-nav__file" :href="POSTMAN_URL" download="emmitec-partner-api.postman_collection.json">
+          <button type="button" class="dx-nav__link dx-nav__file" :disabled="!!busy" @click="download('postman.json')">
             <Download :size="14" :stroke-width="1.8" aria-hidden="true" />{{ t('postman') }}
-          </a>
+          </button>
         </li>
       </ul>
+      <p v-if="busy" class="dx-nav__hint" role="status">{{ t('downloading') }}</p>
+      <p v-else-if="failed" class="dx-nav__hint dx-nav__hint--error" role="alert">{{ t('downloadFailed') }}</p>
     </div>
   </nav>
 </template>

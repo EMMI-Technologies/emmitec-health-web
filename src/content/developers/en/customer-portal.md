@@ -12,6 +12,7 @@ The customer portal is at [emmitec.health/portal](https://emmitec.health/portal)
 - Forgot the password? Ask EmmiTec for a new temporary one.
 - After 10 wrong attempts in 15 minutes for the same e-mail, wait 15 minutes before trying again.
 - A session lasts up to 12 hours.
+- The same account opens this [documentation](/developers). Signed out, the site shows only the sign-in page.
 
 ## What you can do there
 

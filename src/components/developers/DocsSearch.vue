@@ -3,7 +3,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CornerDownLeft, FileText, Hash, Search } from 'lucide-vue-next'
-import { searchDocs, type SearchHit } from '@/lib/developers/search'
+import { loadIndex, searchDocs, type SearchHit } from '@/lib/developers/search'
 import { useDocsLang } from '@/lib/developers/lang'
 import { replaceHash, scrollToId } from '@/lib/developers/view'
 
@@ -17,12 +17,15 @@ const active = ref(0)
 const input = ref<HTMLInputElement | null>(null)
 const list = ref<HTMLElement | null>(null)
 
-const hits = computed(() => searchDocs(query.value, lang.value))
+const hits = computed(() => (indexVersion.value, searchDocs(query.value, lang.value)))
 
+// o índice vem do backend com a sessão (uma vez por aba); a busca refaz os resultados quando ele chega
+const indexVersion = ref(0)
 watch(open, async (o) => {
   if (!o) return
   query.value = ''
   active.value = 0
+  void loadIndex().then(() => indexVersion.value++)
   await nextTick()
   input.value?.focus()
 })
