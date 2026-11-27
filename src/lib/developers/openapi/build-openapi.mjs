@@ -1229,7 +1229,7 @@ SCHEMAS.Device = object(
       enum: ['ble', 'manual', 'other'],
     }),
     pairing: bool('true when the device must be paired with the phone before it sends readings.'),
-    sdk: bool('true when the emmitec-rpm SDK supports it.'),
+    sdk: bool('true when the @emmitec/rpm SDK supports it.'),
   },
   { example: DEVICES.data[0] },
 )
@@ -1955,7 +1955,7 @@ add('post', '/patients/{id}/session-tokens', {
   summary: 'Mint a session token',
   token: TOKEN.secret,
   description: [
-    'Creates a token for ONE patient. Call it from your backend and hand the token to your mobile app (the emmitec-rpm SDK uses it).',
+    'Creates a token for ONE patient. Call it from your backend and hand the token to your mobile app (the @emmitec/rpm SDK uses it).',
     'A test key mints `emst_test_...`, a live key mints `emst_live_...`. The token is shown only in this response.',
     'Default lifetime 7 days (604800 s), min 300 s, max 30 days (2592000 s). Revoke with `DELETE /patients/{id}/session-tokens`.',
     '\n\nA session token can only call: `GET /ping`, `GET /me`, `GET /devices`, `POST /readings`, `POST /readings/batch`, `GET /readings/{id}`, and `GET /patients/{id}/readings` and `GET /patients/{id}/thresholds` for its own patient. Anything else gets 403 `forbidden`.',

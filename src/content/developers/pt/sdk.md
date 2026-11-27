@@ -1,6 +1,6 @@
 ---
 title: SDK para Expo
-description: O emmitec-rpm lê aparelhos médicos Bluetooth no seu app Expo ou React Native, grava a medição na EmmiTec e entrega o alerta. Permissões, busca, pareamento, novas tentativas e fila offline já vêm resolvidos.
+description: "O @emmitec/rpm lê aparelhos médicos Bluetooth no seu app Expo ou React Native, grava a medição na EmmiTec e entrega o alerta. Permissões, busca, pareamento, novas tentativas e fila offline já vêm resolvidos."
 ---
 
 ## Requisitos
@@ -12,12 +12,33 @@ description: O emmitec-rpm lê aparelhos médicos Bluetooth no seu app Expo ou R
 
 ## Instale
 
-O SDK está no npm como [`emmitec-rpm`](https://www.npmjs.com/package/emmitec-rpm). Instale junto com as dependências:
+O SDK é o pacote privado `@emmitec/rpm` do npm, só para parceiros da EmmiTec.
+
+**1. Peça o acesso.** Cada desenvolvedor cria uma conta grátis no [npmjs.com](https://www.npmjs.com/signup) e manda o usuário para [contato@emmitec.health](mailto:contato@emmitec.health?subject=Acesso%20ao%20%40emmitec%2Frpm). A EmmiTec coloca a conta no time de leitura da organização `emmitec` e o npm manda um e-mail de convite: aceite. Depois, no seu computador:
 
 ```bash title="Terminal"
-npx expo install emmitec-rpm react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store
-npx expo install expo-crypto
+npm login
 ```
+
+**2. Instale.**
+
+```bash title="Terminal"
+npx expo install @emmitec/rpm react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store expo-crypto
+```
+
+Atalho: `npx @emmitec/rpm init` instala o que falta, coloca o config plugin no `app.json` e, se você usava o antigo `emmitec-rpm`, troca os imports. Depois, `npx @emmitec/rpm doctor` confere tudo (veja [Comandos de suporte](#comandos-de-suporte)).
+
+**3. EAS Build e CI.** O EAS precisa de um token para baixar o pacote privado. No npmjs.com: Access Tokens, Generate New Token, Granular Access Token, permissão **Read-only** para o `@emmitec/rpm`. Guarde no EAS como `NPM_TOKEN`:
+
+```bash title="Terminal"
+eas env:create --name NPM_TOKEN --value <token> --visibility secret --environment production
+```
+
+Repita nos ambientes `preview` e `development` que você usa. Sem `.npmrc` no projeto, o EAS configura o npm sozinho. Com um `.npmrc` seu, coloque `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`. Nunca escreva o token em si no arquivo. Anote a data de validade do token: quando ele vence, o build falha na instalação.
+
+::: note Vindo do emmitec-rpm
+Até a 1.1.0 o SDK era o pacote público `emmitec-rpm`. O código é o mesmo: rode `npx @emmitec/rpm init`, ou troque à mão o pacote, os imports (`'emmitec-rpm'` por `'@emmitec/rpm'`) e o nome do plugin no `app.json`.
+:::
 
 ## Adicione o config plugin
 
@@ -27,7 +48,7 @@ O plugin coloca as permissões de Bluetooth nos projetos nativos: `BLUETOOTH_SCA
 {
   "expo": {
     "plugins": [
-      ["emmitec-rpm", { "bluetoothPermissionText": "Permita que o $(PRODUCT_NAME) leia seus aparelhos de saúde." }]
+      ["@emmitec/rpm", { "bluetoothPermissionText": "Permita que o $(PRODUCT_NAME) leia seus aparelhos de saúde." }]
     ]
   }
 }
@@ -53,7 +74,7 @@ O Expo Go não traz módulos nativos de Bluetooth. Use um development build. Par
 Chame o `configure` quando o paciente já tiver entrado no seu app:
 
 ```ts title="App.tsx"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 EmmiTec.configure({
   sessionToken, // emst_test_... ou emst_live_..., vindo do seu backend. Nunca uma chave secreta.
@@ -106,7 +127,7 @@ Uma tela completa:
 
 ```tsx title="TelaDePressao.tsx"
 import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
-import { useMeasurement } from 'emmitec-rpm'
+import { useMeasurement } from '@emmitec/rpm'
 
 const OCUPADO = ['permission', 'scanning', 'connecting', 'waiting', 'received', 'saving']
 
@@ -220,7 +241,7 @@ Há também códigos de aparelhos específicos, como `glucose_meter_no_records` 
 Quando o paciente digita um valor, ou usa um aparelho fora do catálogo, envie com o `EmmiTec.readings.create`. A entrada é a mesma do [`POST /readings`](/developers/readings#envie-uma-medicao), sem o `patientId`; o `measuredAt` vira "agora", o `source` vira `manual` e um `externalId` é gerado.
 
 ```ts title="Medição digitada"
-import { EmmiTec, EmmiTecApiError } from 'emmitec-rpm'
+import { EmmiTec, EmmiTecApiError } from '@emmitec/rpm'
 
 try {
   const resultado = await EmmiTec.readings.create({
@@ -253,7 +274,7 @@ await EmmiTec.me() // o paciente do token
 ## Aparelhos
 
 ```ts title="Aparelhos compatíveis"
-import { DEVICES, EmmiTec } from 'emmitec-rpm'
+import { DEVICES, EmmiTec } from '@emmitec/rpm'
 
 DEVICES // os 21 modelos que o SDK lê, com as instruções (sem chamada à API)
 await EmmiTec.devices.list() // GET /devices, incluindo manual e other
@@ -318,12 +339,36 @@ EmmiTec.simulator.reset()
 
 A partir da versão 1.1.0, o SDK conta ao suporte da EmmiTec o que aconteceu no celular. Assim, quando um paciente diz "não conecta", a gente vê onde parou: permissão, Bluetooth desligado, aparelho não encontrado, conexão, leitura ou envio.
 
-- **O que vai:** a etapa (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), o modelo do aparelho, um código de erro com a mensagem fixa dele, quanto tempo levou e um id aleatório da instalação do app (para contar celulares). Toda chamada também leva `EmmiTec-Client: emmitec-rpm/1.1.0 (android 34; id e versão do seu app)`.
+- **O que vai:** a etapa (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), o modelo do aparelho, um código de erro com a mensagem fixa dele, quanto tempo levou e um id aleatório da instalação do app (para contar celulares). Toda chamada também leva `EmmiTec-Client: emmitec-rpm/1.2.0 (android 34; id e versão do seu app)`.
 - **O que nunca vai:** nomes, valores medidos, tokens e o registro técnico da conversa com o aparelho.
 - **Como:** em lotes pequenos para o `POST /diagnostics`, alguns segundos depois de uma falha ou uma vez por minuto, com o token de sessão do paciente. Uma falha no envio nunca chega ao seu app.
 - **Para desligar:** `EmmiTec.configure({ ..., diagnostics: false })`.
 
 O suporte também acha qualquer chamada pelo `requestId` que o seu app recebeu num erro. Mande esse código quando falar com a gente.
+
+## Comandos de suporte
+
+A partir da 1.2.0 o pacote traz comandos para o seu computador e um relatório para o celular. Nenhum deles mostra chaves, tokens, nomes ou valores medidos.
+
+| Comando | O que faz |
+|---|---|
+| `npx @emmitec/rpm doctor` | Confere o projeto (pacotes, versão do Expo, config plugin, development build, permissões do Android e do iOS depois do prebuild, `.npmrc`, chaves escritas no código, acesso à API) e diz como resolver cada problema. Sai com código 1 quando algo falha |
+| `npx @emmitec/rpm init` | Instala o que falta, coloca o config plugin e troca os imports do `emmitec-rpm`. Pergunta antes de mudar qualquer coisa (`--dry-run` só mostra o plano) |
+| `npx @emmitec/rpm ping` | Testa uma chave secreta ou token de sessão: modo, integração, plano e código da chamada. Mostra só os 13 primeiros caracteres da chave |
+| `npx @emmitec/rpm devices` | Os aparelhos compatíveis e o que o paciente faz com cada um |
+| `npx @emmitec/rpm support` | Um relatório de versões e conferências para mandar a [contato@emmitec.health](mailto:contato@emmitec.health) |
+
+Eles respondem em português ou inglês (`--lang en`, padrão: o do sistema). No app:
+
+```ts title="Depuração e suporte"
+if (__DEV__) EmmiTec.setLogLevel('debug') // toda chamada à API com o X-Request-Id e cada etapa da medição
+
+const text = await EmmiTec.support.text() // para a sua tela de ajuda ou um e-mail para a EmmiTec
+// versões do SDK e do app, celular, modo da sessão, id da instalação, fila offline,
+// erros recentes e as últimas 20 chamadas à API com o X-Request-Id
+```
+
+Níveis do log: `silent`, `error`, `warn` (padrão), `info` (também erros de medição e chamadas que falharam), `debug`. O pacote também traz a documentação offline, em `node_modules/@emmitec/rpm/docs`.
 
 ## Solução de problemas
 

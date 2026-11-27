@@ -20,13 +20,14 @@ import {
 import { usePortalLang, type PortalKeyName } from './i18n'
 
 export type Phase = 'boot' | 'bootError' | 'login' | 'password' | 'app'
-export type SectionId = 'overview' | 'keys' | 'alerts' | 'thresholds' | 'events' | 'password'
+export type SectionId = 'overview' | 'keys' | 'alerts' | 'thresholds' | 'events' | 'sdk' | 'password'
 export const SECTIONS: SectionId[] = [
   'overview',
   'keys',
   'alerts',
   'thresholds',
   'events',
+  'sdk',
   'password',
 ]
 

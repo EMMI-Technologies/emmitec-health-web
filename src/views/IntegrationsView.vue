@@ -153,7 +153,7 @@ function tsLine(src: string): Line {
 }
 const codeLines = computed<Line[]>(() =>
   [
-    `import { EmmiTec, useMeasurement } from 'emmitec-rpm'`,
+    `import { EmmiTec, useMeasurement } from '@emmitec/rpm'`,
     ``,
     `EmmiTec.configure({ sessionToken, locale: '${locale.value}' })`,
     `EmmiTec.on('alert', (a) => sendPush(a.title, a.text))`,

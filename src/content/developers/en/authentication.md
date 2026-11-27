@@ -95,7 +95,7 @@ async def emmitec_session_token(user=Depends(require_user)):
 In the app, give the token to the SDK and tell it how to get a new one. The SDK calls `onTokenExpired` once when the API answers `401`, then retries the request with the new token:
 
 ```ts title="App.tsx"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 EmmiTec.configure({
   sessionToken: token, // from your backend

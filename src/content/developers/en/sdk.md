@@ -1,6 +1,6 @@
 ---
 title: Expo SDK
-description: emmitec-rpm reads Bluetooth medical devices from your Expo or React Native app, saves the reading on EmmiTec and hands you the alert. Permissions, discovery, pairing, retries and the offline queue are handled.
+description: "@emmitec/rpm reads Bluetooth medical devices from your Expo or React Native app, saves the reading on EmmiTec and hands you the alert. Permissions, discovery, pairing, retries and the offline queue are handled."
 ---
 
 ## Requirements
@@ -12,12 +12,33 @@ description: emmitec-rpm reads Bluetooth medical devices from your Expo or React
 
 ## Install
 
-The SDK is on npm as [`emmitec-rpm`](https://www.npmjs.com/package/emmitec-rpm). Install it with its peer dependencies:
+The SDK is the private npm package `@emmitec/rpm`, for EmmiTec partners.
+
+**1. Get access.** Each developer creates a free account on [npmjs.com](https://www.npmjs.com/signup) and sends the username to [contato@emmitec.health](mailto:contato@emmitec.health?subject=%40emmitec%2Frpm%20access). EmmiTec adds the account to the read-only team of the `emmitec` organization and npm sends an invitation e-mail: accept it. Then, on your computer:
 
 ```bash title="Terminal"
-npx expo install emmitec-rpm react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store
-npx expo install expo-crypto
+npm login
 ```
+
+**2. Install.**
+
+```bash title="Terminal"
+npx expo install @emmitec/rpm react-native-ble-manager @react-native-async-storage/async-storage expo-secure-store expo-crypto
+```
+
+Shortcut: `npx @emmitec/rpm init` installs what is missing, adds the config plugin to `app.json` and, if you used the old `emmitec-rpm`, moves your imports. Then `npx @emmitec/rpm doctor` checks everything (see [Support tools](#support-tools)).
+
+**3. EAS Build and CI.** EAS needs a token to download the private package. On npmjs.com: Access Tokens, Generate New Token, Granular Access Token, permission **Read-only** for `@emmitec/rpm`. Save it in EAS as `NPM_TOKEN`:
+
+```bash title="Terminal"
+eas env:create --name NPM_TOKEN --value <token> --visibility secret --environment production
+```
+
+Repeat for the `preview` and `development` environments you use. Without a `.npmrc` in the project, EAS sets up npm by itself. With your own `.npmrc`, add `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`. Never write the token itself in the file. Write down the token's expiration date: when it expires, builds fail at install.
+
+::: note Coming from emmitec-rpm
+Until 1.1.0 the SDK was the public package `emmitec-rpm`. The code is the same: run `npx @emmitec/rpm init`, or change the package, the imports (`'emmitec-rpm'` to `'@emmitec/rpm'`) and the plugin name in `app.json` by hand.
+:::
 
 ## Add the config plugin
 
@@ -27,7 +48,7 @@ The plugin adds the Bluetooth permissions to the native projects: `BLUETOOTH_SCA
 {
   "expo": {
     "plugins": [
-      ["emmitec-rpm", { "bluetoothPermissionText": "Allow $(PRODUCT_NAME) to read your health devices." }]
+      ["@emmitec/rpm", { "bluetoothPermissionText": "Allow $(PRODUCT_NAME) to read your health devices." }]
     ]
   }
 }
@@ -53,7 +74,7 @@ Expo Go does not include native Bluetooth modules. Use a development build. To b
 Call `configure` once the patient is signed in to your app:
 
 ```ts title="App.tsx"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 EmmiTec.configure({
   sessionToken, // emst_test_... or emst_live_..., from your backend. Never a secret key.
@@ -106,7 +127,7 @@ A complete screen:
 
 ```tsx title="BloodPressureScreen.tsx"
 import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
-import { useMeasurement } from 'emmitec-rpm'
+import { useMeasurement } from '@emmitec/rpm'
 
 const BUSY = ['permission', 'scanning', 'connecting', 'waiting', 'received', 'saving']
 
@@ -211,7 +232,7 @@ Device-specific codes also exist, such as `glucose_meter_no_records` and `oximet
 When the patient types a value, or uses a device that is not supported, send it with `EmmiTec.readings.create`. The input is the same as [`POST /readings`](/developers/readings#send-a-reading) without `patientId`; `measuredAt` defaults to now, `source` to `manual`, and an `externalId` is generated.
 
 ```ts title="Manual reading"
-import { EmmiTec, EmmiTecApiError } from 'emmitec-rpm'
+import { EmmiTec, EmmiTecApiError } from '@emmitec/rpm'
 
 try {
   const result = await EmmiTec.readings.create({
@@ -244,7 +265,7 @@ await EmmiTec.me() // the patient of the token
 ## Devices
 
 ```ts title="Supported devices"
-import { DEVICES, EmmiTec } from 'emmitec-rpm'
+import { DEVICES, EmmiTec } from '@emmitec/rpm'
 
 DEVICES // the 21 models this SDK reads, with instructions (no request)
 await EmmiTec.devices.list() // GET /devices, including manual and other
@@ -309,12 +330,36 @@ EmmiTec.simulator.reset()
 
 From version 1.1.0 the SDK tells EmmiTec support what happened on the phone, so when a patient says "it does not connect" we can see where it stopped: permission, Bluetooth off, device not found, connection, reading or upload.
 
-- **What is sent:** the step (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), the device model, an error code with its fixed message, how long it took, and a random id of the app installation (to count phones). Every request also carries `EmmiTec-Client: emmitec-rpm/1.1.0 (android 34; your app id and version)`.
+- **What is sent:** the step (`ble.scan_started`, `ble.device_found`, `ble.connect_failed`, `ble.reading_parsed`, `queue.stored_offline`...), the device model, an error code with its fixed message, how long it took, and a random id of the app installation (to count phones). Every request also carries `EmmiTec-Client: emmitec-rpm/1.2.0 (android 34; your app id and version)`.
 - **Never sent:** names, measured values, tokens, or the technical log of the device conversation.
 - **How:** small batches to `POST /diagnostics`, a few seconds after a failure or once a minute, with the patient session token. A failed send never reaches your app.
 - **Turn it off:** `EmmiTec.configure({ ..., diagnostics: false })`.
 
 Support also finds any call by the `requestId` your app received in an error, so include it when you write to us.
+
+## Support tools
+
+From 1.2.0 the package brings commands for your computer and a report for the phone. None of them shows keys, tokens, names or measured values.
+
+| Command | What it does |
+|---|---|
+| `npx @emmitec/rpm doctor` | Checks the project (packages, Expo version, config plugin, development build, Android and iOS permissions after prebuild, `.npmrc`, keys written in the code, access to the API) and says how to fix each problem. Exit code 1 when something fails |
+| `npx @emmitec/rpm init` | Installs what is missing, adds the config plugin and moves imports from `emmitec-rpm`. Asks before changing anything (`--dry-run` shows the plan) |
+| `npx @emmitec/rpm ping` | Tests a secret key or session token: mode, integration, plan and request id. Prints only the first 13 characters of the key |
+| `npx @emmitec/rpm devices` | The supported devices and what the patient does with each one |
+| `npx @emmitec/rpm support` | A report of versions and checks to send to [contato@emmitec.health](mailto:contato@emmitec.health) |
+
+They answer in Portuguese or English (`--lang pt`, default: your system). In the app:
+
+```ts title="Debug and support"
+if (__DEV__) EmmiTec.setLogLevel('debug') // every API call with its X-Request-Id and every measurement step
+
+const text = await EmmiTec.support.text() // for your help screen or an e-mail to EmmiTec
+// SDK and app versions, phone, session mode, installation id, offline queue,
+// recent errors and the last 20 API calls with their X-Request-Id
+```
+
+Log levels: `silent`, `error`, `warn` (default), `info` (also measurement errors and failed calls), `debug`. The package also has its documentation offline, in `node_modules/@emmitec/rpm/docs`.
 
 ## Troubleshooting
 
@@ -336,7 +381,7 @@ Support also finds any call by the `requestId` your app received in an error, so
 
 **A device was replaced or reset.** Forget its pairing with `EmmiTec.devices.forget(m.peripheralId)` and pair again.
 
-**It works in simulate mode but not on the phone.** Check that you are on a development build (not Expo Go), that the config plugin is in `app.json`, and that you rebuilt the app after adding it. Then send `m.log` to EmmiTec support.
+**It works in simulate mode but not on the phone.** Run `npx @emmitec/rpm doctor`: it checks the development build, the config plugin and the permissions. Then turn on `EmmiTec.setLogLevel('debug')`, try again, and send EmmiTec support `await EmmiTec.support.text()` and `m.log`.
 
 ::: next
 - [Supported devices](/developers/devices) Models, types and pairing.

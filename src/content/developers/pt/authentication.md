@@ -95,7 +95,7 @@ O `expiresInSeconds` é opcional: o padrão é 604800 (7 dias), o mínimo é 300
 No app, entregue o token ao SDK e diga como conseguir um novo. O SDK chama `onTokenExpired` uma vez quando a API responde `401` e repete a chamada com o token novo:
 
 ```ts title="App.tsx"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 EmmiTec.configure({
   sessionToken: token, // veio do seu backend

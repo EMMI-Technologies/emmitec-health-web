@@ -6,7 +6,7 @@
  */
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { BellRing, KeyRound, LayoutDashboard, Lock, Send, SlidersHorizontal } from 'lucide-vue-next'
+import { BellRing, KeyRound, LayoutDashboard, Lock, Package, Send, SlidersHorizontal } from 'lucide-vue-next'
 import { usePortalLang } from '@/lib/portal/i18n'
 import { portal, SECTIONS, SUPPORT_EMAIL, type SectionId } from '@/lib/portal/store'
 import PortalOverview from './PortalOverview.vue'
@@ -14,6 +14,7 @@ import PortalKeys from './PortalKeys.vue'
 import PortalAlerts from './PortalAlerts.vue'
 import PortalThresholds from './PortalThresholds.vue'
 import PortalEvents from './PortalEvents.vue'
+import PortalSdk from './PortalSdk.vue'
 import PortalPasswordForm from './PortalPasswordForm.vue'
 
 const { t } = usePortalLang()
@@ -37,6 +38,7 @@ const items = computed(() => [
   { id: 'alerts' as SectionId, icon: BellRing, label: t('nav.alerts') },
   { id: 'thresholds' as SectionId, icon: SlidersHorizontal, label: t('nav.thresholds') },
   { id: 'events' as SectionId, icon: Send, label: t('nav.events'), badge: failed.value },
+  { id: 'sdk' as SectionId, icon: Package, label: t('nav.sdk') },
   { id: 'password' as SectionId, icon: Lock, label: t('nav.password') },
 ])
 
@@ -116,6 +118,7 @@ watch(
       <PortalAlerts v-else-if="section === 'alerts'" />
       <PortalThresholds v-else-if="section === 'thresholds'" />
       <PortalEvents v-else-if="section === 'events'" />
+      <PortalSdk v-else-if="section === 'sdk'" />
       <section v-else class="po-section" aria-labelledby="po-pwd-title">
         <div class="po-head">
           <div class="po-head__txt">

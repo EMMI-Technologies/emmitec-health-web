@@ -26,7 +26,7 @@ The phone also gets the alert right away, in the response to the reading. Use it
 | Piece | Where it runs | What it does |
 |---|---|---|
 | Partner API | Your backend | Create patients, mint session tokens, configure webhooks, read history, set alert limits. |
-| Expo SDK (`emmitec-rpm`) | Your mobile app | Bluetooth permissions, device discovery, reading and saving measurements, offline queue. |
+| Expo SDK (`@emmitec/rpm`) | Your mobile app | Bluetooth permissions, device discovery, reading and saving measurements, offline queue. |
 | Webhooks | Your backend | Receive `reading.alert` (and, if you want, every `reading.created`) as signed HTTPS calls. |
 | [Customer portal](/developers/customer-portal) | Your browser | See the plan, copy and generate keys, set up the webhook, turn alerts on or off, follow deliveries. |
 

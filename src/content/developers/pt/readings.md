@@ -79,7 +79,7 @@ if medicao["alert"]:
 ```
 
 ```ts tab="TypeScript SDK"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 // No app, com o token de sessão já configurado.
 // measuredAt vira "agora", source vira 'manual' e o externalId é gerado.

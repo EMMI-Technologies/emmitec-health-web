@@ -107,7 +107,7 @@ O SDK devolve o alerta assim que a medição é gravada. Mostre na mesma tela em
 
 ```tsx title="TelaDeMedicao.tsx"
 import { Text, View } from 'react-native'
-import { useMeasurement } from 'emmitec-rpm'
+import { useMeasurement } from '@emmitec/rpm'
 
 export function TelaDeMedicao() {
   const m = useMeasurement('blood_pressure')

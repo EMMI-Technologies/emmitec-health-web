@@ -1995,6 +1995,163 @@ html.po-on body {
   }
 }
 
+/* ---------- SDK do app ---------- */
+.po-sdk {
+  display: grid;
+  gap: 0;
+  max-width: 760px;
+  margin-top: 36px;
+  list-style: none;
+  padding: 0;
+}
+.po-sdk > li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 18px;
+  padding: 26px 0;
+  border-top: 1px solid var(--po-line);
+}
+.po-sdk > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.po-sdk__n {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--po-soft);
+  color: var(--po-ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+.po-sdk__body {
+  min-width: 0;
+}
+.po-sdk__btn {
+  margin-top: 16px;
+}
+.po-cmd {
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--po-dark);
+}
+.po-cmd__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px 8px 18px;
+  border-bottom: 1px solid #262c36;
+  color: #9aa4b1;
+  font-size: 13px;
+}
+.po-cmd__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #3a424d;
+  border-radius: 8px;
+  background: #1b2029;
+  color: #e6e8eb;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.po-cmd__copy:hover {
+  background: #252b35;
+}
+.po-cmd pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 14px 18px 16px;
+  color: #d5dbe2;
+  font-family: var(--po-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre;
+  scrollbar-width: thin;
+  scrollbar-color: #3a424d transparent;
+}
+.po-cmd pre code,
+.po code.po-inline,
+.po-sdk__tool code {
+  font-size: 13px;
+}
+.po-inline {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--po-soft);
+  color: var(--po-ink);
+  font-family: var(--po-mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.po-sdk__tools {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+.po-sdk__tools li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: 14.5px;
+  color: var(--po-muted);
+}
+.po-sdk__tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--po-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--po-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.po-sdk__tool code {
+  font-family: var(--po-mono);
+  font-size: 13px;
+}
+.po-sdk__tool:hover {
+  border-color: var(--po-line-2);
+  background: var(--po-soft);
+}
+.po-sdk__tool-ok {
+  opacity: 0;
+  color: var(--po-brand);
+}
+.po-sdk__tool:active .po-sdk__tool-ok {
+  opacity: 1;
+}
+.po-sdk__docs {
+  margin-top: 8px;
+}
+@media (max-width: 860px) {
+  .po-sdk > li {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .po-sdk__n {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  .po-inline {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .po-skel,
   .po-spin {

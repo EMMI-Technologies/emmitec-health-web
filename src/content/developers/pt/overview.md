@@ -26,7 +26,7 @@ O celular também recebe o alerta na hora, na resposta da medição. Use isso pa
 | Parte | Onde roda | O que faz |
 |---|---|---|
 | Partner API | Seu backend | Cria pacientes, gera tokens de sessão, configura o webhook, lê histórico, define limites de alerta. |
-| SDK para Expo (`emmitec-rpm`) | Seu app | Permissões de Bluetooth, busca do aparelho, leitura e envio da medição, fila offline. |
+| SDK para Expo (`@emmitec/rpm`) | Seu app | Permissões de Bluetooth, busca do aparelho, leitura e envio da medição, fila offline. |
 | Webhooks | Seu backend | Recebe `reading.alert` (e, se quiser, todo `reading.created`) em chamadas HTTPS assinadas. |
 | [Portal do cliente](/developers/customer-portal) | Seu navegador | Mostra o plano, copia e gera chaves, configura o webhook, liga ou desliga os alertas, acompanha as entregas. |
 

@@ -79,7 +79,7 @@ if reading["alert"]:
 ```
 
 ```ts tab="TypeScript SDK"
-import { EmmiTec } from 'emmitec-rpm'
+import { EmmiTec } from '@emmitec/rpm'
 
 // In the app, with the session token already configured.
 // measuredAt defaults to now, source to 'manual', externalId is generated.

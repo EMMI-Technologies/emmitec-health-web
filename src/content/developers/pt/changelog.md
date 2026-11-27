@@ -7,11 +7,19 @@ description: A versão principal está na URL e a data da versão da API vem em 
 
 - **Versão principal no caminho.** Tudo neste site é `/partner/v1`.
 - **Data da versão da API.** O `GET /ping` devolve o `apiVersion`, e todo envelope de webhook traz o mesmo `apiVersion`. Hoje ele é `2026-11-24`.
-- **Versão do SDK.** O `emmitec-rpm` tem a própria numeração, começando em `1.0.0`. Hoje ela é `1.1.0`.
+- **Versão do SDK.** O SDK tem a própria numeração, começando em `1.0.0`. Hoje ela é `1.2.0`, o pacote privado `@emmitec/rpm` (até a 1.1.0 era o público `emmitec-rpm`).
 
 Monte a sua integração para continuar funcionando quando a API crescer: ignore campos que você não conhece, aceite tipos de evento que você não trata (responda `2xx` e siga em frente) e decida pelo `code`, não pelas mensagens de erro.
 
 ## Changelog
+
+### 2026-11-27: @emmitec/rpm 1.2.0, pacote privado e comandos de suporte
+
+- O SDK agora é o pacote privado `@emmitec/rpm` (acesso por conta do npm, veja [Instale](/developers/sdk#instale)). O código é o mesmo: `npx @emmitec/rpm init` passa um projeto do `emmitec-rpm` para o novo.
+- [Comandos de suporte](/developers/sdk#comandos-de-suporte): `npx @emmitec/rpm doctor`, `init`, `ping`, `devices`, `support`, em português e inglês.
+- `EmmiTec.support.report()` / `support.text()` e `EmmiTec.setLogLevel()` no app.
+- Documentação dentro do pacote (`docs/`) e exemplos nas funções principais, no seu editor.
+- O cabeçalho `EmmiTec-Client` continua começando com `emmitec-rpm/` e a versão.
 
 ### 2026-11-24: emmitec-rpm 1.1.0 e diagnóstico
 

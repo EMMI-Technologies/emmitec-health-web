@@ -102,7 +102,7 @@ The SDK returns the alert as soon as the reading is saved. Show it on the screen
 
 ```tsx title="MeasureScreen.tsx"
 import { Text, View } from 'react-native'
-import { useMeasurement } from 'emmitec-rpm'
+import { useMeasurement } from '@emmitec/rpm'
 
 export function MeasureScreen() {
   const m = useMeasurement('blood_pressure')
